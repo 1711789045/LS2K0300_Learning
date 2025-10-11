@@ -368,6 +368,63 @@ include_directories(../../libraries/zf_components)
    - PID控制器
    - 速度规划算法
 
+## Git 工作流程（重要）
+
+**⚠️ 强制要求：在 C_Car_project 下工作时，每次代码更改后必须提交到 Git！**
+
+### 标准工作流程
+
+每次完成代码修改后，立即执行：
+
+```bash
+# 1. 查看更改
+git status
+git diff
+
+# 2. 添加更改
+git add C_Car_project/
+
+# 3. 提交（使用描述性消息）
+git commit -m "描述性的提交信息
+
+- 具体修改内容1
+- 具体修改内容2
+
+🤖 Generated with Claude Code"
+
+# 4. 推送到 GitHub（可选，根据需要）
+git push github master
+```
+
+### 提交原则
+
+1. **小步提交**: 每完成一个小功能或修复一个问题就提交
+2. **清晰消息**: 提交信息要说明改了什么、为什么改
+3. **可回滚**: 每个提交都应该是可独立回滚的功能单元
+4. **保持频繁**: 宁可多提交也不要积累大量未提交的修改
+
+### 示例场景
+
+- ✅ 修改了图像处理参数 → 立即提交
+- ✅ 添加了电机控制代码 → 立即提交
+- ✅ 调试修复了一个 bug → 立即提交
+- ✅ 更新了 PID 参数 → 立即提交
+
+### 回滚方法
+
+如果需要回滚到之前的版本：
+
+```bash
+# 查看提交历史
+git log --oneline
+
+# 回滚到指定提交
+git reset --hard <commit-id>
+
+# 或者只回滚某个文件
+git checkout <commit-id> -- C_Car_project/loongson_project/code/image.cpp
+```
+
 ## 开发注意事项
 
 1. **不要下载ZIP压缩包**: 必须使用 `git clone` 克隆仓库，否则会导致文件权限问题
@@ -377,6 +434,7 @@ include_directories(../../libraries/zf_components)
 5. **TCP/UDP调试**: 配合逐飞助手上位机软件使用
 6. **图像传输**: 支持多种边界显示模式(仅图像、X边界、Y边界、XY边界、仅边界)
 7. **工作目录**: 主要开发在 `C_Car_project/loongson_project/` 进行，这是四轮循迹小车的完整实现
+8. **Git 提交**: **每次代码修改后必须立即提交到 Git，方便回滚和版本管理**
 
 ## 许可证
 
