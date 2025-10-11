@@ -14,7 +14,7 @@
 struct pwm_info motor_1_pwm_info;
 struct pwm_info motor_2_pwm_info;
 
-#define SPEED_LIMIT             6000           //速度上限
+#define SPEED_LIMIT             6000           // 閫熷害闄愬埗
 
 #define CAR_B                   15
 #define CAR_L                   19
@@ -24,6 +24,15 @@ extern uint8 differential_mode;
 extern uint8 motor_f;
 extern int16 encoder_data_l;
 extern int16 encoder_data_r;
+extern int16 speed_l, speed_r;
+extern float motor_pid_kp, motor_pid_ki, motor_pid_kd;
+
+// 宸�熸帶鍒跺弬鏁帮紙闇�鍦ㄥ叾浠栧湴鏂瑰畾涔夛級
+extern float dif_speed_reduce;
+extern float dif_speed_plus;
+extern int16 speed;
+extern uint8 start_time;
+
 void motor_init(void);
 void motor_set_pid(float kp,float ki,float kd);
 void motor_setpwm(uint8 motor,int16 speed);

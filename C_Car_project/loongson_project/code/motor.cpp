@@ -1,18 +1,17 @@
 #include "zf_common_headfile.h"
-#include  "motor.h"
+#include "motor.h"
 #include "pid.h"
 #include "auto_menu.h"
 #include "image.h"
 #include "control.h"
 #include "servo.h"
 #include "beep.h"
+#include "encoder.h"
 #include <math.h>
-//Õ¼¿Õ±È×î´óÖµÊÇ10000
+//Õ¼ï¿½Õ±ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½10000
 
 uint8 go_flag = 0,stop_time = 0,stop_flag = 0,block_time = 0;
 uint8 motor_f = 0;
-int16 encoder_data_l = 0;
-int16 encoder_data_r = 0;
 int16 speed_l = 0,speed_r = 0;
 
 static PID_INCREMENT_TypeDef pid_left = {0};
@@ -22,8 +21,14 @@ float motor_pid_kp = 8.0,motor_pid_ki = 2.0,motor_pid_kd = 4.0;
 uint8 differential_mode = 0;
 
 void motor_init(void){
-	pwm_get_dev_info(MOTOR1_PWM, &motor_1_pwm_info);
-    pwm_get_dev_info(MOTOR2_PWM, &motor_2_pwm_info);
+	pwm_get_dev_info(MOTOR_L_PWM_CH4, &motor_1_pwm_info);
+    pwm_get_dev_info(MOTOR_R_PWM_CH2, &motor_2_pwm_info);
+
+    printf("Motor initialized.\r\n");
+    printf("Motor L PWM freq = %d Hz, duty_max = %d\r\n",
+           motor_1_pwm_info.freq, motor_1_pwm_info.duty_max);
+    printf("Motor R PWM freq = %d Hz, duty_max = %d\r\n",
+           motor_2_pwm_info.freq, motor_2_pwm_info.duty_max);
 }
 
 void motor_set_pid(float kp,float ki,float kd){
@@ -143,9 +148,9 @@ void motor_stop(void){
 		beep_flag = 1;
 		stop_flag = 0;
 		pit_10ms_timer->stop();
-		pit_100ms_timer->stop();			
-		pwm_set_duty(MOTOR1_PWM, 0);   
-    	pwm_set_duty(MOTOR2_PWM, 0);    
+		pit_100ms_timer->stop();
+		pwm_set_duty(MOTOR_L_PWM_CH4, 0);
+    	pwm_set_duty(MOTOR_R_PWM_CH2, 0);
 	}
 }
 
