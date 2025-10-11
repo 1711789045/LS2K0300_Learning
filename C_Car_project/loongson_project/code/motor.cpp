@@ -8,8 +8,12 @@
 #include "beep.h"
 #include "encoder.h"
 #include <math.h>
-//ռ�ձ����ֵ��10000
 
+// PWM 信息结构体
+struct pwm_info motor_1_pwm_info;
+struct pwm_info motor_2_pwm_info;
+
+// 电机控制变量
 uint8 go_flag = 0,stop_time = 0,stop_flag = 0,block_time = 0;
 uint8 motor_f = 0;
 int16 speed_l = 0,speed_r = 0;
