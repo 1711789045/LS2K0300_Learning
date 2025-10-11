@@ -7,22 +7,23 @@
 #include "servo.h"
 #include "beep.h"
 #include "encoder.h"
+#include "pit.h"
 #include <math.h>
 
 // PWM 信息结构体
 struct pwm_info motor_1_pwm_info;
 struct pwm_info motor_2_pwm_info;
 
-// 电机控制变量
-uint8 go_flag = 0,stop_time = 0,stop_flag = 0,block_time = 0;
+// 电机控制变量（go_flag, stop_time, stop_flag 在 control.cpp 中定义）
+uint8 block_time = 0;
 uint8 motor_f = 0;
+uint8 differential_mode = 0;  // 差速模式标志
 int16 speed_l = 0,speed_r = 0;
 
 static PID_INCREMENT_TypeDef pid_left = {0};
 static PID_INCREMENT_TypeDef pid_right = {0};
 
 float motor_pid_kp = 8.0,motor_pid_ki = 2.0,motor_pid_kd = 4.0;
-uint8 differential_mode = 0;
 
 void motor_init(void){
 	pwm_get_dev_info(MOTOR_L_PWM_CH4, &motor_1_pwm_info);
