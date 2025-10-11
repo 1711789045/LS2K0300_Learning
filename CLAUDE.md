@@ -370,11 +370,11 @@ include_directories(../../libraries/zf_components)
 
 ## Git 工作流程（重要）
 
-**⚠️ 强制要求：在 C_Car_project 下工作时，每次代码更改后必须提交到 Git！**
+**⚠️ 强制要求：在 C_Car_project 下工作时，每次代码更改后必须提交到 Git 并推送到远程仓库！**
 
 ### 标准工作流程
 
-每次完成代码修改后，立即执行：
+每次完成代码修改后，**必须**立即执行以下步骤：
 
 ```bash
 # 1. 查看更改
@@ -392,9 +392,14 @@ git commit -m "描述性的提交信息
 
 🤖 Generated with Claude Code"
 
-# 4. 推送到 GitHub（可选，根据需要）
+# 4. 推送到 GitHub（必须执行！）
 git push github master
 ```
+
+**重要提醒：**
+- 第4步（push）是**必须的**，不是可选的！
+- 只有 commit 而不 push，代码只保存在本地，无法在远程仓库备份
+- 每次修改后都要完成 commit + push 两步操作
 
 ### 提交原则
 
