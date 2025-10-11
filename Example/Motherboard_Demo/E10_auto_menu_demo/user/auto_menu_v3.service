@@ -1,0 +1,22 @@
+[Unit]
+Description=LS2K0300 Auto Menu System
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/root/E10_auto_menu_demo
+ExecStart=/home/root/E10_auto_menu_demo/E10_auto_menu_demo
+Restart=on-failure
+RestartSec=5
+StandardInput=tty
+StandardOutput=inherit
+StandardError=inherit
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+KillMode=mixed
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

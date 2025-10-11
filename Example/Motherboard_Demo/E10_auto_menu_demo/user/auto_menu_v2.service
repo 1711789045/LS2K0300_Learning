@@ -1,0 +1,15 @@
+[Unit]
+Description=LS2K0300 Auto Menu System V2
+After=network.target multi-user.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/home/root/E10_auto_menu_demo/E10_auto_menu_demo
+Restart=always
+RestartSec=5
+Environment=DISPLAY=:0
+Environment=XDG_RUNTIME_DIR=/run/user/0
+
+[Install]
+WantedBy=multi-user.target

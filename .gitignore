@@ -1,54 +1,54 @@
-# 编译生成的文件和目录
+# 构建输出目录
+**/out/*
+!**/out/本文件夹作用.txt
+
+# CMake 生成文件
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!cross.cmake
+!CMakeLists.txt
+
+# 编译输出
 *.o
-*.mod.c
-*.symvers
-*.order
-*.dtb
-.vmlinux*
-initrd.img
-System.map
-modules.order
-Module.symvers
-.tmp_versions/
-*.cmd
-*.d
+*.o.d
+*.a
+*.so
+*.bin
+*.elf
 
-# 内核配置文件
-.config
-.config.old
+# 可执行文件（保留脚本）
+**/out/E*
+**/out/loongson_project
+**/out/project
 
-# 日志文件
-*.log
-
-# 临时文件和备份文件
-*~
-*.bak
-
-# 调试信息文件
-*.debug
-
-# 文档生成的文件
-Documentation/output/
-
-# 工具生成的文件
-scripts/kconfig/.tmp*
-scripts/kconfig/conf.o
-scripts/kconfig/zconf.tab.c
-scripts/kconfig/zconf.tab.h
-scripts/kconfig/zconf.lex.c
-scripts/kconfig/zconf.hash.c
-
-# 交叉编译相关的临时文件
-arch/*/boot/compressed/
-arch/*/boot/dts/
-
-# 自动生成的头文件
-include/generated/
-include/config/
-
-# 内核模块签名文件
-*.sign
-
-# 编辑器产生的文件
-.idea/
+# IDE 和编辑器
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Linux 内核编译产物
+ls2k0300_linux_4.19/.config
+ls2k0300_linux_4.19/.config.old
+ls2k0300_linux_4.19/.version
+ls2k0300_linux_4.19/.tmp_versions/
+ls2k0300_linux_4.19/include/config/
+ls2k0300_linux_4.19/include/generated/
+ls2k0300_linux_4.19/scripts/kconfig/.mconf-cfg
+ls2k0300_linux_4.19/arch/*/boot/
+ls2k0300_linux_4.19/vmlinux*
+ls2k0300_linux_4.19/System.map
+ls2k0300_linux_4.19/Module.symvers
+ls2k0300_linux_4.19/modules.builtin
+ls2k0300_linux_4.19/modules.order
+ls2k0300_linux_4.19/.*.cmd
+
+# 临时文件
+*.tmp
+*.bak
+*.log
