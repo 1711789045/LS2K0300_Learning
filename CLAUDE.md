@@ -149,14 +149,14 @@ make -j12
 - **E07_07/08/09**: TCP客户端(示波器、摄像头等)
 - **E09_14**: UVC摄像头+IPS200显示
 
-## Test/loongson_project - 四轮摄像头循迹小车项目
+## C_Car_project/loongson_project - 四轮摄像头循迹小车项目
 
-这是主要的开发项目，位于 `Test/loongson_project/`，实现了一个基于视觉的四轮循迹小车系统。
+这是主要的开发项目，位于 `C_Car_project/loongson_project/`，实现了一个基于视觉的四轮循迹小车系统。
 
 ### 项目结构
 
 ```
-Test/loongson_project/
+C_Car_project/loongson_project/
 ├── user/                           # 用户代码目录
 │   ├── main.cpp                    # 主程序入口
 │   ├── CMakeLists.txt              # CMake配置
@@ -303,7 +303,7 @@ beep_flag: 蜂鸣器触发计数器
 #### 快速构建
 
 ```bash
-cd Test/loongson_project/user
+cd C_Car_project/loongson_project/user
 ./build.sh
 ```
 
@@ -316,7 +316,7 @@ cd Test/loongson_project/user
 #### 手动构建
 
 ```bash
-cd Test/loongson_project/out
+cd C_Car_project/loongson_project/out
 cmake ../user
 make -j12
 scp -O loongson_project root@172.20.10.7:/home/root/
@@ -324,11 +324,11 @@ scp -O loongson_project root@172.20.10.7:/home/root/
 
 #### 库文件配置
 
-项目使用独立的库副本 (`Test/libraries/`)，与主库结构相同:
-- `Test/libraries/zf_common/`
-- `Test/libraries/zf_driver/`
-- `Test/libraries/zf_device/`
-- `Test/libraries/zf_components/`
+项目使用独立的库副本 (`C_Car_project/libraries/`)，与主库结构相同:
+- `C_Car_project/libraries/zf_common/`
+- `C_Car_project/libraries/zf_driver/`
+- `C_Car_project/libraries/zf_device/`
+- `C_Car_project/libraries/zf_components/`
 
 CMakeLists.txt 中的包含路径:
 ```cmake
@@ -376,7 +376,7 @@ include_directories(../../libraries/zf_components)
 4. **内核依赖**: 某些功能(如UVC摄像头、PIT等)需要使用逐飞科技提供的定制内核
 5. **TCP/UDP调试**: 配合逐飞助手上位机软件使用
 6. **图像传输**: 支持多种边界显示模式(仅图像、X边界、Y边界、XY边界、仅边界)
-7. **工作目录**: 主要开发在 `Test/loongson_project/` 进行，这是四轮循迹小车的完整实现
+7. **工作目录**: 主要开发在 `C_Car_project/loongson_project/` 进行，这是四轮循迹小车的完整实现
 
 ## 许可证
 
