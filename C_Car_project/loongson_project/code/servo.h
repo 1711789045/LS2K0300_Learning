@@ -51,4 +51,10 @@ void servo_process(void);
 extern float angle;
 extern uint8 servo_f;
 
+// 舵机PID参数（用于菜单调节）
+extern float kp;
+extern float ki;
+extern float kd1;
+extern float kd2;
+
 #endif

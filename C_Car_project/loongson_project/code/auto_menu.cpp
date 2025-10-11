@@ -1,8 +1,9 @@
 #include "zf_common_headfile.h"
 #include "auto_menu.h"
 #include "key.h"
+#include "servo.h"
 
-//°´¼üĞÅºÅÁ¿¼°°´¼ü·´À¡ĞÅºÅÁ¿
+//ï¿½ï¿½ï¿½ï¿½ï¿½Åºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Åºï¿½ï¿½ï¿½
 #ifdef  MENU_USE_RTT
 extern rt_sem_t key1_sem;
 extern rt_sem_t key2_sem;
@@ -10,11 +11,11 @@ extern rt_sem_t key3_sem;
 extern rt_sem_t key4_sem;
 extern rt_sem_t button_feedback_sem;
 #endif
-/*-------------------°´¼ü--------------------
-                    button1·µ»Ø
-                    button2È·¶¨
-                    button3ÏÂ·­
-                    button4ÉÏ·­
+/*-------------------ï¿½ï¿½ï¿½ï¿½--------------------
+                    button1ï¿½ï¿½ï¿½ï¿½
+                    button2È·ï¿½ï¿½
+                    button3ï¿½Â·ï¿½
+                    button4ï¿½Ï·ï¿½
 ---------------------------------------------*/
 uint8 button1=0,button2=0,button3=0,button4=0;
 uint8 first_in_page_flag = 0;
@@ -22,8 +23,8 @@ uint8 is_clear_flag=0;
 
 uint8* p_index_xy_dad,*p_index_xy_son;
 
-static menu_unit *p_unit	 	=NULL;//µ¥ÔªÖ¸Õë
-static menu_unit *p_unit_last 	=NULL;//ÉÏÒ»´ÎµÄµ¥ÔªÖ¸Õë
+static menu_unit *p_unit	 	=NULL;//ï¿½ï¿½ÔªÖ¸ï¿½ï¿½
+static menu_unit *p_unit_last 	=NULL;//ï¿½ï¿½Ò»ï¿½ÎµÄµï¿½ÔªÖ¸ï¿½ï¿½
 
 static menu_unit *P_dad_head 	= NULL;
 
@@ -36,7 +37,7 @@ uint8       my_index[MEM_SIZE*2];
 static int  static_cnt=0;
 #endif
 
-//º¯ÊıÊı×éÖ¸Õë
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
 void (*current_operation_menu)(void);
 
 void dad_name_init(){
@@ -59,7 +60,7 @@ void dad_name_init(){
 	free(p);
 }
 
-//×Ó²Ëµ¥µ¥ÔªÁ¬½Ó
+//ï¿½Ó²Ëµï¿½ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½
 void son_link(menu_unit *p_1,menu_unit *p_2,menu_unit *dad)
 {
 		p_1->up 	=   p_2;
@@ -70,7 +71,7 @@ void son_link(menu_unit *p_1,menu_unit *p_2,menu_unit *dad)
 		p_2->back	=	dad;
 }
 
-//¸¸²Ëµ¥µ¥ÔªÁ¬½Ó
+//ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½
 void dad_link(menu_unit *p_1,menu_unit *p_2,menu_unit *son)
 {	
 	p_1-> up	= p_2;
@@ -92,14 +93,14 @@ void unit_index_init(menu_unit *_p1,uint8 ind_0,uint8 ind_1){
 	_p1->m_index[1]=ind_1;	
 }
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      ´ıĞŞ¸Ä²ÎÊıÅäÖÃ
-//  @param      p_param     	   		´ıĞŞ¸Ä²ÎÊıÖ¸Õë
-//  @param      t     	        		´ıĞŞ¸Ä²ÎÊıÊı¾İÀàĞÍ
-//  @param      delta       	    	°´¼üÃ¿´¥·¢Ò»´Î£¬²ÎÊıËùĞŞ¸ÄµÄ´óĞ¡
-//  @param      num     	  		 		²ÎÊıµÄÕûÊıÏÔÊ¾Î»Êı
-//  @param      point_num     	 		²ÎÊıµÄĞ¡ÊıÏÔÊ¾Î»Êı   
-//  @param      t1     	 						µ¥ÔªÖÖÀà   
-//  @param      _name[STR_LEN_MAX]  ²ÎÊıÃû×Ö
+//  @brief      ï¿½ï¿½ï¿½Ş¸Ä²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//  @param      p_param     	   		ï¿½ï¿½ï¿½Ş¸Ä²ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+//  @param      t     	        		ï¿½ï¿½ï¿½Ş¸Ä²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//  @param      delta       	    	ï¿½ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Î£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ş¸ÄµÄ´ï¿½Ğ¡
+//  @param      num     	  		 		ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾Î»ï¿½ï¿½
+//  @param      point_num     	 		ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½Ê¾Î»ï¿½ï¿½   
+//  @param      t1     	 						ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½   
+//  @param      _name[STR_LEN_MAX]  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //  @return     void
 //  Sample usage:               			unit_param_set(&param_test,TYPE_FLOAT,0.001,1,4,"par_test");
 //-------------------------------------------------------------------------------------------------------------------
@@ -189,9 +190,9 @@ void unit_param_set(void* p_param,type_value t,float delta,uint8 num,uint8 point
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      ³õÊ¼»¯º¯Êı²Ëµ¥µ¥Ôª
-//  @param      fun     	   				Ğè´¥·¢µÄº¯ÊıÖ¸Õë
-//  @param      _name       	  		ÏÔÊ¾µÄ×Ö·û´®  
+//  @brief      ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½Ôª
+//  @param      fun     	   				ï¿½è´¥ï¿½ï¿½ï¿½Äºï¿½ï¿½ï¿½Ö¸ï¿½ï¿½
+//  @param      _name       	  		ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½  
 //  @return     void
 //  Sample usage:               		fun_init(Flash_Read,"flash_read");
 //-------------------------------------------------------------------------------------------------------------------
@@ -235,7 +236,7 @@ void fun_init(void (*fun)(),const char* _name)
 	p1->type_t = USE_FUN;
 }
 
-//×Ö·û´®Ë÷Òı³õÊ¼»¯
+//ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 void index_xy_init()
 {
 #ifdef USE_STATIC_MENU
@@ -264,7 +265,7 @@ void index_xy_init()
 
 void flash_init_wz()
 {
-	//³õÊ¼»¯ĞèÒª±£´æµÄ²ÎÊı  °´Ë÷ÒıË³Ğò³õÊ¼»¯ÏÂÈ¥£¨×¢Òâ£ºÔÚdata_flash.hÖĞĞèÉùÃ÷²ÎÊı£©
+	//ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë³ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½È¥ï¿½ï¿½×¢ï¿½â£ºï¿½ï¿½data_flash.hï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	#if AUTO_READ
 	menu_unit* p;
 	p = P_dad_head->enter;
@@ -280,21 +281,21 @@ void flash_init_wz()
 			break;
 	}
 	#endif
-	//index³õÊ¼»¯£¬²»ÓÃ¹Ü
-	//ÉÏµç¶ÁÈ¡²ÎÊı
+	//indexï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¹ï¿½
+	//ï¿½Ïµï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½
 	#if AUTO_READ
 	flash_index_init();
 	flash_read();
 	#endif
 }
 
-//ÊÇ·ñÇå¿ÕÆÁÄ»
+//ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä»
 uint8 is_menu_clear()
 {
 	return (((p_unit->back)!=(p_unit))&&button1)||(((p_unit->enter)!=(p_unit))&&button2);
 }
 uint8 begin_menu_flag=1;
-//¸¸¼¶²Ëµ¥ÏÔÊ¾
+//ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½Ê¾
 void center_menu()
 {
 	uint8 index = p_unit->m_index[0];
@@ -327,7 +328,7 @@ void center_menu()
 	}
 }
 
-//×Ó¼¶²Ëµ¥ÏÔÊ¾
+//ï¿½Ó¼ï¿½ï¿½Ëµï¿½ï¿½ï¿½Ê¾
 void assist_menu()
 {
 	uint8 index = p_unit->m_index[1];
@@ -359,11 +360,11 @@ void assist_menu()
 }
 	
 //-------------------------------------------------------------------------------------------------------------------
-// @brief		ĞŞ¸Ä²ÎÊı´óĞ¡
-// @param		param  	 	²ÎÊı
+// @brief		ï¿½Ş¸Ä²ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¡
+// @param		param  	 	ï¿½ï¿½ï¿½ï¿½
 // @return	void
-// Sample usage:				change_value(TYPE_FLOAT,0.01,&P_speed);button2°´ÏÂÊ±ĞŞ¸ÄP_speedµÄÖµÎªP_speed+0.01
-// attention	 :				×¢Òâ´ıĞŞ¸Ä²ÎÊıµÄÀàĞÍ£¨TYPE_DOUBLE,TYPE_FLOAT,TYPE_INT...ÆäËûÀàĞÍ¿É×ÔĞĞÌí¼Ó£©
+// Sample usage:				change_value(TYPE_FLOAT,0.01,&P_speed);button2ï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ş¸ï¿½P_speedï¿½ï¿½ÖµÎªP_speed+0.01
+// attention	 :				×¢ï¿½ï¿½ï¿½ï¿½Ş¸Ä²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í£ï¿½TYPE_DOUBLE,TYPE_FLOAT,TYPE_INT...ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó£ï¿½
 //-------------------------------------------------------------------------------------------------------------------
 void change_value(param_set* param)
 {
@@ -437,7 +438,7 @@ void change_value(param_set* param)
 	//last_index = p_unit->m_index[1];	
 }
 
-//ÊÇ·ñÎªµÚÒ»´Î½øÈëĞÂÒ³Ãæ
+//ï¿½Ç·ï¿½Îªï¿½ï¿½Ò»ï¿½Î½ï¿½ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½
 void is_first_in_page()
 {
 	first_in_page_flag = (p_unit_last!=p_unit)&&(button1||button2);
@@ -446,28 +447,28 @@ void is_first_in_page()
 void show_menu()
 {
 	if(p_unit->m_index[1]==255)
-		center_menu();//ÏÔÊ¾¸¸²Ëµ¥
+		center_menu();//ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½Ëµï¿½
 	else
-		assist_menu();//ÏÔÊ¾×Ó²Ëµ¥
+		assist_menu();//ï¿½ï¿½Ê¾ï¿½Ó²Ëµï¿½
 }
 
-//Ğ§¹ûº¯Êı
+//Ğ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void fun_menu()
 {
 	if(p_unit->type_t==NORMAL_PAR||p_unit->type_t==PID_PAR){
 		change_value(p_unit->par_set);
 	}else{
-		current_operation_menu = p_unit->current_operation;		//º¯ÊıÖ¸Õë	
+		current_operation_menu = p_unit->current_operation;		//ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½	
 		(*current_operation_menu)();
 	}
 }
-//ÏÔÊ¾½ø³Ì¹³×Óº¯Êı
+//ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½Óºï¿½ï¿½ï¿½
 void show_process(void *parameter)
 {
     #ifdef  MENU_USE_RTT
     while(1)
 	{	
-		//²âÊÔ		
+		//ï¿½ï¿½ï¿½ï¿½		
 		button1=(RT_EOK==rt_sem_take(key1_sem,RT_WAITING_NO));
 		button2=(RT_EOK==rt_sem_take(key2_sem,RT_WAITING_NO));
 		button3=(RT_EOK==rt_sem_take(key3_sem,RT_WAITING_NO));
@@ -493,14 +494,14 @@ void show_process(void *parameter)
 	
 		is_first_in_page();
 		
-		//ÏÔÊ¾º¯Êı
+		//ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½
 		show_menu();
 		
-		//Ğ§¹ûº¯Êı
+		//Ğ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		fun_menu();
 		
 	    p_unit_last=p_unit;
-		//Ïß³Ì¹ÒÆğ	
+		//ï¿½ß³Ì¹ï¿½ï¿½ï¿½	
 		rt_thread_mdelay(10);
 	}
     #else
@@ -522,48 +523,48 @@ void show_process(void *parameter)
 
     is_first_in_page();
 
-    //ÏÔÊ¾º¯Êı
+    //ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½
     show_menu();
 
-    //Ğ§¹ûº¯Êı
+    //Ğ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     fun_menu();
 
     p_unit_last=p_unit;
     #endif
 }
 
-//²Ëµ¥ÏµÍ³³õÊ¼»¯(Îğ¶¯Ë³Ğò£¡)
+//ï¿½Ëµï¿½ÏµÍ³ï¿½ï¿½Ê¼ï¿½ï¿½(ï¿½ï¿½Ë³ï¿½ï¿½)
 void menu_init()
 {
-    /*---------------ÆÁÄ»³õÊ¼»¯----------------*/
+    /*---------------ï¿½ï¿½Ä»ï¿½ï¿½Ê¼ï¿½ï¿½----------------*/
     screen_init("/dev/fb0");
 
-    /*---------------°´¼ü³õÊ¼»¯----------------*/
+    /*---------------ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½----------------*/
     key_into();
 
-    /*---------------´ıĞŞ¸Ä²ÎÊı----------------*/
+    /*---------------ï¿½ï¿½ï¿½Ş¸Ä²ï¿½ï¿½ï¿½----------------*/
     UNIT_SET();
 
-    /*---------------µ¼ÈëµÄ»Øµ÷º¯Êı----------------*/
+    /*---------------ï¿½ï¿½ï¿½ï¿½Ä»Øµï¿½ï¿½ï¿½ï¿½ï¿½----------------*/
     FUN_INIT();
 
-    /*---------------²Ëµ¥Ãû×Ö³õÊ¼»¯----------------*/
+    /*---------------ï¿½Ëµï¿½ï¿½ï¿½ï¿½Ö³ï¿½Ê¼ï¿½ï¿½----------------*/
     dad_name_init();
 
-    /*---------------×Ö·û´®Ë÷Òı³õÊ¼»¯----------------*/
+    /*---------------ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½----------------*/
     index_xy_init();
 
-    /*-----------------ÅäÖÃflash---------------*/
+    /*-----------------ï¿½ï¿½ï¿½ï¿½flash---------------*/
     #ifdef USE_FLASH
     flash_init_wz();
     #endif
 
-    /*----------------²Ëµ¥Ïß³Ì³õÊ¼»¯----------------*/
+    /*----------------ï¿½Ëµï¿½ï¿½ß³Ì³ï¿½Ê¼ï¿½ï¿½----------------*/
     #ifdef  MENU_USE_RTT
     rt_thread_t tid;
-    //´´½¨ÏÔÊ¾Ïß³Ì
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ß³ï¿½
     tid = rt_thread_create("display", show_process, RT_NULL, 1024*2, 11, 5);
-    //Æô¶¯ÏÔÊ¾Ïß³Ì
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ß³ï¿½
     if(RT_NULL != tid)
     {
         rt_thread_startup(tid);
@@ -571,7 +572,7 @@ void menu_init()
     #endif
 }
 
-//²Ëµ¥¿ÕÏĞº¯Êı
+//ï¿½Ëµï¿½ï¿½ï¿½ï¿½Ğºï¿½ï¿½ï¿½
 void NULL_FUN(){
 
 }
@@ -583,16 +584,22 @@ uint16 test_d=20;
 uint32 test_e=32;
 
 void UNIT_SET(){
-	//²Ëµ¥µ¥Ôªµ÷²Î²ÎÊı³õÊ¼»¯
+	//ï¿½Ëµï¿½ï¿½ï¿½Ôªï¿½ï¿½ï¿½Î²ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
     unit_param_set(&test_a,TYPE_FLOAT ,0.5  ,3  ,3,NORMAL_PAR,"test_a");
     unit_param_set(&test_b,TYPE_INT   ,2    ,6  ,0,NORMAL_PAR,"test_b");
     unit_param_set(&test_c,TYPE_DOUBLE,11.11,4  ,4,NORMAL_PAR,"test_c");
     unit_param_set(&test_d,TYPE_UINT16,1    ,6  ,0,NORMAL_PAR,"test_d");
     unit_param_set(&test_e,TYPE_UINT32,1    ,6  ,0,NORMAL_PAR,"test_e");
+
+    // èˆµæœºPIDå‚æ•°
+    unit_param_set(&kp,     TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp");
+    unit_param_set(&ki,     TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_ki");
+    unit_param_set(&kd1,    TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd1");
+    unit_param_set(&kd2,    TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd2");
 }
 
 void FUN_INIT(){
-	//²Ëµ¥µ¥Ôªº¯ÊıÖ¸Õë³õÊ¼»¯
+	//ï¿½Ëµï¿½ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
 	fun_init(NULL_FUN	,"NULL_FUN1");
 	fun_init(NULL_FUN	,"NULL_FUN2");
 }

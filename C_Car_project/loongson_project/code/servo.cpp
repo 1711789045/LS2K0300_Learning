@@ -42,6 +42,12 @@ static struct pwm_info servo_pwm_info;
 // PID 控制器
 static PID_POSITIONAL_TypeDef turn_pid = {0};
 
+// 舵机PID参数（可通过菜单调节）
+float kp = 0.35;
+float ki = 0;
+float kd1 = 0.56;
+float kd2 = 0;
+
 // 舵机控制变量
 float angle = 0;
 float servo_pid_kp = 0.35;
