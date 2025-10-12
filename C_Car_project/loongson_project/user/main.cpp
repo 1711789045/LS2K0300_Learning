@@ -26,12 +26,12 @@ int all_init(){
     // 3. 初始化电机
     motor_init();
 
-    // 4. 初始化舵机
-    servo_init();
+   /*  // 4. 初始化舵机
+    servo_init(); */
 
-    // 5. 初始化编码器
+    /* // 5. 初始化编码器
     encoder_init();
-
+ */
     // 6. 初始化定时器
     pit_init();
 
@@ -75,17 +75,19 @@ int main(int, char**)
             if(go_flag == 0)
                 continue;
 
-            // 编码器处理（标志位驱动）
+            /* // 编码器处理（标志位驱动）
             encoder_process();
 
             // 舵机控制处理（标志位驱动）
             servo_process();
 
             // 电机控制处理（标志位驱动）
-            motor_process();
+            motor_process(); */
 
-            // 图像处理
-            image_process(IPS200_W, IPS200_H, 0);
+            // 图像处理（计时）
+            image_process_time_start();           // 开始计时
+            image_process(IMAGE_W, IMAGE_H, 0);   // 图像处理（显示模式0：仅图像）
+            image_process_time_end();             // 结束计时
         }
 
         // 短暂延时，避免CPU占用过高
