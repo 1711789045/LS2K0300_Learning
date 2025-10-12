@@ -4,7 +4,7 @@
 #include "servo.h"
 #include "control.h"
 
-//�����ź��������������ź���
+//锟斤拷锟斤拷锟脚猴拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟脚猴拷锟斤拷
 #ifdef  MENU_USE_RTT
 extern rt_sem_t key1_sem;
 extern rt_sem_t key2_sem;
@@ -12,11 +12,11 @@ extern rt_sem_t key3_sem;
 extern rt_sem_t key4_sem;
 extern rt_sem_t button_feedback_sem;
 #endif
-/*-------------------����--------------------
-                    button1����
-                    button2ȷ��
-                    button3�·�
-                    button4�Ϸ�
+/*-------------------锟斤拷锟斤拷--------------------
+                    button1锟斤拷锟斤拷
+                    button2确锟斤拷
+                    button3锟铰凤拷
+                    button4锟较凤拷
 ---------------------------------------------*/
 uint8 button1=0,button2=0,button3=0,button4=0;
 uint8 first_in_page_flag = 0;
@@ -24,8 +24,8 @@ uint8 is_clear_flag=0;
 
 uint8* p_index_xy_dad,*p_index_xy_son;
 
-static menu_unit *p_unit	 	=NULL;//��Ԫָ��
-static menu_unit *p_unit_last 	=NULL;//��һ�εĵ�Ԫָ��
+static menu_unit *p_unit	 	=NULL;//锟斤拷元指锟斤拷
+static menu_unit *p_unit_last 	=NULL;//锟斤拷一锟轿的碉拷元指锟斤拷
 
 static menu_unit *P_dad_head 	= NULL;
 
@@ -38,7 +38,7 @@ uint8       my_index[MEM_SIZE*2];
 static int  static_cnt=0;
 #endif
 
-//��������ָ��
+//锟斤拷锟斤拷锟斤拷锟斤拷指锟斤拷
 void (*current_operation_menu)(void);
 
 void dad_name_init(){
@@ -61,7 +61,7 @@ void dad_name_init(){
 	free(p);
 }
 
-//�Ӳ˵���Ԫ����
+//锟接菜碉拷锟斤拷元锟斤拷锟斤拷
 void son_link(menu_unit *p_1,menu_unit *p_2,menu_unit *dad)
 {
 		p_1->up 	=   p_2;
@@ -72,7 +72,7 @@ void son_link(menu_unit *p_1,menu_unit *p_2,menu_unit *dad)
 		p_2->back	=	dad;
 }
 
-//���˵���Ԫ����
+//锟斤拷锟剿碉拷锟斤拷元锟斤拷锟斤拷
 void dad_link(menu_unit *p_1,menu_unit *p_2,menu_unit *son)
 {	
 	p_1-> up	= p_2;
@@ -94,14 +94,14 @@ void unit_index_init(menu_unit *_p1,uint8 ind_0,uint8 ind_1){
 	_p1->m_index[1]=ind_1;	
 }
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      ���޸Ĳ�������
-//  @param      p_param     	   		���޸Ĳ���ָ��
-//  @param      t     	        		���޸Ĳ�����������
-//  @param      delta       	    	����ÿ����һ�Σ��������޸ĵĴ�С
-//  @param      num     	  		 		������������ʾλ��
-//  @param      point_num     	 		������С����ʾλ��   
-//  @param      t1     	 						��Ԫ����   
-//  @param      _name[STR_LEN_MAX]  ��������
+//  @brief      锟斤拷锟睫改诧拷锟斤拷锟斤拷锟斤拷
+//  @param      p_param     	   		锟斤拷锟睫改诧拷锟斤拷指锟斤拷
+//  @param      t     	        		锟斤拷锟睫改诧拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷
+//  @param      delta       	    	锟斤拷锟斤拷每锟斤拷锟斤拷一锟轿ｏ拷锟斤拷锟斤拷锟斤拷锟睫改的达拷小
+//  @param      num     	  		 		锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷示位锟斤拷
+//  @param      point_num     	 		锟斤拷锟斤拷锟斤拷小锟斤拷锟斤拷示位锟斤拷   
+//  @param      t1     	 						锟斤拷元锟斤拷锟斤拷   
+//  @param      _name[STR_LEN_MAX]  锟斤拷锟斤拷锟斤拷锟斤拷
 //  @return     void
 //  Sample usage:               			unit_param_set(&param_test,TYPE_FLOAT,0.001,1,4,"par_test");
 //-------------------------------------------------------------------------------------------------------------------
@@ -191,9 +191,9 @@ void unit_param_set(void* p_param,type_value t,float delta,uint8 num,uint8 point
 }
 
 //-------------------------------------------------------------------------------------------------------------------
-//  @brief      ��ʼ�������˵���Ԫ
-//  @param      fun     	   				�败���ĺ���ָ��
-//  @param      _name       	  		��ʾ���ַ���  
+//  @brief      锟斤拷始锟斤拷锟斤拷锟斤拷锟剿碉拷锟斤拷元
+//  @param      fun     	   				锟借触锟斤拷锟侥猴拷锟斤拷指锟斤拷
+//  @param      _name       	  		锟斤拷示锟斤拷锟街凤拷锟斤拷  
 //  @return     void
 //  Sample usage:               		fun_init(Flash_Read,"flash_read");
 //-------------------------------------------------------------------------------------------------------------------
@@ -237,7 +237,7 @@ void fun_init(void (*fun)(),const char* _name)
 	p1->type_t = USE_FUN;
 }
 
-//�ַ���������ʼ��
+//锟街凤拷锟斤拷锟斤拷锟斤拷锟斤拷始锟斤拷
 void index_xy_init()
 {
 #ifdef USE_STATIC_MENU
@@ -266,7 +266,7 @@ void index_xy_init()
 
 void flash_init_wz()
 {
-	//��ʼ����Ҫ����Ĳ���  ������˳���ʼ����ȥ��ע�⣺��data_flash.h��������������
+	//锟斤拷始锟斤拷锟斤拷要锟斤拷锟斤拷牟锟斤拷锟�  锟斤拷锟斤拷锟斤拷顺锟斤拷锟绞硷拷锟斤拷锟饺ワ拷锟阶拷猓猴拷锟絛ata_flash.h锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷
 	#if AUTO_READ
 	menu_unit* p;
 	p = P_dad_head->enter;
@@ -282,21 +282,21 @@ void flash_init_wz()
 			break;
 	}
 	#endif
-	//index��ʼ�������ù�
-	//�ϵ��ȡ����
+	//index锟斤拷始锟斤拷锟斤拷锟斤拷锟矫癸拷
+	//锟较碉拷锟饺★拷锟斤拷锟�
 	#if AUTO_READ
 	flash_index_init();
 	flash_read();
 	#endif
 }
 
-//�Ƿ������Ļ
+//锟角凤拷锟斤拷锟斤拷锟侥�
 uint8 is_menu_clear()
 {
 	return (((p_unit->back)!=(p_unit))&&button1)||(((p_unit->enter)!=(p_unit))&&button2);
 }
 uint8 begin_menu_flag=1;
-//�����˵���ʾ
+//锟斤拷锟斤拷锟剿碉拷锟斤拷示
 void center_menu()
 {
 	uint8 index = p_unit->m_index[0];
@@ -329,7 +329,7 @@ void center_menu()
 	}
 }
 
-//�Ӽ��˵���ʾ
+//锟接硷拷锟剿碉拷锟斤拷示
 void assist_menu()
 {
 	uint8 index = p_unit->m_index[1];
@@ -361,11 +361,11 @@ void assist_menu()
 }
 	
 //-------------------------------------------------------------------------------------------------------------------
-// @brief		�޸Ĳ�����С
-// @param		param  	 	����
+// @brief		锟睫改诧拷锟斤拷锟斤拷小
+// @param		param  	 	锟斤拷锟斤拷
 // @return	void
-// Sample usage:				change_value(TYPE_FLOAT,0.01,&P_speed);button2����ʱ�޸�P_speed��ֵΪP_speed+0.01
-// attention	 :				ע����޸Ĳ��������ͣ�TYPE_DOUBLE,TYPE_FLOAT,TYPE_INT...�������Ϳ��������ӣ�
+// Sample usage:				change_value(TYPE_FLOAT,0.01,&P_speed);button2锟斤拷锟斤拷时锟睫革拷P_speed锟斤拷值为P_speed+0.01
+// attention	 :				注锟斤拷锟斤拷薷牟锟斤拷锟斤拷锟斤拷锟斤拷停锟絋YPE_DOUBLE,TYPE_FLOAT,TYPE_INT...锟斤拷锟斤拷锟斤拷锟酵匡拷锟斤拷锟斤拷锟斤拷锟接ｏ拷
 //-------------------------------------------------------------------------------------------------------------------
 void change_value(param_set* param)
 {
@@ -439,7 +439,7 @@ void change_value(param_set* param)
 	//last_index = p_unit->m_index[1];	
 }
 
-//�Ƿ�Ϊ��һ�ν�����ҳ��
+//锟角凤拷为锟斤拷一锟轿斤拷锟斤拷锟斤拷页锟斤拷
 void is_first_in_page()
 {
 	first_in_page_flag = (p_unit_last!=p_unit)&&(button1||button2);
@@ -448,28 +448,28 @@ void is_first_in_page()
 void show_menu()
 {
 	if(p_unit->m_index[1]==255)
-		center_menu();//��ʾ���˵�
+		center_menu();//锟斤拷示锟斤拷锟剿碉拷
 	else
-		assist_menu();//��ʾ�Ӳ˵�
+		assist_menu();//锟斤拷示锟接菜碉拷
 }
 
-//Ч������
+//效锟斤拷锟斤拷锟斤拷
 void fun_menu()
 {
 	if(p_unit->type_t==NORMAL_PAR||p_unit->type_t==PID_PAR){
 		change_value(p_unit->par_set);
 	}else{
-		current_operation_menu = p_unit->current_operation;		//����ָ��	
+		current_operation_menu = p_unit->current_operation;		//锟斤拷锟斤拷指锟斤拷	
 		(*current_operation_menu)();
 	}
 }
-//��ʾ���̹��Ӻ���
+//锟斤拷示锟斤拷锟教癸拷锟接猴拷锟斤拷
 void show_process(void *parameter)
 {
     #ifdef  MENU_USE_RTT
     while(1)
 	{	
-		//����		
+		//锟斤拷锟斤拷		
 		button1=(RT_EOK==rt_sem_take(key1_sem,RT_WAITING_NO));
 		button2=(RT_EOK==rt_sem_take(key2_sem,RT_WAITING_NO));
 		button3=(RT_EOK==rt_sem_take(key3_sem,RT_WAITING_NO));
@@ -495,14 +495,14 @@ void show_process(void *parameter)
 	
 		is_first_in_page();
 		
-		//��ʾ����
+		//锟斤拷示锟斤拷锟斤拷
 		show_menu();
 		
-		//Ч������
+		//效锟斤拷锟斤拷锟斤拷
 		fun_menu();
 		
 	    p_unit_last=p_unit;
-		//�̹߳���	
+		//锟竭程癸拷锟斤拷	
 		rt_thread_mdelay(10);
 	}
     #else
@@ -524,48 +524,48 @@ void show_process(void *parameter)
 
     is_first_in_page();
 
-    //��ʾ����
+    //锟斤拷示锟斤拷锟斤拷
     show_menu();
 
-    //Ч������
+    //效锟斤拷锟斤拷锟斤拷
     fun_menu();
 
     p_unit_last=p_unit;
     #endif
 }
 
-//�˵�ϵͳ��ʼ��(��˳��)
+//锟剿碉拷系统锟斤拷始锟斤拷(锟斤拷顺锟斤拷)
 void menu_init()
 {
-    /*---------------��Ļ��ʼ��----------------*/
+    /*---------------锟斤拷幕锟斤拷始锟斤拷----------------*/
     screen_init("/dev/fb0");
 
-    /*---------------������ʼ��----------------*/
+    /*---------------锟斤拷锟斤拷锟斤拷始锟斤拷----------------*/
     key_into();
 
-    /*---------------���޸Ĳ���----------------*/
+    /*---------------锟斤拷锟睫改诧拷锟斤拷----------------*/
     UNIT_SET();
 
-    /*---------------����Ļص�����----------------*/
+    /*---------------锟斤拷锟斤拷幕氐锟斤拷锟斤拷锟�----------------*/
     FUN_INIT();
 
-    /*---------------�˵����ֳ�ʼ��----------------*/
+    /*---------------锟剿碉拷锟斤拷锟街筹拷始锟斤拷----------------*/
     dad_name_init();
 
-    /*---------------�ַ���������ʼ��----------------*/
+    /*---------------锟街凤拷锟斤拷锟斤拷锟斤拷锟斤拷始锟斤拷----------------*/
     index_xy_init();
 
-    /*-----------------����flash---------------*/
+    /*-----------------锟斤拷锟斤拷flash---------------*/
     #ifdef USE_FLASH
     flash_init_wz();
     #endif
 
-    /*----------------�˵��̳߳�ʼ��----------------*/
+    /*----------------锟剿碉拷锟竭程筹拷始锟斤拷----------------*/
     #ifdef  MENU_USE_RTT
     rt_thread_t tid;
-    //������ʾ�߳�
+    //锟斤拷锟斤拷锟斤拷示锟竭筹拷
     tid = rt_thread_create("display", show_process, RT_NULL, 1024*2, 11, 5);
-    //������ʾ�߳�
+    //锟斤拷锟斤拷锟斤拷示锟竭筹拷
     if(RT_NULL != tid)
     {
         rt_thread_startup(tid);
@@ -573,7 +573,7 @@ void menu_init()
     #endif
 }
 
-//�˵����к���
+//锟剿碉拷锟斤拷锟叫猴拷锟斤拷
 void NULL_FUN(){
 
 }
@@ -585,14 +585,14 @@ uint16 test_d=20;
 uint32 test_e=32;
 
 void UNIT_SET(){
-	//�˵���Ԫ���β�����ʼ��
+	//锟剿碉拷锟斤拷元锟斤拷锟轿诧拷锟斤拷锟斤拷始锟斤拷
     unit_param_set(&test_a,TYPE_FLOAT ,0.5  ,3  ,3,NORMAL_PAR,"test_a");
     unit_param_set(&test_b,TYPE_INT   ,2    ,6  ,0,NORMAL_PAR,"test_b");
     unit_param_set(&test_c,TYPE_DOUBLE,11.11,4  ,4,NORMAL_PAR,"test_c");
     unit_param_set(&test_d,TYPE_UINT16,1    ,6  ,0,NORMAL_PAR,"test_d");
     unit_param_set(&test_e,TYPE_UINT32,1    ,6  ,0,NORMAL_PAR,"test_e");
 
-    // 舵机PID参数
+    // 鑸垫満PID鍙傛暟
     unit_param_set(&kp,     TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp");
     unit_param_set(&ki,     TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_ki");
     unit_param_set(&kd1,    TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd1");
@@ -600,7 +600,7 @@ void UNIT_SET(){
 }
 
 void FUN_INIT(){
-	//�˵���Ԫ����ָ���ʼ��
-	fun_init(car_start, "START");      // 发车菜单
-	fun_init(NULL_FUN,   "NULL_FUN");  // 预留菜单项
+	//锟剿碉拷锟斤拷元锟斤拷锟斤拷指锟斤拷锟绞硷拷锟�
+	fun_init(car_start, "START");      // 鍙戣溅鑿滃崟
+	fun_init(NULL_FUN,   "NULL_FUN");  // 棰勭暀鑿滃崟椤�
 }

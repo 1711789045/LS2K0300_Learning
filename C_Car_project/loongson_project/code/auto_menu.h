@@ -29,6 +29,8 @@
 
 #define PID_RING_LEN		600
 
+extern uint8 button1,button2,button3,button4;
+extern uint8 first_in_page_flag;
 
 #define IND1 								(P_dad_head->down->m_index[0])
 #define IND2 								(P_dad_head->down->enter->down->m_index[1])
@@ -117,6 +119,7 @@ typedef struct MENU_UNIT
 #endif
 
 extern void menu_init(void);
+
 
 void show_process(void *parameter);
 

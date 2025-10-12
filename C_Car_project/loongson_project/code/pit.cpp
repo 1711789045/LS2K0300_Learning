@@ -1,10 +1,5 @@
 #include "zf_common_headfile.h"
-#include "beep.h"
-#include "motor.h"
-#include "servo.h"
-#include "encoder.h"
-#include "image.h"
-#include "control.h"
+#include "Header.h"
 
 timer_fd *pit_10ms_timer;
 timer_fd *pit_100ms_timer;

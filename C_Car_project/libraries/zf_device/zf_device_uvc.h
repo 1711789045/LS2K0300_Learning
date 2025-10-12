@@ -6,7 +6,7 @@
 
 #define UVC_WIDTH   160
 #define UVC_HEIGHT  120
-#define UVC_FPS     100
+#define UVC_FPS     30    // 摄像头实际支持 30fps
 
 int8 uvc_camera_init(const char *path);
 int8 wait_image_refresh();

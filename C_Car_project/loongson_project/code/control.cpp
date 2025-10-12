@@ -1,10 +1,5 @@
 #include "zf_common_headfile.h"
-#include "control.h"
-#include "pit.h"
-#include "motor.h"
-#include "servo.h"
-#include "encoder.h"
-#include "image.h"
+#include "Header.h"
 
 // 控制标志位
 uint8 go_flag = 0,stop_flag = 0,stop_time = 0;
@@ -20,6 +15,7 @@ float dif_speed_plus = 0.3;    // 差速加速系数
 // 发车函数
 void car_start(void)
 {
+    if(IS_OK){
     // 设置发车标志位
     go_flag = 1;
     stop_flag = 0;
@@ -40,6 +36,7 @@ void car_start(void)
         pit_100ms_timer->start();
 
     printf("Car started!\r\n");
+    }
 }
 
 // 停车函数（统一停车接口）
