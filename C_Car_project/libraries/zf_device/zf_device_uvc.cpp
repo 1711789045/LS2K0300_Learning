@@ -66,18 +66,8 @@ int8 wait_image_refresh()
 {
     try
     {
-        // 快速获取图像（grab+retrieve 模式）
-        if (!cap.grab())
-        {
-            std::cerr << "未能抓取图像帧" << std::endl;
-            return -1;
-        }
-
-        if (!cap.retrieve(frame_rgb))
-        {
-            std::cerr << "未能解码图像帧" << std::endl;
-            return -1;
-        }
+        // 使用最简单的读取方式
+        cap >> frame_rgb;
 
         if (frame_rgb.empty())
         {
@@ -91,33 +81,14 @@ int8 wait_image_refresh()
         return -1;
     }
 
-    // 激进优化：手动快速 BGR 转灰度（避免 OpenCV cvtColor 的开销）
-    // 使用整数运算的近似公式: Gray = (B + 2*G + R) / 4
-    // 比标准公式 (0.114*B + 0.587*G + 0.299*R) 更快，精度损失可接受
+    // 极速方案：直接提取绿色通道（使用 OpenCV 优化的通道分离）
+    // 比手动 for 循环快得多，因为 OpenCV 内部使用了优化的内存操作
+    std::vector<cv::Mat> bgr_channels;
+    cv::split(frame_rgb, bgr_channels);
+    frame_rgay = bgr_channels[1];  // 绿色通道（索引1）
 
-    const uint8_t* bgr_data = frame_rgb.ptr<uint8_t>(0);
-    const int total_pixels = UVC_WIDTH * UVC_HEIGHT;
-
-    // 方案1: 最快速的近似算法（推荐用于实时性要求高的场景）
-    for (int i = 0; i < total_pixels; i++)
-    {
-        int idx = i * 3;
-        // Gray ≈ (B + 2*G + R) >> 2  （右移2位相当于除以4）
-        gray_buffer[i] = (bgr_data[idx] + (bgr_data[idx + 1] << 1) + bgr_data[idx + 2]) >> 2;
-    }
-
-    // 方案2: 如果上面还不够快，可以只取绿色通道（最快但精度最低）
-    // for (int i = 0; i < total_pixels; i++)
-    // {
-    //     gray_buffer[i] = bgr_data[i * 3 + 1];  // 只取 G 通道
-    // }
-
-    // 方案3: 标准 OpenCV 转换（最慢但最准确）- 已弃用
-    // cv::cvtColor(frame_rgb, frame_rgay, cv::COLOR_BGR2GRAY);
-    // rgay_image = reinterpret_cast<uint8_t *>(frame_rgay.ptr(0));
-
-    // 指向自定义灰度缓冲区
-    rgay_image = gray_buffer;
+    // cv对象转指针
+    rgay_image = reinterpret_cast<uint8_t *>(frame_rgay.ptr(0));
 
     return 0;
 }
