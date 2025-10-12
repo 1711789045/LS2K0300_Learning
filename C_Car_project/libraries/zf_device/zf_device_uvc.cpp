@@ -8,6 +8,7 @@
 #include <linux/videodev2.h>
 #include <cstring>
 #include <cerrno>
+#include <opencv2/opencv.hpp>  // 用于 MJPEG 解码
 
 using namespace std;
 
@@ -40,13 +41,13 @@ int8 uvc_camera_init(const char *path)
     }
     printf("Camera: %s\r\n", cap.card);
 
-    // 3. 设置图像格式为 YUYV
+    // 3. 设置图像格式为 MJPEG（支持高帧率）
     struct v4l2_format fmt;
     memset(&fmt, 0, sizeof(fmt));
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     fmt.fmt.pix.width = UVC_WIDTH;
     fmt.fmt.pix.height = UVC_HEIGHT;
-    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;  // YUYV 格式（最快）
+    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;  // 改用 MJPEG 格式（支持高帧率）
     fmt.fmt.pix.field = V4L2_FIELD_NONE;
 
     if (ioctl(camera_fd, VIDIOC_S_FMT, &fmt) < 0)
@@ -56,7 +57,7 @@ int8 uvc_camera_init(const char *path)
         return -1;
     }
 
-    printf("Format set: %dx%d YUYV\r\n", fmt.fmt.pix.width, fmt.fmt.pix.height);
+    printf("Format set: %dx%d MJPEG\r\n", fmt.fmt.pix.width, fmt.fmt.pix.height);
 
     // 4. 设置帧率
     struct v4l2_streamparm parm;
@@ -160,22 +161,24 @@ int8 wait_image_refresh()
         return -1;
     }
 
-    // 2. 快速 YUYV 转灰度（只取 Y 分量，零开销！）
-    // YUYV 格式: Y0 U0 Y1 V0 Y2 U1 Y3 V1 ...
-    // Y 就是亮度（灰度），直接提取即可
+    // 2. 解码 MJPEG 为灰度图（使用 OpenCV）
+    // 将 MJPEG 数据包装为 cv::Mat
+    cv::Mat mjpeg_data(1, buf.bytesused, CV_8UC1, buffer_start);
 
-    const uint8_t* yuyv_data = static_cast<uint8_t*>(buffer_start);
-    const int total_pixels = UVC_WIDTH * UVC_HEIGHT;
+    // 解码 MJPEG 为灰度图（直接解码为灰度，避免 BGR 转换）
+    cv::Mat decoded_gray = cv::imdecode(mjpeg_data, cv::IMREAD_GRAYSCALE);
 
-    // 每2个字节提取1个Y值（YUYV格式）
-    for (int i = 0; i < total_pixels; i++)
+    if (decoded_gray.empty())
     {
-        gray_buffer[i] = yuyv_data[i * 2];  // 只取 Y 分量
+        cerr << "Failed to decode MJPEG" << endl;
+        return -1;
     }
 
+    // 3. 拷贝到灰度缓冲区
+    memcpy(gray_buffer, decoded_gray.data, UVC_WIDTH * UVC_HEIGHT);
     rgay_image = gray_buffer;
 
-    // 3. 将缓冲区重新入队（准备下一帧）
+    // 4. 将缓冲区重新入队（准备下一帧）
     if (ioctl(camera_fd, VIDIOC_QBUF, &buf) < 0)
     {
         cerr << "Failed to requeue buffer" << endl;
