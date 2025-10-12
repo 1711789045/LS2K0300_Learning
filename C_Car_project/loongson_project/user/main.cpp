@@ -63,6 +63,7 @@ int main(int, char**)
         {
             // 车辆停止状态：只运行菜单系统
             show_process(NULL);
+            system_delay_ms(10); // 菜单刷新间隔
         }
         else
         {
@@ -87,10 +88,19 @@ int main(int, char**)
             // 图像处理（计时）
             image_process_time_start();           // 开始计时
             image_process(IMAGE_W, IMAGE_H, 0);   // 图像处理（显示模式0：仅图像）
-            image_process_time_end();             // 结束计时
+            float process_time = image_process_time_end();  // 结束计时并获取时间
+
+            // 只打印单行实时数据，避免频繁printf导致性能下降
+            static uint32_t print_counter = 0;
+            if(++print_counter >= 100)  // 每100帧打印一次详细统计
+            {
+                image_process_time_print();
+                print_counter = 0;
+            }
+
+            // 短暂延时，避免CPU占用过高
+            system_delay_ms(1);
         }
 
-        // 短暂延时，避免CPU占用过高
-        system_delay_ms(1);
     }
 }
