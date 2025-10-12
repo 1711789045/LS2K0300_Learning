@@ -21,8 +21,8 @@ static uint8_t gray_buffer[UVC_HEIGHT * UVC_WIDTH];  // 静态灰度缓冲区
 
 int8 uvc_camera_init(const char *path)
 {
-    // 1. 打开摄像头设备
-    camera_fd = open(path, O_RDWR | O_NONBLOCK);
+    // 1. 打开摄像头设备（阻塞模式）
+    camera_fd = open(path, O_RDWR);  // 移除 O_NONBLOCK，使用阻塞模式
     if (camera_fd < 0)
     {
         printf("Failed to open camera device: %s (errno: %d)\r\n", path, errno);
@@ -136,7 +136,7 @@ int8 uvc_camera_init(const char *path)
 
 int8 wait_image_refresh()
 {
-    // 1. 出队缓冲区（获取新图像）
+    // 1. 出队缓冲区（获取新图像） - 阻塞模式会自动等待
     struct v4l2_buffer buf;
     memset(&buf, 0, sizeof(buf));
     buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -144,12 +144,7 @@ int8 wait_image_refresh()
 
     if (ioctl(camera_fd, VIDIOC_DQBUF, &buf) < 0)
     {
-        if (errno == EAGAIN)
-        {
-            // 非阻塞模式下没有数据可读，稍后重试
-            return -1;
-        }
-        cerr << "Failed to dequeue buffer: " << errno << endl;
+        cerr << "Failed to dequeue buffer: errno=" << errno << endl;
         return -1;
     }
 
