@@ -1,94 +1,179 @@
 #include "zf_device_uvc.h"
 
-
-#include <opencv2/imgproc/imgproc.hpp>  // for cv::cvtColor
-#include <opencv2/highgui/highgui.hpp> // for cv::VideoCapture
-#include <opencv2/opencv.hpp>
-
-#include <iostream> // for std::cerr
-#include <fstream>  // for std::ofstream
 #include <iostream>
-#include <opencv2/opencv.hpp>
-#include <thread>
-#include <chrono>
-#include <atomic>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <linux/videodev2.h>
+#include <cstring>
+#include <cerrno>
 
-using namespace cv;
+using namespace std;
 
-cv::Mat frame_rgb;      // 构建opencv对象 彩色
-cv::Mat frame_rgay;     // 构建opencv对象 灰度
+// V4L2 相关变量
+static int camera_fd = -1;
+static void* buffer_start = nullptr;
+static size_t buffer_length = 0;
 
 uint8_t *rgay_image;    // 灰度图像数组指针
 static uint8_t gray_buffer[UVC_HEIGHT * UVC_WIDTH];  // 静态灰度缓冲区
 
-VideoCapture cap;
-
 int8 uvc_camera_init(const char *path)
 {
-    cap.open(path);
-
-    if(!cap.isOpened())
+    // 1. 打开摄像头设备
+    camera_fd = open(path, O_RDWR | O_NONBLOCK);
+    if (camera_fd < 0)
     {
-        printf("find uvc camera error.\r\n");
+        printf("Failed to open camera device: %s (errno: %d)\r\n", path, errno);
         return -1;
     }
-    else
+    printf("Camera device opened: %s (fd=%d)\r\n", path, camera_fd);
+
+    // 2. 查询设备能力
+    struct v4l2_capability cap;
+    if (ioctl(camera_fd, VIDIOC_QUERYCAP, &cap) < 0)
     {
-        printf("find uvc camera Successfully.\r\n");
+        printf("Failed to query camera capabilities\r\n");
+        close(camera_fd);
+        return -1;
+    }
+    printf("Camera: %s\r\n", cap.card);
+
+    // 3. 设置图像格式为 YUYV
+    struct v4l2_format fmt;
+    memset(&fmt, 0, sizeof(fmt));
+    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    fmt.fmt.pix.width = UVC_WIDTH;
+    fmt.fmt.pix.height = UVC_HEIGHT;
+    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;  // YUYV 格式（最快）
+    fmt.fmt.pix.field = V4L2_FIELD_NONE;
+
+    if (ioctl(camera_fd, VIDIOC_S_FMT, &fmt) < 0)
+    {
+        printf("Failed to set video format\r\n");
+        close(camera_fd);
+        return -1;
     }
 
-    // 关键优化：设置摄像头输出格式为灰度（MJPEG格式）
-    cap.set(CAP_PROP_FOURCC, VideoWriter::fourcc('M','J','P','G'));  // 使用MJPEG压缩格式，减少数据传输量
+    printf("Format set: %dx%d YUYV\r\n", fmt.fmt.pix.width, fmt.fmt.pix.height);
 
-    // 设置分辨率和帧率
-    cap.set(CAP_PROP_FRAME_WIDTH, UVC_WIDTH);     // 设置摄像头宽度
-    cap.set(CAP_PROP_FRAME_HEIGHT, UVC_HEIGHT);    // 设置摄像头高度
-    cap.set(CAP_PROP_FPS, UVC_FPS);               // 设置帧率
+    // 4. 设置帧率
+    struct v4l2_streamparm parm;
+    memset(&parm, 0, sizeof(parm));
+    parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    parm.parm.capture.timeperframe.numerator = 1;
+    parm.parm.capture.timeperframe.denominator = UVC_FPS;
 
-    // 优化：减少缓冲区大小，降低延迟
-    cap.set(CAP_PROP_BUFFERSIZE, 1);              // 最小缓冲区，减少延迟
+    if (ioctl(camera_fd, VIDIOC_S_PARM, &parm) < 0)
+    {
+        printf("Warning: Failed to set frame rate\r\n");
+    }
 
-    // 禁用自动曝光和白平衡以提高性能
-    cap.set(CAP_PROP_AUTO_EXPOSURE, 0.25);        // 手动曝光模式
-    cap.set(CAP_PROP_EXPOSURE, -5);               // 固定曝光值（根据环境调整）
+    // 5. 请求缓冲区（使用 mmap 方式，最快）
+    struct v4l2_requestbuffers req;
+    memset(&req, 0, sizeof(req));
+    req.count = 1;  // 只使用1个缓冲区，最小延迟
+    req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    req.memory = V4L2_MEMORY_MMAP;
 
-    // 打印实际配置
-    printf("Camera config: %dx%d @ %d fps\r\n",
-           (int)cap.get(CAP_PROP_FRAME_WIDTH),
-           (int)cap.get(CAP_PROP_FRAME_HEIGHT),
-           (int)cap.get(CAP_PROP_FPS));
+    if (ioctl(camera_fd, VIDIOC_REQBUFS, &req) < 0)
+    {
+        printf("Failed to request buffers\r\n");
+        close(camera_fd);
+        return -1;
+    }
 
+    // 6. 映射缓冲区到用户空间
+    struct v4l2_buffer buf;
+    memset(&buf, 0, sizeof(buf));
+    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buf.memory = V4L2_MEMORY_MMAP;
+    buf.index = 0;
+
+    if (ioctl(camera_fd, VIDIOC_QUERYBUF, &buf) < 0)
+    {
+        printf("Failed to query buffer\r\n");
+        close(camera_fd);
+        return -1;
+    }
+
+    buffer_length = buf.length;
+    buffer_start = mmap(NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, camera_fd, buf.m.offset);
+
+    if (buffer_start == MAP_FAILED)
+    {
+        printf("Failed to mmap buffer\r\n");
+        close(camera_fd);
+        return -1;
+    }
+
+    printf("Buffer mapped: %zu bytes\r\n", buffer_length);
+
+    // 7. 将缓冲区入队
+    if (ioctl(camera_fd, VIDIOC_QBUF, &buf) < 0)
+    {
+        printf("Failed to queue buffer\r\n");
+        munmap(buffer_start, buffer_length);
+        close(camera_fd);
+        return -1;
+    }
+
+    // 8. 开始采集
+    enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    if (ioctl(camera_fd, VIDIOC_STREAMON, &type) < 0)
+    {
+        printf("Failed to start streaming\r\n");
+        munmap(buffer_start, buffer_length);
+        close(camera_fd);
+        return -1;
+    }
+
+    printf("Camera streaming started successfully!\r\n");
     return 0;
 }
 
 
 int8 wait_image_refresh()
 {
-    try
-    {
-        // 使用最简单的读取方式
-        cap >> frame_rgb;
+    // 1. 出队缓冲区（获取新图像）
+    struct v4l2_buffer buf;
+    memset(&buf, 0, sizeof(buf));
+    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    buf.memory = V4L2_MEMORY_MMAP;
 
-        if (frame_rgb.empty())
+    if (ioctl(camera_fd, VIDIOC_DQBUF, &buf) < 0)
+    {
+        if (errno == EAGAIN)
         {
-            std::cerr << "未获取到有效图像帧" << std::endl;
+            // 非阻塞模式下没有数据可读，稍后重试
             return -1;
         }
-    }
-    catch (const cv::Exception& e)
-    {
-        std::cerr << "OpenCV 异常: " << e.what() << std::endl;
+        cerr << "Failed to dequeue buffer: " << errno << endl;
         return -1;
     }
 
-    // 极速方案：直接提取绿色通道（使用 OpenCV 优化的通道分离）
-    // 比手动 for 循环快得多，因为 OpenCV 内部使用了优化的内存操作
-    std::vector<cv::Mat> bgr_channels;
-    cv::split(frame_rgb, bgr_channels);
-    frame_rgay = bgr_channels[1];  // 绿色通道（索引1）
+    // 2. 快速 YUYV 转灰度（只取 Y 分量，零开销！）
+    // YUYV 格式: Y0 U0 Y1 V0 Y2 U1 Y3 V1 ...
+    // Y 就是亮度（灰度），直接提取即可
 
-    // cv对象转指针
-    rgay_image = reinterpret_cast<uint8_t *>(frame_rgay.ptr(0));
+    const uint8_t* yuyv_data = static_cast<uint8_t*>(buffer_start);
+    const int total_pixels = UVC_WIDTH * UVC_HEIGHT;
+
+    // 每2个字节提取1个Y值（YUYV格式）
+    for (int i = 0; i < total_pixels; i++)
+    {
+        gray_buffer[i] = yuyv_data[i * 2];  // 只取 Y 分量
+    }
+
+    rgay_image = gray_buffer;
+
+    // 3. 将缓冲区重新入队（准备下一帧）
+    if (ioctl(camera_fd, VIDIOC_QBUF, &buf) < 0)
+    {
+        cerr << "Failed to requeue buffer" << endl;
+        return -1;
+    }
 
     return 0;
 }
