@@ -858,3 +858,97 @@ void image_process(uint16 display_width,uint16 display_height,uint8 mode){
 	if(mode)
 		image_display_edge_line(user_image,display_width,display_height);
 }
+
+
+// ==================== 图像处理时间测量功能 ====================
+
+#include <time.h>
+
+// 静态变量用于存储时间测量数据
+static struct timespec start_time, end_time;
+static float last_process_time = 0.0f;       // 上一次处理时间(ms)
+static float total_process_time = 0.0f;      // 总处理时间(ms)
+static uint32 frame_count = 0;               // 帧计数器
+static float max_process_time = 0.0f;        // 最大处理时间(ms)
+static float min_process_time = 999.0f;      // 最小处理时间(ms)
+
+/**
+ * @brief 开始图像处理计时
+ *
+ * 使用方法：在 image_process() 函数开始时调用
+ */
+void image_process_time_start(void)
+{
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+}
+
+/**
+ * @brief 结束图像处理计时并返回处理时间
+ *
+ * 使用方法：在 image_process() 函数结束时调用
+ *
+ * @return float 本次图像处理所用时间（毫秒）
+ */
+float image_process_time_end(void)
+{
+    clock_gettime(CLOCK_MONOTONIC, &end_time);
+
+    // 计算时间差（纳秒级）
+    long seconds = end_time.tv_sec - start_time.tv_sec;
+    long nanoseconds = end_time.tv_nsec - start_time.tv_nsec;
+
+    // 转换为毫秒
+    float elapsed_ms = seconds * 1000.0f + nanoseconds / 1000000.0f;
+
+    // 更新统计数据
+    last_process_time = elapsed_ms;
+    total_process_time += elapsed_ms;
+    frame_count++;
+
+    // 更新最大/最小值
+    if(elapsed_ms > max_process_time)
+        max_process_time = elapsed_ms;
+
+    if(elapsed_ms < min_process_time)
+        min_process_time = elapsed_ms;
+
+    return elapsed_ms;
+}
+
+/**
+ * @brief 打印图像处理时间统计信息
+ *
+ * 使用方法：每隔一段时间调用（如每100帧或每秒）
+ * 可以在 main() 中的循环里定期调用
+ */
+void image_process_time_print(void)
+{
+    if(frame_count == 0)
+    {
+        printf("[ 图像处理时间 ] 尚未开始测量\n");
+        return;
+    }
+
+    float avg_time = total_process_time / frame_count;
+    float fps = 1000.0f / avg_time;  // 基于平均处理时间计算理论FPS
+
+    printf("\n========== 图像处理时间统计 ==========\n");
+    printf("[ 帧数统计 ] 已处理帧数: %u 帧\n", frame_count);
+    printf("[ 本次时间 ] 上次处理: %.2f ms\n", last_process_time);
+    printf("[ 平均时间 ] %.2f ms (理论FPS: %.1f)\n", avg_time, fps);
+    printf("[ 最大时间 ] %.2f ms\n", max_process_time);
+    printf("[ 最小时间 ] %.2f ms\n", min_process_time);
+    printf("[ 总计时间 ] %.2f ms\n", total_process_time);
+    printf("=====================================\n\n");
+
+    // 如果平均处理时间 > 10ms，给出警告
+    if(avg_time > 10.0f)
+    {
+        printf("⚠️  警告: 图像处理时间超过 10ms，可能无法满足 100Hz 控制周期！\n");
+        printf("   建议: 降低分辨率或优化算法\n\n");
+    }
+    else if(avg_time < 8.0f)
+    {
+        printf("✅ 良好: 图像处理时间 < 8ms，可以满足 100Hz 控制周期\n\n");
+    }
+}

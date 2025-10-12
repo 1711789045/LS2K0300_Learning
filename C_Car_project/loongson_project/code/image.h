@@ -59,4 +59,9 @@ void search_line(const uint8 image[][IMAGE_W]);
 void image_display_edge_line(const uint8 image[][IMAGE_W],uint16 width,uint16 height);
 void image_process(uint16 display_width,uint16 display_height,uint8 mode);
 
+// 图像处理时间测量函数
+void image_process_time_start(void);     // 开始计时
+float image_process_time_end(void);      // 结束计时，返回处理时间（毫秒）
+void image_process_time_print(void);     // 打印统计信息
+
 #endif
