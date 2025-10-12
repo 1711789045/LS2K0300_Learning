@@ -13,4 +13,8 @@ extern uint8 start_time;  // 启动计时
 extern float dif_speed_reduce;  // 差速减速系数
 extern float dif_speed_plus;    // 差速加速系数
 
+// 发车和停车函数
+void car_start(void);   // 发车函数
+void car_stop(void);    // 停车函数（处理3秒减速+关闭硬件）
+
 #endif

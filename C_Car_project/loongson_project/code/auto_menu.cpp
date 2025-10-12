@@ -2,6 +2,7 @@
 #include "auto_menu.h"
 #include "key.h"
 #include "servo.h"
+#include "control.h"
 
 //�����ź��������������ź���
 #ifdef  MENU_USE_RTT
@@ -600,6 +601,6 @@ void UNIT_SET(){
 
 void FUN_INIT(){
 	//�˵���Ԫ����ָ���ʼ��
-	fun_init(NULL_FUN	,"NULL_FUN1");
-	fun_init(NULL_FUN	,"NULL_FUN2");
+	fun_init(car_start, "START");      // 发车菜单
+	fun_init(NULL_FUN,   "NULL_FUN");  // 预留菜单项
 }

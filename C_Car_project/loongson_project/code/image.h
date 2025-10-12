@@ -7,39 +7,40 @@
 #define IMAGE_W            UVC_WIDTH
 #define IMAGE_H            UVC_HEIGHT
 
-#define REFERENCE_ROW       5          //²Î¿¼µãÍ³¼ÆĞĞÊı
-#define REFERENCE_COL       60         //²Î¿¼µãÍ³¼ÆÁĞÊı
-#define WHITEMAXMUL        13         //°×µã×î´óÖµ»ùÓÚ²Î¿¼µãµÄ±¶Êı 10Îª²»·Å´ó
-#define WHITEMINMUL         7          //°×µã×îĞ¡Öµ»ùÓÚ²Î¿¼µãµÄ±¶Êı 10Îª²»·Å´ó
-#define BLACKPOINT          50         //ºÚµãÖµ
+#define REFERENCE_ROW       5          //ï¿½Î¿ï¿½ï¿½ï¿½Í³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define REFERENCE_COL       60         //ï¿½Î¿ï¿½ï¿½ï¿½Í³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#define WHITEMAXMUL        13         //ï¿½×µï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½Ú²Î¿ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ 10Îªï¿½ï¿½ï¿½Å´ï¿½
+#define WHITEMINMUL         7          //ï¿½×µï¿½ï¿½ï¿½Ğ¡Öµï¿½ï¿½ï¿½Ú²Î¿ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ 10Îªï¿½ï¿½ï¿½Å´ï¿½
+#define BLACKPOINT          50         //ï¿½Úµï¿½Öµ
 
-#define CONTRASTOFFSET      3          //ËÑÏß¶Ô±È¶ÈÆ«ÒÆ
-#define STOPROW            0           //ËÑÏßÍ£Ö¹ĞĞ
-#define SEARCHRANGE        10          //ËÑÏß°ë¾¶
-#define CIRCLE_1_TIME      15        //»·µº×´Ì¬Ò»¼ÆÊ±Ê±¼ä£¬µ¥Î»10ms
-#define CIRCLE_2_TIME      50         //»·µº×´Ì¬¶ş¼ÆÊ±Ê±¼ä£¬µ¥Î»10ms
-#define CIRCLE_4_TIME      25           //»·µº×´Ì¬ËÄ¼ÆÊ±Ê±¼ä£¬µ¥Î»10ms
-#define CIRCLE_5_TIME      25           //»·µº×´Ì¬Îå¼ÆÊ±Ê±¼ä£¬µ¥Î»10ms
-#define STOP_ANALYSE_LINE  (IMAGE_H-40)          //°ßÂíÏß¼ì²âĞĞ
-#define STOP_THRESHOLD    30			 //°ßÂíÏßÌø±äµãÊıÁ¿ãĞÖµ
-#define STRETCH_NUM       80          //²¹ÏßÑÓÉì³¤¶È
+#define CONTRASTOFFSET      3          //ï¿½ï¿½ï¿½ß¶Ô±È¶ï¿½Æ«ï¿½ï¿½
+#define STOPROW            0           //ï¿½ï¿½ï¿½ï¿½Í£Ö¹ï¿½ï¿½
+#define SEARCHRANGE        10          //ï¿½ï¿½ï¿½ß°ë¾¶
+#define CIRCLE_1_TIME      15        //ï¿½ï¿½ï¿½ï¿½×´Ì¬Ò»ï¿½ï¿½Ê±Ê±ï¿½ä£¬ï¿½ï¿½Î»10ms
+#define CIRCLE_2_TIME      50         //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½Ê±Ê±ï¿½ä£¬ï¿½ï¿½Î»10ms
+#define CIRCLE_4_TIME      25           //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½Ä¼ï¿½Ê±Ê±ï¿½ä£¬ï¿½ï¿½Î»10ms
+#define CIRCLE_5_TIME      25           //ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½Ê±Ê±ï¿½ä£¬ï¿½ï¿½Î»10ms
+#define STOP_ANALYSE_LINE  (IMAGE_H-40)          //ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½ï¿½ï¿½
+#define STOP_THRESHOLD    30			 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
+#define STRETCH_NUM       80          //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ì³¤ï¿½ï¿½
 
 extern uint8 reference_point;
-extern uint8 white_max_point;          //¶¯Ì¬°×µã×î´óÖµ
-extern uint8 white_min_point;          //¶¯Ì¬°×µã×îĞ¡Öµ
-extern uint8 remote_distance[IMAGE_W]; //×î³¤°×ÁĞ
+extern uint8 white_max_point;          //ï¿½ï¿½Ì¬ï¿½×µï¿½ï¿½ï¿½ï¿½Öµ
+extern uint8 white_min_point;          //ï¿½ï¿½Ì¬ï¿½×µï¿½ï¿½ï¿½Ğ¡Öµ
+extern uint8 remote_distance[IMAGE_W]; //ï¿½î³¤ï¿½ï¿½ï¿½ï¿½
 extern uint8 reference_col;
-extern uint8 reference_contrast_ratio; //²Î¿¼¶Ô±È¶È
-extern uint16 reference_line[IMAGE_H];      // ´æ´¢²Î¿¼ÁĞ
-extern uint16 left_edge_line[IMAGE_H];      // ´æ´¢×ó±ßÏß
-extern uint16 right_edge_line[IMAGE_H];      // ´æ´¢ÓÒ±ßÏß
+extern uint8 reference_contrast_ratio; //ï¿½Î¿ï¿½ï¿½Ô±È¶ï¿½
+extern uint16 reference_line[IMAGE_H];      // ï¿½æ´¢ï¿½Î¿ï¿½ï¿½ï¿½
+extern uint16 left_edge_line[IMAGE_H];      // ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½ï¿½
+extern uint16 right_edge_line[IMAGE_H];      // ï¿½æ´¢ï¿½Ò±ï¿½ï¿½ï¿½
 extern uint8 final_mid_line;
 extern uint8 prospect;                     //Ç°Õ°Öµ
 extern uint8 single_edge_err[IMAGE_H];
-extern uint8 circle_flag;                  //»·µº±êÖ¾Î»
-extern uint16 circle_time;                  
-extern uint8 mid_mode;                    //Ñ­ÏßÄ£Ê½
-extern uint8 if_circle;                     //1ÎªÆôÓÃÔ²»·£¬0Îª¹Ø±ÕÔ²»·
+extern uint8 circle_flag;                  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¾Î»
+extern uint16 circle_time;
+extern uint8 cross_flag;                   //åå­—æ ‡å¿—ä½
+extern uint8 mid_mode;                    //Ñ­ï¿½ï¿½Ä£Ê½
+extern uint8 if_circle;                     //1Îªï¿½ï¿½ï¿½ï¿½Ô²ï¿½ï¿½ï¿½ï¿½0Îªï¿½Ø±ï¿½Ô²ï¿½ï¿½
 extern uint8 mid_weight_1[IMAGE_H];
 extern uint8 mid_weight_2[IMAGE_H];
 extern uint8 mid_weight_3[IMAGE_H];

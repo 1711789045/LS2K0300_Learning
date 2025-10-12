@@ -19,18 +19,18 @@
 //#include "motor.h"
 
 uint8 reference_point = 0;
-uint8 white_max_point = 0;             //¶¯Ì¬°×µã×î´óÖµ
-uint8 white_min_point = 0;             //¶¯Ì¬°×µã×îĞ¡Öµ
-uint8 remote_distance[IMAGE_W] = {0};   //×î³¤°×ÁĞ
+uint8 white_max_point = 0;             //ï¿½ï¿½Ì¬ï¿½×µï¿½ï¿½ï¿½ï¿½Öµ
+uint8 white_min_point = 0;             //ï¿½ï¿½Ì¬ï¿½×µï¿½ï¿½ï¿½Ğ¡Öµ
+uint8 remote_distance[IMAGE_W] = {0};   //ï¿½î³¤ï¿½ï¿½ï¿½ï¿½
 uint8 reference_col = 0;
-uint8 reference_contrast_ratio = 0.1*200; //²Î¿¼¶Ô±È¶È
-uint16 reference_line[IMAGE_H] = {0};      // ´æ´¢²Î¿¼ÁĞ
-uint16 left_edge_line[IMAGE_H] = {0};      // ´æ´¢×ó±ßÏß
-uint16 right_edge_line[IMAGE_H] = {0};      // ´æ´¢ÓÒ±ßÏß
-uint8 user_image[IMAGE_H][IMAGE_W];  //´æ´¢Í¼Ïñ
+uint8 reference_contrast_ratio = 0.1*200; //ï¿½Î¿ï¿½ï¿½Ô±È¶ï¿½
+uint16 reference_line[IMAGE_H] = {0};      // ï¿½æ´¢ï¿½Î¿ï¿½ï¿½ï¿½
+uint16 left_edge_line[IMAGE_H] = {0};      // ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½ï¿½
+uint16 right_edge_line[IMAGE_H] = {0};      // ï¿½æ´¢ï¿½Ò±ï¿½ï¿½ï¿½
+uint8 user_image[IMAGE_H][IMAGE_W];  //ï¿½æ´¢Í¼ï¿½ï¿½
 
-uint8 mid_line[IMAGE_H] = {0};         //¸÷ĞĞÖĞÏßÎ»ÖÃ
-uint8 mid_weight_1[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
+uint8 mid_line[IMAGE_H] = {0};         //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½
+uint8 mid_weight_1[IMAGE_H] = {           //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
@@ -45,7 +45,7 @@ uint8 mid_weight_1[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1  
 };
 
-uint8 mid_weight_2[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
+uint8 mid_weight_2[IMAGE_H] = {           //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½
 	
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
@@ -61,7 +61,7 @@ uint8 mid_weight_2[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 
 };
 
-uint8 mid_weight_3[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
+uint8 mid_weight_3[IMAGE_H] = {           //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½
 	
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
@@ -79,7 +79,7 @@ uint8 mid_weight_3[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
 	  
 };
 
-uint8 mid_weight_4[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
+uint8 mid_weight_4[IMAGE_H] = {           //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½
 	
 	
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
@@ -98,7 +98,7 @@ uint8 mid_weight_4[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
 	  
 };
 
-uint8 mid_weight_5[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
+uint8 mid_weight_5[IMAGE_H] = {           //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½
 	
 	
 	
@@ -117,7 +117,7 @@ uint8 mid_weight_5[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
 	  
 };
 
-uint8 mid_weight[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
+uint8 mid_weight[IMAGE_H] = {           //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½
 	
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
@@ -133,7 +133,7 @@ uint8 mid_weight[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 
 };
 
-uint8 single_edge_err[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
+uint8 single_edge_err[IMAGE_H] = {           //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¨ï¿½ï¿½
 	11,11,12,13,13,14,15,15,16,17,
 	17,18,19,19,20,20,21,22,23,23, 
 	24,25,25,27,27,28,28,29,30,30,
@@ -147,21 +147,21 @@ uint8 single_edge_err[IMAGE_H] = {           //¸÷ĞĞÖĞÏßÈ¨ÖØ
 	78,79,79,80,80,81,82,82,83,84,
 	85,85,86,87,87,88,89,89,90,91 
 };
-uint8 final_mid_line = 0;                 //¼ÓÈ¨ÖĞÏßÖµ
-uint8 last_final_mid_line = 0;            //ÉÏ´Î¼ÓÈ¨ÖĞÏßÖµ
+uint8 final_mid_line = 0;                 //ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½Öµ
+uint8 last_final_mid_line = 0;            //ï¿½Ï´Î¼ï¿½È¨ï¿½ï¿½ï¿½ï¿½Öµ
 uint8 prospect = 100;                     //Ç°Õ°Öµ
-uint8 cross_flag = 0;                    //Ê®×Ö±êÖ¾Î»
-uint8 mid_mode = 0;                      //Ñ­ÏßÄ£Ê½£¬0±íÊ¾Ñ­Á½±ßÏß£¬1Ñ­×ó±ßÏß£¬2Ñ­ÓÒ±ßÏß
+uint8 cross_flag = 0;                    //Ê®ï¿½Ö±ï¿½Ö¾Î»
+uint8 mid_mode = 0;                      //Ñ­ï¿½ï¿½Ä£Ê½ï¿½ï¿½0ï¿½ï¿½Ê¾Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ß£ï¿½1Ñ­ï¿½ï¿½ï¿½ï¿½ß£ï¿½2Ñ­ï¿½Ò±ï¿½ï¿½ï¿½
 uint8 circle_flag = 0;
 uint16 circle_time = 0;
-uint8 if_circle = 0;                     //1ÎªÆôÓÃÔ²»·£¬0Îª¹Ø±ÕÔ²»·
+uint8 if_circle = 0;                     //1Îªï¿½ï¿½ï¿½ï¿½Ô²ï¿½ï¿½ï¿½ï¿½0Îªï¿½Ø±ï¿½Ô²ï¿½ï¿½
 uint8 stop_search_row = 0;
 
 void get_image(void){
-	// ×èÈûÊ½µÈ´ı£¬Í¼ÏñË¢ĞÂ
+	// ï¿½ï¿½ï¿½ï¿½Ê½ï¿½È´ï¿½ï¿½ï¿½Í¼ï¿½ï¿½Ë¢ï¿½ï¿½
 	if(wait_image_refresh() < 0)
 	{
-		// ÉãÏñÍ·Î´²É¼¯µ½Í¼Ïñ£¬ÕâÀïĞèÒª¹Ø±Õµç»ú£¬¹Ø±Õµçµ÷µÈ¡£
+		// ï¿½ï¿½ï¿½ï¿½Í·Î´ï¿½É¼ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½Ø±Õµï¿½ï¿½ï¿½ï¿½ï¿½Ø±Õµï¿½ï¿½ï¿½È¡ï¿½
 		exit(0); 
 	}
 	memcpy(user_image,rgay_image,IMAGE_H*IMAGE_W);
@@ -171,15 +171,15 @@ void get_image(void){
 
 
 void get_reference_point(const uint8 image[][IMAGE_W]){
-	uint16 temp = 0;                 //ÓÃÓÚ±£´æÍ³¼Æµã×ÜÊıÁ¿
-	uint32 temp1 = 0;               //ÓÃÓÚ±£´æÍ³¼Æµã×ÜÊıÖµ
+	uint16 temp = 0;                 //ï¿½ï¿½ï¿½Ú±ï¿½ï¿½ï¿½Í³ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	uint32 temp1 = 0;               //ï¿½ï¿½ï¿½Ú±ï¿½ï¿½ï¿½Í³ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½Öµ
 	uint16 temp_j1 = (IMAGE_W-REFERENCE_COL)/2;    
 	uint16 temp_j2 = (IMAGE_W+REFERENCE_COL)/2;	
 	
 	temp = REFERENCE_ROW * REFERENCE_COL;
 	for(int i = IMAGE_H-REFERENCE_ROW;i <= IMAGE_H-1;i++){
 		for(int j = temp_j1;j <= temp_j2;j++){
-			temp1 += image[i][j];				//Í³¼ÆµãÇóºÍ
+			temp1 += image[i][j];				//Í³ï¿½Æµï¿½ï¿½ï¿½ï¿½
 		}
 	}
 	reference_point = (uint8)func_limit_ab((temp1/temp),BLACKPOINT,255);
@@ -193,38 +193,38 @@ void get_reference_point(const uint8 image[][IMAGE_W]){
 
 void search_reference_col(const uint8 image[][IMAGE_W]){
 	int col,row;
-	int16 temp1 = 0,temp2 = 0,temp3 = 0;           //µ±Ç°µã ¶Ô±Èµã ¶Ô±È¶È
+	int16 temp1 = 0,temp2 = 0,temp3 = 0;           //ï¿½ï¿½Ç°ï¿½ï¿½ ï¿½Ô±Èµï¿½ ï¿½Ô±È¶ï¿½
 	for(col = 0;col < IMAGE_W;col++){
 		remote_distance[col] = IMAGE_H-1;
 	}
-	for(col = 0;col < IMAGE_W;col+=CONTRASTOFFSET){                  //ÌøĞĞ£¬¸ôÁ½ĞĞËãÒ»´Î
-		for	(row = IMAGE_H-1;row >= STOPROW+CONTRASTOFFSET;row-=CONTRASTOFFSET){    //ÌøÁĞ£¬¸ôÁ½ÁĞÅĞ¶ÏÒ»´Î
+	for(col = 0;col < IMAGE_W;col+=CONTRASTOFFSET){                  //ï¿½ï¿½ï¿½Ğ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
+		for	(row = IMAGE_H-1;row >= STOPROW+CONTRASTOFFSET;row-=CONTRASTOFFSET){    //ï¿½ï¿½ï¿½Ğ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½Ò»ï¿½ï¿½
 			temp1 = image[row][col];
 			temp2 = image[row-CONTRASTOFFSET][col];
 			
-			if(row == 5){   //¼ÆËã¶Ô±È¶È
+			if(row == 5){   //ï¿½ï¿½ï¿½ï¿½Ô±È¶ï¿½
 				remote_distance[col] = (uint8)row;
 				break;
 			}
 			
-			if(temp2 > white_max_point){           //¶Ô±ÈµãÊÇ°×µã
+			if(temp2 > white_max_point){           //ï¿½Ô±Èµï¿½ï¿½Ç°×µï¿½
 				continue;
 			}
-			if(temp1 < white_min_point){           //µ±Ç°µãÊÇºÚµã
+			if(temp1 < white_min_point){           //ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ÇºÚµï¿½
 				remote_distance[col] = (uint8)row;
 				break;
  			}
 			
 			temp3 = (temp1 - temp2)*200/(temp1 + temp2);
 			
-			if(temp3 >reference_contrast_ratio ){   //¼ÆËã¶Ô±È¶È
+			if(temp3 >reference_contrast_ratio ){   //ï¿½ï¿½ï¿½ï¿½Ô±È¶ï¿½
 				remote_distance[col] = (uint8)row;
 				break;
 			}
 		}
 	}
 	
-	for(col = 0;col < IMAGE_W;col+=CONTRASTOFFSET){    //Ñ°ÕÒ×î³¤°×ÁĞ
+	for(col = 0;col < IMAGE_W;col+=CONTRASTOFFSET){    //Ñ°ï¿½ï¿½ï¿½î³¤ï¿½ï¿½ï¿½ï¿½
 		if(remote_distance[reference_col] > remote_distance[col])
 			reference_col = col;
 	}
@@ -237,22 +237,22 @@ void search_reference_col(const uint8 image[][IMAGE_W]){
 
 
 void search_line(const uint8 image[][IMAGE_W]){
-    uint8 row_max = IMAGE_H - 1;                        // ĞĞ×î´óÖµ
-    uint8 row_min = STOPROW;                                    // ĞĞ×îĞ¡Öµ
-    uint8 col_max = IMAGE_W - CONTRASTOFFSET-1;           // ÁĞ×î´óÖµ
-    uint8 col_min = CONTRASTOFFSET;                    // ÁĞ×îĞ¡Öµ
-    int16 leftstartcol  = reference_col;                // ËÑÏß×óÆğÊ¼ÁĞ
-    int16 rightstartcol = reference_col;                // ËÑÏßÓÒÆğÊ¼ÁĞ
-    int16 leftendcol    = col_min;                           // ËÑÏß×óÖÕÖ¹ÁĞ
-    int16 rightendcol   = col_max;                   // ËÑÏßÓÒÖÕÖ¹ÁĞ
-    uint8 search_time   = 0;                                    // µ¥µãËÑÏß´ÎÊı
-    uint8 temp1 = 0, temp2 = 0;                                 // ÁÙÊ±±äÁ¿  ÓÃÓÚ´æ´¢Í¼ÏñÊı 
-    int  temp3 = 0;                                             // ÁÙÊ±±äÁ¿  ÓÃÓÚ´æ´¢¶Ô±È¶È
-    int  leftstop = 0, rightstop = 0, stoppoint = 0;            // ËÑÏß×ÔËø±äÁ¿
+    uint8 row_max = IMAGE_H - 1;                        // ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
+    uint8 row_min = STOPROW;                                    // ï¿½ï¿½ï¿½ï¿½Ğ¡Öµ
+    uint8 col_max = IMAGE_W - CONTRASTOFFSET-1;           // ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
+    uint8 col_min = CONTRASTOFFSET;                    // ï¿½ï¿½ï¿½ï¿½Ğ¡Öµ
+    int16 leftstartcol  = reference_col;                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
+    int16 rightstartcol = reference_col;                // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
+    int16 leftendcol    = col_min;                           // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¹ï¿½ï¿½
+    int16 rightendcol   = col_max;                   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¹ï¿½ï¿½
+    uint8 search_time   = 0;                                    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß´ï¿½ï¿½ï¿½
+    uint8 temp1 = 0, temp2 = 0;                                 // ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½Ú´æ´¢Í¼ï¿½ï¿½ï¿½ï¿½ 
+    int  temp3 = 0;                                             // ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½Ú´æ´¢ï¿½Ô±È¶ï¿½
+    int  leftstop = 0, rightstop = 0, stoppoint = 0;            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
     int col, row;
 
-    for(row = row_max; row >= row_min; row --){                //±ßÏß¹éÁãµ½Á½±ß
+    for(row = row_max; row >= row_min; row --){                //ï¿½ï¿½ï¿½ß¹ï¿½ï¿½ãµ½ï¿½ï¿½ï¿½ï¿½
 		left_edge_line[row]  = col_min - CONTRASTOFFSET;
         right_edge_line[row] = col_max + CONTRASTOFFSET;
     }
@@ -262,7 +262,7 @@ void search_line(const uint8 image[][IMAGE_W]){
 		if(!leftstop){
 			search_time = 2-cross_flag;
 			do{
-				if(search_time == 1){                         //µÚÒ»´ÎÃ»ËÑµ½
+				if(search_time == 1){                         //ï¿½ï¿½Ò»ï¿½ï¿½Ã»ï¿½Ñµï¿½
 					leftstartcol = reference_col;
 					leftendcol = col_min;
 				}
@@ -276,29 +276,29 @@ void search_line(const uint8 image[][IMAGE_W]){
 					temp2 = image[row][col - CONTRASTOFFSET];
 				
 					if(temp1 < white_min_point && col == leftstartcol && leftstartcol == reference_col){
-						//ÅĞ¶Ï²Î¿¼ÁĞÊÇ·ñÎªºÚµã£¬ÈôÊÇÔòÕâĞĞ²»ÔÙËÑË÷×ó±ßÏß
+						//ï¿½Ğ¶Ï²Î¿ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½Úµã£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						leftstop = 1;
 						stop_search_row = row;
 						
 						for(stoppoint = row;stoppoint >= 0;stoppoint--){
-							left_edge_line[stoppoint ] = col_min;		//½«×ÔËøĞĞÒÔÉÏµÄ±ßÏß¹éÁã
+							left_edge_line[stoppoint ] = col_min;		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÏµÄ±ï¿½ï¿½ß¹ï¿½ï¿½ï¿½
 						}
 						search_time = 0;
 						break;
 					}
 					
-					if(temp1 < white_min_point){           //µ±Ç°µãÎªºÚµã
+					if(temp1 < white_min_point){           //ï¿½ï¿½Ç°ï¿½ï¿½Îªï¿½Úµï¿½
 						left_edge_line[row] = col;
 						break;
 					}
-					if(temp2 > white_max_point){           //²Î¿¼µãÎª°×µã
+					if(temp2 > white_max_point){           //ï¿½Î¿ï¿½ï¿½ï¿½Îªï¿½×µï¿½
 						continue;
 					}
-					temp3 = (temp1 - temp2)*200/(temp1 + temp2); //¼ÆËã¶Ô±È¶È
+					temp3 = (temp1 - temp2)*200/(temp1 + temp2); //ï¿½ï¿½ï¿½ï¿½Ô±È¶ï¿½
 					
 					if(temp3 >reference_contrast_ratio || col == col_min){   
-						left_edge_line[row] = func_limit_ab(col - CONTRASTOFFSET, 0, IMAGE_W-1);		//±£´æ×ó±ß½ç
-						//ÏÂÒ»ĞĞÏÈÔÚËÑÏß°ë¾¶ÄÚËÑÏß
+						left_edge_line[row] = func_limit_ab(col - CONTRASTOFFSET, 0, IMAGE_W-1);		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß½ï¿½
+						//ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß°ë¾¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						leftstartcol = (uint8)func_limit_ab(col+SEARCHRANGE,col,col_max);  
 						leftendcol = (uint8)func_limit_ab(col-SEARCHRANGE,col_min,col);
 						search_time = 0;
@@ -312,7 +312,7 @@ void search_line(const uint8 image[][IMAGE_W]){
 		if(!rightstop){
 			search_time = 2-cross_flag;
 			do{
-				if(search_time == 1){                         //µÚÒ»´ÎÃ»ËÑµ½
+				if(search_time == 1){                         //ï¿½ï¿½Ò»ï¿½ï¿½Ã»ï¿½Ñµï¿½
 					rightstartcol = reference_col;
 					rightendcol = col_max;
 				}
@@ -326,29 +326,29 @@ void search_line(const uint8 image[][IMAGE_W]){
 					temp2 = image[row][col + CONTRASTOFFSET];
 				
 					if(temp1 < white_min_point && col == rightstartcol && rightstartcol == reference_col){
-						//ÅĞ¶Ï²Î¿¼ÁĞÊÇ·ñÎªºÚµã£¬ÈôÊÇÔòÕâĞĞ²»ÔÙËÑË÷ÓÒ±ßÏß
+						//ï¿½Ğ¶Ï²Î¿ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Îªï¿½Úµã£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò±ï¿½ï¿½ï¿½
 						rightstop = 1;
 						stop_search_row = row;
 
 						for(stoppoint = row;stoppoint >= 0;stoppoint--){
-							right_edge_line[stoppoint ] = col_max;		//½«×ÔËøĞĞÒÔÉÏµÄ±ßÏß¹éÁã
+							right_edge_line[stoppoint ] = col_max;		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÏµÄ±ï¿½ï¿½ß¹ï¿½ï¿½ï¿½
 						}
 						search_time = 0;
 						break;
 					}
 					
-					if(temp1 < white_min_point){           //µ±Ç°µãÎªºÚµã
+					if(temp1 < white_min_point){           //ï¿½ï¿½Ç°ï¿½ï¿½Îªï¿½Úµï¿½
 						right_edge_line[row] = col;
 						break;
 					}
-					if(temp2 > white_max_point){           //²Î¿¼µãÎª°×µã
+					if(temp2 > white_max_point){           //ï¿½Î¿ï¿½ï¿½ï¿½Îªï¿½×µï¿½
 						continue;
 					}
-					temp3 = (temp1 - temp2)*200/(temp1 + temp2); //¼ÆËã¶Ô±È¶È
+					temp3 = (temp1 - temp2)*200/(temp1 + temp2); //ï¿½ï¿½ï¿½ï¿½Ô±È¶ï¿½
 					
 					if(temp3 >reference_contrast_ratio || col == col_max){   
-						right_edge_line[row] = func_limit_ab(col + CONTRASTOFFSET, 0, IMAGE_W-1);		//±£´æÓÒ±ß½ç
-						//ÏÂÒ»ĞĞÏÈÔÚËÑÏß°ë¾¶ÄÚËÑÏß
+						right_edge_line[row] = func_limit_ab(col + CONTRASTOFFSET, 0, IMAGE_W-1);		//ï¿½ï¿½ï¿½ï¿½ï¿½Ò±ß½ï¿½
+						//ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß°ë¾¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						rightstartcol = (uint8)func_limit_ab(col-SEARCHRANGE,col_min,col);  
 						rightendcol = (uint8)func_limit_ab(col+SEARCHRANGE,col,col_max);
 						search_time = 0;
@@ -361,7 +361,7 @@ void search_line(const uint8 image[][IMAGE_W]){
 }
 
 uint8 image_find_jump_point(uint16 *edge_line,uint8 down_num,uint8 up_num,uint8 jump_num,uint8 model){
-	//down_num ÊÇÏÂ¶ËÆğÊ¼µã up_num ÊÇÉÏ¶ËÖÕÖ¹µã,modelÎª1Ê±´ÓÏÂµ½ÉÏ Îª0Ê±´ÓÉÏµ½ÏÂ
+	//down_num ï¿½ï¿½ï¿½Â¶ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ up_num ï¿½ï¿½ï¿½Ï¶ï¿½ï¿½ï¿½Ö¹ï¿½ï¿½,modelÎª1Ê±ï¿½ï¿½ï¿½Âµï¿½ï¿½ï¿½ Îª0Ê±ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½
 	uint8 temp_jump_point = 0;
 	uint8 temp_data;
 	
@@ -389,7 +389,7 @@ uint8 image_find_jump_point(uint16 *edge_line,uint8 down_num,uint8 up_num,uint8 
 }
 
 uint8 image_find_left_jump_point(uint8 down_num,uint8 up_num,uint8 model){
-	//down_num ÊÇÏÂ¶ËÆğÊ¼µã up_num ÊÇÉÏ¶ËÖÕÖ¹µã,modelÎª1Ê±´ÓÏÂµ½ÉÏ Îª0Ê±´ÓÉÏµ½ÏÂ
+	//down_num ï¿½ï¿½ï¿½Â¶ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ up_num ï¿½ï¿½ï¿½Ï¶ï¿½ï¿½ï¿½Ö¹ï¿½ï¿½,modelÎª1Ê±ï¿½ï¿½ï¿½Âµï¿½ï¿½ï¿½ Îª0Ê±ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½
 	uint8 temp_jump_point = 0;
 	uint8 temp_data;
 	
@@ -431,7 +431,7 @@ uint8 image_find_left_jump_point(uint8 down_num,uint8 up_num,uint8 model){
 }
 
 uint8 image_find_right_jump_point(uint8 down_num,uint8 up_num,uint8 model){
-	//down_num ÊÇÏÂ¶ËÆğÊ¼µã up_num ÊÇÉÏ¶ËÖÕÖ¹µã,modelÎª1Ê±´ÓÏÂµ½ÉÏ Îª0Ê±´ÓÉÏµ½ÏÂ
+	//down_num ï¿½ï¿½ï¿½Â¶ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ up_num ï¿½ï¿½ï¿½Ï¶ï¿½ï¿½ï¿½Ö¹ï¿½ï¿½,modelÎª1Ê±ï¿½ï¿½ï¿½Âµï¿½ï¿½ï¿½ Îª0Ê±ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½
 	uint8 temp_jump_point = 0;
 	uint8 temp_data;
 	
@@ -486,7 +486,7 @@ void image_connect_point(uint16 *array_value, uint8 num0, uint8 num1)
 
 void image_stretch_point(uint16 *array_value, uint8 num ,uint8 direction){
 	
-	//directionÎª1ÊÇÏòÉÏÑÓÉì£¬0ÊÇÏòÏÂÑÓÉì
+	//directionÎª1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ì£¬0ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if((num+5>=IMAGE_H) ||(num-5<=0))
 		return;
 	
@@ -525,7 +525,7 @@ void image_cross_analysis(void){
 		cross_flag = 1;
 	}
 	
-	if(cross_flag == 1){       //´óÆ¬°×É«
+	if(cross_flag == 1){       //ï¿½ï¿½Æ¬ï¿½ï¿½É«
 		start_point = 0;
 		end_point = 0;
 		start_point = image_find_left_jump_point(IMAGE_H - 5,IMAGE_H/4,0);
@@ -600,7 +600,7 @@ uint8 image_find_circle_point(uint16 *edge_line,uint8 down_num,uint8 up_num){
 
 void image_circle_analysis(void){
 	
-	if(circle_flag == 0){           //Ê¶±ğ»·µº
+	if(circle_flag == 0){           //Ê¶ï¿½ğ»·µï¿½
 		mid_mode = 0;
 		for(int i = IMAGE_H-2;i>0;i--){
 			if(func_abs(left_edge_line[i]-left_edge_line[i+1])>3)
@@ -617,7 +617,7 @@ void image_circle_analysis(void){
 		if(end_point){
 			if(start_point - end_point>30){
 				circle_flag = 1;
-				circle_time = 0;     //¿ªÊ¼¼ÆÊ±
+				circle_time = 0;     //ï¿½ï¿½Ê¼ï¿½ï¿½Ê±
 				beep_flag = 1;
 			}
 		}
@@ -629,14 +629,14 @@ void image_circle_analysis(void){
 		if(end_point){
 			if(end_point- start_point>30){
 				circle_flag = 1;
-				circle_time = 5;     //¿ªÊ¼¼ÆÊ±
+				circle_time = 5;     //ï¿½ï¿½Ê¼ï¿½ï¿½Ê±
 				beep_flag = 1;
 			}
 		}
 		ips200_show_int(96,240,start_point,4);
 		ips200_show_int(128,240,end_point,4);
 	}
-	else if (circle_flag == 1){      //¿´µ½»·µººóÔÚ³ö»·µº´¦ÑØ×ó±ßÏßÖ±×ß
+	else if (circle_flag == 1){      //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½
 		mid_mode = 1;
 		if(circle_time >= CIRCLE_1_TIME){
 			circle_time = 0;
@@ -644,7 +644,7 @@ void image_circle_analysis(void){
 			beep_flag = 1;
 		}
 	}
-	else if (circle_flag == 2){      //µ½´ïÈë¿ÚºóÑØÓÒ±ßÏßÈëµº
+	else if (circle_flag == 2){      //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úºï¿½ï¿½ï¿½ï¿½Ò±ï¿½ï¿½ï¿½ï¿½ëµº
 		mid_mode = 2;
 		if(circle_time >= CIRCLE_2_TIME){
 			circle_time = 0;
@@ -653,14 +653,14 @@ void image_circle_analysis(void){
 
 		}
 	}
-	else if (circle_flag == 3){      //ÈëµººóÕı³£Ñ­Ïß×ªÍä
+	else if (circle_flag == 3){      //ï¿½ëµºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½×ªï¿½ï¿½
 		mid_mode = 0;
-//		if(final_mid_line < IMAGE_W/2+10){//µ±³µÏëÍù×ó×ªÊ±ËµÃ÷µ½´ï³ö¿Ú
+//		if(final_mid_line < IMAGE_W/2+10){//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªÊ±Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //			mid_mode = 2;
 //			circle_time = 0;
 //			circle_flag = 4;
 //		}
-		if(left_edge_line[IMAGE_H/2]<3 && left_edge_line[IMAGE_H/2-1]<3 &&left_edge_line[IMAGE_H/2+1]<3){//µ±³µÏëÍù×ó×ªÊ±ËµÃ÷µ½´ï³ö¿Ú
+		if(left_edge_line[IMAGE_H/2]<3 && left_edge_line[IMAGE_H/2-1]<3 &&left_edge_line[IMAGE_H/2+1]<3){//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªÊ±Ëµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //		uint8 start_point = 0,end_point = 0;
 //		start_point = image_find_jump_point(left_edge_line,IMAGE_H-5,5,10,0);
 //		if(start_point){
@@ -671,7 +671,7 @@ void image_circle_analysis(void){
 
 		}
 	}
-	else if(circle_flag == 4){       //ÔÚ³ö¿Ú´¦ÑØÓÒ±ßÏß×ß
+	else if(circle_flag == 4){       //ï¿½Ú³ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½Ò±ï¿½ï¿½ï¿½ï¿½ï¿½
 		mid_mode = 0;
 		for(int i = IMAGE_H-1;i>0;i--){
 			left_edge_line[i] = IMAGE_W/3;
@@ -683,7 +683,7 @@ void image_circle_analysis(void){
 
 		}
 	}
-	else if(circle_flag == 5){       //ÑØ×ó±ßÏßÖ±×ßÀë¿ª»·µº
+	else if(circle_flag == 5){       //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ë¿ªï¿½ï¿½ï¿½ï¿½
 		mid_mode = 1;
 		if(circle_time >= CIRCLE_5_TIME){
 			circle_time = 0;
@@ -697,9 +697,9 @@ void image_circle_analysis(void){
 
 
 void image_calculate_mid(uint8 mode){
-	uint32 mid_weight_sum = 0;        //¼ÓÈ¨ÖĞÏßÀÛ¼ÓÖµ
-	uint32 weight_sum = 0;            //È¨ÖØÀÛ¼ÓÖµ
-	uint8 temp = 0;                   //ÁÙÊ±´æ´¢ÖĞÏß
+	uint32 mid_weight_sum = 0;        //ï¿½ï¿½È¨ï¿½ï¿½ï¿½ï¿½ï¿½Û¼ï¿½Öµ
+	uint32 weight_sum = 0;            //È¨ï¿½ï¿½ï¿½Û¼ï¿½Öµ
+	uint8 temp = 0;                   //ï¿½ï¿½Ê±ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½
 	if(mode == 0){
 		for(int i = 0;i<IMAGE_H;i++){
 			mid_line[i] = (left_edge_line[i] + right_edge_line[i])/2;
@@ -728,7 +728,7 @@ void image_calculate_mid(uint8 mode){
 	if(!last_final_mid_line)
 		final_mid_line = temp;
 	else
-		final_mid_line = temp*0.8+last_final_mid_line*0.2;  //»¥²¹ÂË²¨
+		final_mid_line = temp*0.8+last_final_mid_line*0.2;  //ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½
 
 	last_final_mid_line = final_mid_line;
 	
@@ -737,28 +737,28 @@ void image_calculate_mid(uint8 mode){
 void image_calculate_prospect(const uint8 image[][IMAGE_W]){
 	int col = IMAGE_W/2;
 	int16 temp1 = 0,temp2 = 0,temp3 = 0;
-	for	(int row = IMAGE_H-1;row > CONTRASTOFFSET;row--){    //ÌøÁĞ£¬¸ôÁ½ÁĞÅĞ¶ÏÒ»´Î
+	for	(int row = IMAGE_H-1;row > CONTRASTOFFSET;row--){    //ï¿½ï¿½ï¿½Ğ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½Ò»ï¿½ï¿½
 		temp1 = image[row][col];
 		temp2 = image[row-CONTRASTOFFSET][col];
 		
-		if(row == 4){   //¼ÆËã¶Ô±È¶È
+		if(row == 4){   //ï¿½ï¿½ï¿½ï¿½Ô±È¶ï¿½
 			prospect = IMAGE_H-(uint8)row;
 			break;
 		}
 		
-		if(temp1 < white_min_point){           //µ±Ç°µãÊÇºÚµã
+		if(temp1 < white_min_point){           //ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ÇºÚµï¿½
 			prospect = IMAGE_H-(uint8)row;
 			break;
 		}
 		
-		if(temp2 > white_max_point){           //¶Ô±ÈµãÊÇ°×µã
+		if(temp2 > white_max_point){           //ï¿½Ô±Èµï¿½ï¿½Ç°×µï¿½
 			continue;
 		}
 		
 		
 		temp3 = (temp1 - temp2)*200/(temp1 + temp2);
 		
-		if(temp3 >reference_contrast_ratio ){   //¼ÆËã¶Ô±È¶È
+		if(temp3 >reference_contrast_ratio ){   //ï¿½ï¿½ï¿½ï¿½Ô±È¶ï¿½
 			prospect = IMAGE_H-(uint8)row;
 			break;
 		}
@@ -769,39 +769,39 @@ void image_calculate_prospect(const uint8 image[][IMAGE_W]){
 
 
 void image_display_edge_line(const uint8 image[][IMAGE_W], uint16 display_width, uint16 display_height) {
-    // ÏÈÏÔÊ¾»Ò¶ÈÍ¼Ïñ
+    // ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ò¶ï¿½Í¼ï¿½ï¿½
     ips200_show_gray_image(0, 0, rgay_image, UVC_WIDTH, UVC_HEIGHT);	
     
-    // Ìí¼Ó±ß½ç¼ì²é
+    // ï¿½ï¿½ï¿½Ó±ß½ï¿½ï¿½ï¿½
     for(uint16 i = 0; i < IMAGE_H; i++) {
-        // ¼ì²é×ó±ßÏß×ø±êÊÇ·ñÔÚÓĞĞ§·¶Î§ÄÚ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§ï¿½ï¿½Î§ï¿½ï¿½
         if(left_edge_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)left_edge_line[i], i, RGB565_RED);
         }
         
-        // ¼ì²éÓÒ±ßÏß×ø±êÊÇ·ñÔÚÓĞĞ§·¶Î§ÄÚ
+        // ï¿½ï¿½ï¿½ï¿½Ò±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§ï¿½ï¿½Î§ï¿½ï¿½
         if(right_edge_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)right_edge_line[i], i, RGB565_BLUE);
         }
         
-        // ¼ì²é²Î¿¼Ïß×ø±êÊÇ·ñÔÚÓĞĞ§·¶Î§ÄÚ
+        // ï¿½ï¿½ï¿½Î¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§ï¿½ï¿½Î§ï¿½ï¿½
         if(reference_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)reference_line[i], i, RGB565_YELLOW);
         }
         
-        // ¼ì²éÖĞÏß×ø±êÊÇ·ñÔÚÓĞĞ§·¶Î§ÄÚ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§ï¿½ï¿½Î§ï¿½ï¿½
         if(mid_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)mid_line[i], i, RGB565_GREEN);
         }
     }
     
-    // ÏÔÊ¾×îÖÕÖĞÏßÖµ£¨Ìí¼Ó±ß½ç¼ì²é£©
+    // ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½Ó±ß½ï¿½ï¿½é£©
     if(final_mid_line < display_width) {
 //        ips200_show_int(96, 208, final_mid_line, 4);
     }
 }
 
-void image_get_left_err(void){     //»ñÈ¡×ó±ßÏßÓëÖĞÏßµÄÆ«²îÊı×é
+void image_get_left_err(void){     //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ßµï¿½Æ«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for(int i = 0;i <= IMAGE_H-1;i++){
 		single_edge_err[i] = mid_line[i] - left_edge_line[i];
 	}
@@ -815,7 +815,7 @@ void stop_analysis(const uint8 image[][IMAGE_W]){
 			temp1 = image[row][col];
 			temp2 = image[row][col+CONTRASTOFFSET];
 			temp3 = (temp1 - temp2)*200/(temp1 + temp2);
-			if(temp3 >reference_contrast_ratio ){   //¼ÆËã¶Ô±È¶È
+			if(temp3 >reference_contrast_ratio ){   //ï¿½ï¿½ï¿½ï¿½Ô±È¶ï¿½
 				stop_count++;
 			}
 		}
@@ -823,9 +823,8 @@ void stop_analysis(const uint8 image[][IMAGE_W]){
 //	ips200_show_int(96,288,stop_count,4);
 
 	if(stop_count> 35 /* && start_time > 30 */){
-		go_flag = 0;
+		// ç»Ÿä¸€åœè½¦æ¥å£ï¼šåªéœ€è®¾ç½® stop_flag = 1
 		stop_flag = 1;
-		stop_time = 0;
 		beep_flag = 1;
 	}
 }

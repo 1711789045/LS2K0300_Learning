@@ -160,19 +160,20 @@ void motor_stop(void){
 }
 
 void motor_protect(void){
+	// 前瞻过小保护（可能丢线或冲出赛道）
 	if(prospect<5 && start_time > 30){
-		go_flag = 0;
+		// 统一停车接口：只需设置 stop_flag = 1
 		stop_flag = 1;
-		stop_time = 0;
 		beep_flag = 1;
 	}
+
+	// 编码器堵转保护（可选，目前注释掉）
 //	if((encoder_data_l<=100 && speed_l>=5000) || (encoder_data_r<=100  && speed_r>=5000)){
 //		block_time++;
-//		
+//
 //		if(block_time >= 40){
-//			go_flag = 0;
+//			// 统一停车接口：只需设置 stop_flag = 1
 //			stop_flag = 1;
-//			stop_time = 0;
 //			beep_flag = 3;
 //		}
 //	}
