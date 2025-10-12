@@ -865,7 +865,7 @@ void image_process(uint16 display_width,uint16 display_height,uint8 mode){
 #include <time.h>
 
 // 静态变量用于存储时间测量数据
-static struct timespec start_time, end_time;
+static struct timespec img_start_time, img_end_time;
 static float last_process_time = 0.0f;       // 上一次处理时间(ms)
 static float total_process_time = 0.0f;      // 总处理时间(ms)
 static uint32 frame_count = 0;               // 帧计数器
@@ -879,7 +879,7 @@ static float min_process_time = 999.0f;      // 最小处理时间(ms)
  */
 void image_process_time_start(void)
 {
-    clock_gettime(CLOCK_MONOTONIC, &start_time);
+    clock_gettime(CLOCK_MONOTONIC, &img_start_time);
 }
 
 /**
@@ -891,11 +891,11 @@ void image_process_time_start(void)
  */
 float image_process_time_end(void)
 {
-    clock_gettime(CLOCK_MONOTONIC, &end_time);
+    clock_gettime(CLOCK_MONOTONIC, &img_end_time);
 
     // 计算时间差（纳秒级）
-    long seconds = end_time.tv_sec - start_time.tv_sec;
-    long nanoseconds = end_time.tv_nsec - start_time.tv_nsec;
+    long seconds = img_end_time.tv_sec - img_start_time.tv_sec;
+    long nanoseconds = img_end_time.tv_nsec - img_start_time.tv_nsec;
 
     // 转换为毫秒
     float elapsed_ms = seconds * 1000.0f + nanoseconds / 1000000.0f;
