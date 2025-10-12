@@ -69,6 +69,18 @@ int8 uvc_camera_init(const char *path)
     {
         printf("Warning: Failed to set frame rate\r\n");
     }
+    else
+    {
+        // 读取实际设置的帧率
+        ioctl(camera_fd, VIDIOC_G_PARM, &parm);
+        uint32_t actual_fps = parm.parm.capture.timeperframe.denominator / parm.parm.capture.timeperframe.numerator;
+        printf("Frame rate: requested=%d, actual=%u fps\r\n", UVC_FPS, actual_fps);
+
+        if(actual_fps < UVC_FPS)
+        {
+            printf("⚠️  Warning: Camera does not support %d fps, running at %u fps\r\n", UVC_FPS, actual_fps);
+        }
+    }
 
     // 5. 请求缓冲区（使用 mmap 方式，最快）
     struct v4l2_requestbuffers req;
