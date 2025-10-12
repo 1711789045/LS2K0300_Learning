@@ -85,7 +85,7 @@ int main(int, char**)
             motor_process();
 
             // 图像处理
-            image_process(IPS200_W, IPS200_H, 1);
+            image_process(IPS200_W, IPS200_H, 0);
         }
 
         // 短暂延时，避免CPU占用过高
