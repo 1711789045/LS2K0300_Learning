@@ -2,6 +2,26 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 📝 代码编辑规范（重要）
+
+### 文件编码要求
+
+**⚠️ 强制要求：所有代码文件必须使用 UTF-8 编码！**
+
+- **新建文件**：必须使用 UTF-8 编码
+- **编辑文件**：保持文件原有的 UTF-8 编码，不要改变
+- **注释**：中文注释使用 UTF-8 编码
+
+**Claude Code 编辑器设置：**
+- Read/Write/Edit 工具默认使用 UTF-8
+- 避免使用其他编码格式（GBK、GB2312等）
+
+**现有问题说明：**
+- 部分旧文件（特别是 `C_Car_project/loongson_project/code/` 下的文件）可能使用 GBK 编码
+- 这些文件中的中文注释在 UTF-8 环境下会显示为乱码
+- **修改这些文件时**：只修改代码，不要试图转换编码或修复中文注释
+- **新增注释时**：使用英文或者确保编辑器使用 UTF-8
+
 ## 项目概述
 
 这是逐飞科技针对龙芯久久派 LS2K0300 开发的开源库，用于竞赛和产品开发。本项目基于 Linux 环境，使用交叉编译工具链为 LoongArch64 架构编译应用程序。
