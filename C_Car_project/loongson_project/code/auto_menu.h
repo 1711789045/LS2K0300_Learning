@@ -17,7 +17,7 @@
 #define MAP_INIT_END		(0x01<<1)
 
 
-#define SON_NUM				(6)  //ÍÆ¼öÎª2µÄÕûÊý±¶
+#define SON_NUM				(6)  //æŽ¨èä¸º2çš„æ•´æ•°å€
 
 
 
@@ -42,12 +42,12 @@ extern uint8 first_in_page_flag;
 #define CLEAR_PID_DRAW()					ips200_clear_hhh(0,(SON_NUM)*16,SCREEN_W-1,SCREEN_H-1,IPS200_BGCOLOR)
 #define IS_OK 								(button2==1)&&(!first_in_page_flag)
  
-//Ä¿Ç°Ö»Ö§³Ö4ÖÖ³£ÓÃÀàÐÍµÄ²ÎÊý£¬ÈçÓÐÆäËûÐèÒª¿É×ÔÐÐÌí¼Ó
+//ç›®å‰åªæ”¯æŒ4ç§å¸¸ç”¨ç±»åž‹çš„å‚æ•°ï¼Œå¦‚æœ‰å…¶ä»–éœ€è¦å¯è‡ªè¡Œæ·»åŠ 
 typedef enum TYPE_VALUE{TYPE_FLOAT=1,TYPE_DOUBLE,TYPE_INT,TYPE_UINT16,TYPE_UINT32}type_value;
 
 typedef enum UNIT_TYPE{USE_FUN=1,NORMAL_PAR,PID_PAR}unit_type;
 
-//Ê¹ÓÃtft»òips200(Ç°ÆÚÎªTFTÉè¼Æ£¬ºóÐøÊÇÔÚipsÉÏ¿ª·¢µÄ)
+//ä½¿ç”¨tftæˆ–ips200(å‰æœŸä¸ºTFTè®¾è®¡ï¼ŒåŽç»­æ˜¯åœ¨ipsä¸Šå¼€å‘çš„)
 #define TFT						0
 #define IPS						1
 #define SCREEN_TYPE		        IPS
@@ -84,13 +84,13 @@ typedef enum UNIT_TYPE{USE_FUN=1,NORMAL_PAR,PID_PAR}unit_type;
 	#define		    SCREEN_H				IPS200_H
 #endif
 
-//  @brief      ²Ëµ¥ÔªËØ½á¹¹Ìå
-//  @param      bool use_fun;											ÊÇ·ñÊ¹ÓÃ¹¦ÄÜº¯ÊýÖ¸Õë£¨ÈôÖ»ÐèÐÞ¸Ä²ÎÊýÔòÖÃÎªfalse£©
-//  @param      void* p_par;											Ö¸Ïò´ýÐÞ¸Ä²ÎÊýµÄÖ¸Õë
-//  @param      type par_type;										´ýÐÞ¸Ä²ÎÊýµÄÖ¸ÕëÀàÐÍ
-//  @param      float delta;											ÐÞ¸Ä´óÐ¡
-//  @param      uint8 num;						 						ÏÔÊ¾µÄÕûÊýÎ»
-//  @param      uint8 point_num;									ÏÔÊ¾µÄÐ¡ÊýÎ»
+//  @brief      èœå•å…ƒç´ ç»“æž„ä½“
+//  @param      bool use_fun;											æ˜¯å¦ä½¿ç”¨åŠŸèƒ½å‡½æ•°æŒ‡é’ˆï¼ˆè‹¥åªéœ€ä¿®æ”¹å‚æ•°åˆ™ç½®ä¸ºfalseï¼‰
+//  @param      void* p_par;											æŒ‡å‘å¾…ä¿®æ”¹å‚æ•°çš„æŒ‡é’ˆ
+//  @param      type par_type;										å¾…ä¿®æ”¹å‚æ•°çš„æŒ‡é’ˆç±»åž‹
+//  @param      float delta;											ä¿®æ”¹å¤§å°
+//  @param      uint8 num;						 						æ˜¾ç¤ºçš„æ•´æ•°ä½
+//  @param      uint8 point_num;									æ˜¾ç¤ºçš„å°æ•°ä½
 typedef struct PARAM_SET{
 	void* 				p_par;
 	float 				delta;
@@ -102,10 +102,10 @@ typedef struct PARAM_SET{
 typedef struct MENU_UNIT
 {
 	param_set* par_set;//
-	struct MENU_UNIT* up;//ÉÏ
-	struct MENU_UNIT* down;//ÏÂ
-	struct MENU_UNIT* enter;//½øÈë
-	struct MENU_UNIT* back;//·µ»Ø
+	struct MENU_UNIT* up;//ä¸Š
+	struct MENU_UNIT* down;//ä¸‹
+	struct MENU_UNIT* enter;//è¿›å…¥
+	struct MENU_UNIT* back;//è¿”å›ž
 	void (*current_operation)();
 	char  name[STR_LEN_MAX];
 	uint8 m_index[2];
@@ -127,14 +127,14 @@ void fun_dad(uint8 index_dad,uint8 useless);
 void fun_son(uint8 index_son1,uint8 index_son2);
 void dad_name_init();
 
-//¿Õº¯Êý
+//ç©ºå‡½æ•°
 void NULL_FUN();
-//ËùÓÐµÄ²ÎÊýÅäÖÃ¾ùÔÚÕâ
+//æ‰€æœ‰çš„å‚æ•°é…ç½®å‡åœ¨è¿™
 void UNIT_SET();
-//ËùÓÐµÄº¯ÊýÅäÖÃ¾ùÔÚÕâ
+//æ‰€æœ‰çš„å‡½æ•°é…ç½®å‡åœ¨è¿™
 void FUN_INIT();
 
-//´Ë´¦Ìí¼Ó´¦Àíº¯Êý
+//æ­¤å¤„æ·»åŠ å¤„ç†å‡½æ•°
 void Flash_Read();
 void Flash_Write();
 void Flash_Erase();

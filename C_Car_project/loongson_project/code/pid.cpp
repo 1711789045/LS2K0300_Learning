@@ -2,19 +2,19 @@
 #include "auto_menu.h"
 
 typedef struct {
-    float last_error;      // ÉÏÒ»´ÎÎó²î
-    float prev_error;      // ÉÏÉÏ´ÎÎó²î£¨ÓÃÓÚÎ¢·Ö£©
-    float output;          // µ±Ç°Êä³öÖµ
+    float last_error;      // ä¸Šä¸€æ¬¡è¯¯å·®
+    float prev_error;      // ä¸Šä¸Šæ¬¡è¯¯å·®ï¼ˆç”¨äºå¾®åˆ†ï¼‰
+    float output;          // å½“å‰è¾“å‡ºå€¼
 	float last_i;
 } PID_INCREMENT_TypeDef;
 
 typedef struct {
-    float last_error;      // ÉÏÒ»´ÎÎó²î
-    float error_sum;      // Îó²î»ı·Ö
-    float output;          // µ±Ç°Êä³öÖµ
+    float last_error;      // ä¸Šä¸€æ¬¡è¯¯å·®
+    float error_sum;      // è¯¯å·®ç§¯åˆ†
+    float output;          // å½“å‰è¾“å‡ºå€¼
 } PID_POSITIONAL_TypeDef;
 
-//ÔöÁ¿Ê½pid
+//å¢é‡å¼pid
 float pid_increment(PID_INCREMENT_TypeDef *pid, float target, float current, 
                     float limit, float kp, float ki, float kd) 
 {
@@ -26,11 +26,11 @@ float pid_increment(PID_INCREMENT_TypeDef *pid, float target, float current,
     float increment = p_term + i_term + d_term;
     pid->output += increment;
 	pid->last_i = i_term;
-    // ¸üĞÂÎó²îÀúÊ·
+    // æ›´æ–°è¯¯å·®å†å²
     pid->prev_error = pid->last_error;
     pid->last_error = error;
 
-    // Êä³öÏŞ·ù
+    // è¾“å‡ºé™å¹…
     if(pid->output > limit) pid->output = limit;
     else if(pid->output < -limit) pid->output = -limit;
     
@@ -40,17 +40,17 @@ float pid_increment(PID_INCREMENT_TypeDef *pid, float target, float current,
 
 //float pid_positional(PID_POSITIONAL_TypeDef *pid, float target, float current, 
 //                     float limit, float kp, float ki, float kd) {
-//    // ¼ÆËãµ±Ç°Îó²î
+//    // è®¡ç®—å½“å‰è¯¯å·®
 //    float error = target - current;
 //	pid->error_sum += error;
 //    
-//    // PIDÈıÏîµş¼Ó¼ÆËãÊä³ö
+//    // PIDä¸‰é¡¹å åŠ è®¡ç®—è¾“å‡º
 //    float p_term = kp * error;
 //    float i_term = ki * pid->error_sum;
 //    float d_term = kd * (error-pid->last_error);
 //    pid->output = p_term + i_term + d_term;
 //    
-//    // »ı·Ö¿¹±¥ºÍ´¦Àí
+//    // ç§¯åˆ†æŠ—é¥±å’Œå¤„ç†
 //    if(pid->output > limit) {
 //        pid->output = limit;
 //    }
@@ -58,7 +58,7 @@ float pid_increment(PID_INCREMENT_TypeDef *pid, float target, float current,
 //        pid->output = -limit;
 //    }
 //    
-//    // ¸üĞÂÎó²îÀúÊ·
+//    // æ›´æ–°è¯¯å·®å†å²
 //    pid->last_error = error;
 //    
 //    return pid->output;
@@ -66,7 +66,7 @@ float pid_increment(PID_INCREMENT_TypeDef *pid, float target, float current,
 
 float pid_positional(PID_POSITIONAL_TypeDef *pid, float target, float current, 
                      float limit, float kp, float ki, float kd1,float kd2) {
-    // ¼ÆËãµ±Ç°Îó²î
+    // è®¡ç®—å½“å‰è¯¯å·®
     float error = target - current;
 	pid->error_sum += error;
 	
@@ -79,14 +79,14 @@ float pid_positional(PID_POSITIONAL_TypeDef *pid, float target, float current,
 //	printf("%f\n",d_error);
 
     
-    // PIDÈıÏîµş¼Ó¼ÆËãÊä³ö
+    // PIDä¸‰é¡¹å åŠ è®¡ç®—è¾“å‡º
     float p_term = kp * error;
     float i_term = ki * pid->error_sum;
     float d_term = kd1 * d_error1+kd2*d_error2;
     pid->output = p_term + i_term + d_term;
     
 
-    // ¸üĞÂÎó²îÀúÊ·
+    // æ›´æ–°è¯¯å·®å†å²
     pid->last_error = error;
     
     return pid->output;

@@ -1,33 +1,33 @@
 #include "zf_common_headfile.h"
 #include "key.h"
 #include "auto_menu.h"
-uint8 key1_state = 0;																// °´¼ü¶¯×÷×´Ì¬
-uint8 key1_state_last = 0;															// ÉÏÒ»´Î°´¼ü¶¯×÷×´Ì¬
-uint8 key1_flag=0;                                //   1°´ÏÂ£¬ËÉ¿ª0
+uint8 key1_state = 0;																// æŒ‰é”®åŠ¨ä½œçŠ¶æ€
+uint8 key1_state_last = 0;															// ä¸Šä¸€æ¬¡æŒ‰é”®åŠ¨ä½œçŠ¶æ€
+uint8 key1_flag=0;                                //   1æŒ‰ä¸‹ï¼Œæ¾å¼€0
 uint8 key1_count=0;
 
-uint8 key2_state = 0;																// °´¼ü¶¯×÷×´Ì¬
-uint8 key2_state_last = 0;															// ÉÏÒ»´Î°´¼ü¶¯×÷×´Ì¬
-uint8 key2_flag=0;                                //   1°´ÏÂ£¬ËÉ¿ª0
+uint8 key2_state = 0;																// æŒ‰é”®åŠ¨ä½œçŠ¶æ€
+uint8 key2_state_last = 0;															// ä¸Šä¸€æ¬¡æŒ‰é”®åŠ¨ä½œçŠ¶æ€
+uint8 key2_flag=0;                                //   1æŒ‰ä¸‹ï¼Œæ¾å¼€0
 uint8 key2_count=0;
 
-uint8 key3_state = 0;																// °´¼ü¶¯×÷×´Ì¬
-uint8 key3_state_last = 0;															// ÉÏÒ»´Î°´¼ü¶¯×÷×´Ì¬
-uint8 key3_flag=0;                                //   1°´ÏÂ£¬ËÉ¿ª0
+uint8 key3_state = 0;																// æŒ‰é”®åŠ¨ä½œçŠ¶æ€
+uint8 key3_state_last = 0;															// ä¸Šä¸€æ¬¡æŒ‰é”®åŠ¨ä½œçŠ¶æ€
+uint8 key3_flag=0;                                //   1æŒ‰ä¸‹ï¼Œæ¾å¼€0
 uint8 key3_count=0;
 
-uint8 key4_state = 0;																// °´¼ü¶¯×÷×´Ì¬
-uint8 key4_state_last = 0;															// ÉÏÒ»´Î°´¼ü¶¯×÷×´Ì¬
-uint8 key4_flag=0;                                //   1°´ÏÂ£¬ËÉ¿ª0
+uint8 key4_state = 0;																// æŒ‰é”®åŠ¨ä½œçŠ¶æ€
+uint8 key4_state_last = 0;															// ä¸Šä¸€æ¬¡æŒ‰é”®åŠ¨ä½œçŠ¶æ€
+uint8 key4_flag=0;                                //   1æŒ‰ä¸‹ï¼Œæ¾å¼€0
 uint8 key4_count=0;
 
 #ifdef  MENU_USE_RTT
-//°´¼üĞÅºÅÁ¿
+//æŒ‰é”®ä¿¡å·é‡
 rt_sem_t key1_sem;
 rt_sem_t key2_sem;
 rt_sem_t key3_sem;
 rt_sem_t key4_sem;
-//°´¼ü·´À¡ĞÅºÅÁ¿
+//æŒ‰é”®åé¦ˆä¿¡å·é‡
 rt_sem_t button_feedback_sem;
 #endif
 
@@ -92,13 +92,13 @@ void button_entry(void *parameter)
 	while(1)
 	{
     #endif
-		//±£´æ°´¼ü×´Ì¬
+		//ä¿å­˜æŒ‰é”®çŠ¶æ€
 		key1_state_last = key1_state;
 		key2_state_last = key2_state;
 		key3_state_last = key3_state;
 		key4_state_last = key4_state;
 		
-		//¶ÁÈ¡µ±Ç°°´¼ü×´Ì¬
+		//è¯»å–å½“å‰æŒ‰é”®çŠ¶æ€
 		key1_state = gpio_get_level(KEY_1);
 		key2_state = gpio_get_level(KEY_2);
 		key3_state = gpio_get_level(KEY_3);
@@ -108,7 +108,7 @@ void button_entry(void *parameter)
 //		printf("key:%d %d %d %d\n",key1_state,key2_state,key3_state,key4_state);
 
 		
-		//³¤°´¼ì²â
+		//é•¿æŒ‰æ£€æµ‹
 		if(!key1_state)
 		{
 			long_press_cnt++;
@@ -139,7 +139,7 @@ void button_entry(void *parameter)
 			long_press_button=0;
 		}
 			
-		//¼ì²âµ½°´¼ü°´ÏÂÖ®ºó²¢·Å¿ª ÊÍ·ÅÒ»´ÎĞÅºÅÁ¿
+		//æ£€æµ‹åˆ°æŒ‰é”®æŒ‰ä¸‹ä¹‹åå¹¶æ”¾å¼€ é‡Šæ”¾ä¸€æ¬¡ä¿¡å·é‡
 		extern uint8 button1,button2,button3,button4;
 		button1 = 0;button2 = 0;button3 = 0;button4 = 0;
 		if((key1_state && !key1_state_last)||long_press_button==1)    
@@ -189,13 +189,13 @@ void button_entry(void *parameter)
 void key_into()
 {
 	
-//    gpio_init(KEY_1, GPI, GPIO_LOW, GPI_PULL_UP);                                   // ³õÊ¼»¯ÎªGPIO¸¡¿ÕÊäÈë Ä¬ÈÏÉÏÀ­¸ßµçÆ½
-//    gpio_init(KEY_2, GPI, GPIO_LOW, GPI_PULL_UP);                                   // ³õÊ¼»¯ÎªGPIO¸¡¿ÕÊäÈë Ä¬ÈÏÉÏÀ­¸ßµçÆ½
-//    gpio_init(KEY_3, GPI, GPIO_LOW, GPI_PULL_UP);                                   // ³õÊ¼»¯ÎªGPIO¸¡¿ÕÊäÈë Ä¬ÈÏÉÏÀ­¸ßµçÆ½
-//    gpio_init(KEY_4, GPI, GPIO_LOW, GPI_PULL_UP);                                   // ³õÊ¼»¯ÎªGPIO¸¡¿ÕÊäÈë Ä¬ÈÏÉÏÀ­¸ßµçÆ½
+//    gpio_init(KEY_1, GPI, GPIO_LOW, GPI_PULL_UP);                                   // åˆå§‹åŒ–ä¸ºGPIOæµ®ç©ºè¾“å…¥ é»˜è®¤ä¸Šæ‹‰é«˜ç”µå¹³
+//    gpio_init(KEY_2, GPI, GPIO_LOW, GPI_PULL_UP);                                   // åˆå§‹åŒ–ä¸ºGPIOæµ®ç©ºè¾“å…¥ é»˜è®¤ä¸Šæ‹‰é«˜ç”µå¹³
+//    gpio_init(KEY_3, GPI, GPIO_LOW, GPI_PULL_UP);                                   // åˆå§‹åŒ–ä¸ºGPIOæµ®ç©ºè¾“å…¥ é»˜è®¤ä¸Šæ‹‰é«˜ç”µå¹³
+//    gpio_init(KEY_4, GPI, GPIO_LOW, GPI_PULL_UP);                                   // åˆå§‹åŒ–ä¸ºGPIOæµ®ç©ºè¾“å…¥ é»˜è®¤ä¸Šæ‹‰é«˜ç”µå¹³
     #ifdef  MENU_USE_RTT
 	rt_thread_t tid;
-	key1_sem = rt_sem_create("key1", 0, RT_IPC_FLAG_FIFO);  //´´½¨°´¼üµÄĞÅºÅÁ¿£¬µ±°´¼ü°´ÏÂ¾ÍÊÍ·ÅĞÅºÅÁ¿£¬ÔÚĞèÒªÊ¹ÓÃ°´¼üµÄµØ·½»ñÈ¡ĞÅºÅÁ¿¼´¿É
+	key1_sem = rt_sem_create("key1", 0, RT_IPC_FLAG_FIFO);  //åˆ›å»ºæŒ‰é”®çš„ä¿¡å·é‡ï¼Œå½“æŒ‰é”®æŒ‰ä¸‹å°±é‡Šæ”¾ä¿¡å·é‡ï¼Œåœ¨éœ€è¦ä½¿ç”¨æŒ‰é”®çš„åœ°æ–¹è·å–ä¿¡å·é‡å³å¯
 	key2_sem = rt_sem_create("key2", 0, RT_IPC_FLAG_FIFO);  
 	key3_sem = rt_sem_create("key3", 0, RT_IPC_FLAG_FIFO);  
 	key4_sem = rt_sem_create("key4", 0, RT_IPC_FLAG_FIFO);  
@@ -203,7 +203,7 @@ void key_into()
 	button_feedback_sem = rt_sem_create("button_feedback",1,RT_IPC_FLAG_FIFO);
 	
 	tid = rt_thread_create("button",button_entry,RT_NULL,512,12,2);
-	//Æô¶¯°´¼üÏß³Ì
+	//å¯åŠ¨æŒ‰é”®çº¿ç¨‹
 	if(RT_NULL != tid)
 	{
 			rt_thread_startup(tid);

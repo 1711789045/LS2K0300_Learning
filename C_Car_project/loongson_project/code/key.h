@@ -1,19 +1,19 @@
 #ifndef _key_h
 #define _key_h
 
-#define KEY_1               "/dev/zf_driver_gpio_key_0"                                                       // ¶¨ÒåÖ÷°åÉÏ°´¼ü¶ÔÓ¦Òı½Å
+#define KEY_1               "/dev/zf_driver_gpio_key_0"                                                       // å®šä¹‰ä¸»æ¿ä¸ŠæŒ‰é”®å¯¹åº”å¼•è„š
 int  key1_can(void);
 
-#define KEY_2               "/dev/zf_driver_gpio_key_1"                                                      // ¶¨ÒåÖ÷°åÉÏ°´¼ü¶ÔÓ¦Òı½Å
+#define KEY_2               "/dev/zf_driver_gpio_key_1"                                                      // å®šä¹‰ä¸»æ¿ä¸ŠæŒ‰é”®å¯¹åº”å¼•è„š
 int  key2_can(void);
 
-#define KEY_3               "/dev/zf_driver_gpio_key_2"                                                     // ¶¨ÒåÖ÷°åÉÏ°´¼ü¶ÔÓ¦Òı½Å
+#define KEY_3               "/dev/zf_driver_gpio_key_2"                                                     // å®šä¹‰ä¸»æ¿ä¸ŠæŒ‰é”®å¯¹åº”å¼•è„š
 int  key3_can(void);
 
-#define KEY_4               "/dev/zf_driver_gpio_key_3"                                                       // ¶¨ÒåÖ÷°åÉÏ°´¼ü¶ÔÓ¦Òı½Å
+#define KEY_4               "/dev/zf_driver_gpio_key_3"                                                       // å®šä¹‰ä¸»æ¿ä¸ŠæŒ‰é”®å¯¹åº”å¼•è„š
 int  key4_can(void);
 
-#define LONG_PRESS_TIME	    30	//Ô¼Îª30*20*2=600ms
+#define LONG_PRESS_TIME	    30	//çº¦ä¸º30*20*2=600ms
 extern void key_into(void);
 extern void button_entry(void *parameter);
 

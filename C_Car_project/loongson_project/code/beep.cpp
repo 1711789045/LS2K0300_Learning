@@ -4,11 +4,11 @@
 uint8 beep_flag = 0;
 
 void beep_on(void){
-	gpio_set_level(BEEP, 0x1);                                            // BEEP œÏ
+	gpio_set_level(BEEP, 0x1);                                            // BEEP Âìç
 
 }
 
 void beep_off(void){
-	gpio_set_level(BEEP, 0x0);                                             // BEEP Õ£
+	gpio_set_level(BEEP, 0x0);                                             // BEEP ÂÅú
 
 }

@@ -2,17 +2,17 @@
 #define __PID_H__
 
 typedef struct {
-    float last_error;      // ÉÏÒ»´ÎÎó²î
-    float prev_error;      // ÉÏÉÏ´ÎÎó²î£¨ÓÃÓÚÎ¢·Ö£©
-    float output;          // µ±Ç°Êä³öÖµ
-	float last_i;          // µ±Ç°Êä³öÖµ
+    float last_error;      // ä¸Šä¸€æ¬¡è¯¯å·®
+    float prev_error;      // ä¸Šä¸Šæ¬¡è¯¯å·®ï¼ˆç”¨äºå¾®åˆ†ï¼‰
+    float output;          // å½“å‰è¾“å‡ºå€¼
+	float last_i;          // å½“å‰è¾“å‡ºå€¼
 
 } PID_INCREMENT_TypeDef;
 
 typedef struct {
-    float last_error;      // ÉÏÒ»´ÎÎó²î
-    float error_sum;      // Îó²î»ı·Ö
-    float output;          // µ±Ç°Êä³öÖµ
+    float last_error;      // ä¸Šä¸€æ¬¡è¯¯å·®
+    float error_sum;      // è¯¯å·®ç§¯åˆ†
+    float output;          // å½“å‰è¾“å‡ºå€¼
 } PID_POSITIONAL_TypeDef;
 
 
