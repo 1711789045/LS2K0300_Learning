@@ -547,6 +547,7 @@ void UNIT_SET(){
 }
 
 void FUN_INIT(){
-	fun_init(car_start, "START");      // 启动小车
+	fun_init(car_start, "START");         // 启动小车
+	fun_init(servo_manual_adjust, "SERVO_ADJ");  // 舵机手动调整
 	fun_init(NULL_FUN,   "NULL_FUN");
 }

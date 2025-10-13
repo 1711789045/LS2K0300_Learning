@@ -35,6 +35,14 @@
 #include "control.h"
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+
+// 从 auto_menu.cpp 引入的按键变量
+extern uint8 button1, button2, button3, button4;
+// IS_OK 是 auto_menu.h 中定义的宏，不需要 extern 声明
 
 // PWM 信息结构体
 static struct pwm_info servo_pwm_info;
@@ -57,6 +65,9 @@ float servo_pid_kd2 = 0;
 uint8 servo_f = 0;
 float last_err = 0;
 
+// 全局舵机中值变量
+float g_servo_mid = SERVO_MOTOR_MID;
+
 // 占空比计算宏（根据角度计算PWM占空比）
 // 舵机 0-180度对应 0.5ms-2.5ms 高电平
 #define SERVO_MOTOR_DUTY(x) ((float)servo_pwm_info.duty_max / (1000.0 / (float)servo_pwm_info.freq) * (0.5 + (float)(x) / 90.0))
@@ -68,6 +79,9 @@ float last_err = 0;
  */
 void servo_init(void)
 {
+    // 从配置文件加载舵机中值
+    servo_load_config();
+
     // 获取舵机PWM设备信息
     pwm_get_dev_info(SERVO_MOTOR_PWM, &servo_pwm_info);
 
@@ -90,13 +104,17 @@ void servo_setangle(float angle)
     angle = func_limit(angle, SERVO_MOTOR_LIMIT);
 
     // 计算实际舵机角度
-    float servo_motor_duty = SERVO_MOTOR_MID + angle;
+    float servo_motor_duty = g_servo_mid + angle;
+
+    // 计算左右最大角度（基于全局中值）
+    float servo_motor_l_max = g_servo_mid - SERVO_MOTOR_LIMIT;
+    float servo_motor_r_max = g_servo_mid + SERVO_MOTOR_LIMIT;
 
     // 限制在左右最大角度范围内
-    if(servo_motor_duty >= SERVO_MOTOR_R_MAX)
-        servo_motor_duty = SERVO_MOTOR_R_MAX;
-    if(servo_motor_duty <= SERVO_MOTOR_L_MAX)
-        servo_motor_duty = SERVO_MOTOR_L_MAX;
+    if(servo_motor_duty >= servo_motor_r_max)
+        servo_motor_duty = servo_motor_r_max;
+    if(servo_motor_duty <= servo_motor_l_max)
+        servo_motor_duty = servo_motor_l_max;
 
     // 设置PWM占空比
     pwm_set_duty(SERVO_MOTOR_PWM, (uint16)SERVO_MOTOR_DUTY(servo_motor_duty));
@@ -184,4 +202,166 @@ void servo_process(void)
 
         servo_f = 0;
     }
+}
+
+/**
+ * @brief  舵机手动调整函数
+ * @param  无
+ * @return 无
+ * @note   必须按确认键(IS_OK)才进入调整模式
+ *         在调整模式中，通过两个虚拟参数(+0.1/-0.1)调整舵机中值
+ *         按button1(返回键)保存并退出
+ */
+void servo_manual_adjust(void)
+{
+    if(IS_OK)  // 必须按下确认键才进入调整模式
+    {
+        // 使用当前保存的中值初始化
+        float current_angle = g_servo_mid;
+
+        // 选择的参数索引：0 = angle_inc (+0.1), 1 = angle_dec (-0.1)
+        uint8 param_index = 0;
+
+        // 清屏
+        ips200_full(IPS200_DEFAULT_BGCOLOR);
+
+        printf("Entering servo manual adjust mode, current mid = %.2f\r\n", current_angle);
+
+        // 进入手动调整主循环
+        while(1)
+        {
+            // 清除上次显示
+            ips200_full(IPS200_DEFAULT_BGCOLOR);
+
+            // 显示标题和当前角度
+            showstr(0, 0 * DIS_Y, "SERVO ADJUST");
+            showstr(0, 1 * DIS_Y, "Current:");
+            showfloat(80, 1 * DIS_Y, current_angle, 4, 2);
+
+            // 显示两个虚拟参数
+            if(param_index == 0)
+                showstr(0, 3 * DIS_Y, ">angle +0.1");
+            else
+                showstr(0, 3 * DIS_Y, " angle +0.1");
+
+            if(param_index == 1)
+                showstr(0, 4 * DIS_Y, ">angle -0.1");
+            else
+                showstr(0, 4 * DIS_Y, " angle -0.1");
+
+            // 显示退出提示
+            showstr(0, 5 * DIS_Y, "KEY1=SAVE&EXIT");
+
+            // 检测返回键(button1)：保存并退出
+            if(button1)
+            {
+                g_servo_mid = current_angle;  // 更新全局中值变量
+                servo_save_config();           // 保存到文件
+                printf("Servo mid saved to flash: %.2f\r\n", g_servo_mid);
+
+                // 清屏并退出
+                ips200_full(IPS200_DEFAULT_BGCOLOR);
+                break;
+            }
+
+            // 检测上下键：切换参数选择
+            if(button3)  // 向上
+            {
+                param_index = (param_index == 0) ? 1 : 0;
+                system_delay_ms(100);  // 防抖延迟
+            }
+            else if(button4)  // 向下
+            {
+                param_index = (param_index == 0) ? 1 : 0;
+                system_delay_ms(100);  // 防抖延迟
+            }
+
+            // 检测确认键(button2/IS_OK)：执行加/减操作
+            if(button2)
+            {
+                if(param_index == 0)
+                {
+                    // angle_inc: +0.1
+                    current_angle += 0.1;
+                    printf("Angle increased to: %.2f\r\n", current_angle);
+                }
+                else if(param_index == 1)
+                {
+                    // angle_dec: -0.1
+                    current_angle -= 0.1;
+                    printf("Angle decreased to: %.2f\r\n", current_angle);
+                }
+
+                // 立即更新舵机位置
+                pwm_set_duty(SERVO_MOTOR_PWM, (uint16)SERVO_MOTOR_DUTY(current_angle));
+
+                system_delay_ms(100);  // 防抖延迟
+            }
+
+            system_delay_ms(10);  // 主循环延迟
+        }
+    }
+}
+
+/**
+ * @brief  保存舵机配置到文件
+ * @param  无
+ * @return 无
+ * @note   将 g_servo_mid 保存到 /home/root/servo_config.txt
+ */
+void servo_save_config(void)
+{
+    FILE *fp = fopen("/home/root/servo_config.txt", "w");
+    if(fp == NULL)
+    {
+        printf("[ERROR] Failed to open servo config file for writing\r\n");
+        return;
+    }
+
+    fprintf(fp, "%.2f\n", g_servo_mid);
+    fclose(fp);
+
+    printf("[INFO] Servo config saved: mid = %.2f\r\n", g_servo_mid);
+}
+
+/**
+ * @brief  从文件读取舵机配置
+ * @param  无
+ * @return 无
+ * @note   从 /home/root/servo_config.txt 读取 g_servo_mid
+ *         如果文件不存在或读取失败，使用默认值 SERVO_MOTOR_MID
+ */
+void servo_load_config(void)
+{
+    FILE *fp = fopen("/home/root/servo_config.txt", "r");
+    if(fp == NULL)
+    {
+        printf("[INFO] Servo config file not found, using default mid = %.2f\r\n", SERVO_MOTOR_MID);
+        g_servo_mid = SERVO_MOTOR_MID;
+        return;
+    }
+
+    float temp_mid = 0;
+    if(fscanf(fp, "%f", &temp_mid) == 1)
+    {
+        // 读取成功，验证值是否合理（在 50-90 度之间）
+        if(temp_mid >= 50.0 && temp_mid <= 90.0)
+        {
+            g_servo_mid = temp_mid;
+            printf("[INFO] Servo config loaded: mid = %.2f\r\n", g_servo_mid);
+        }
+        else
+        {
+            printf("[WARN] Invalid servo mid value (%.2f), using default %.2f\r\n",
+                   temp_mid, SERVO_MOTOR_MID);
+            g_servo_mid = SERVO_MOTOR_MID;
+        }
+    }
+    else
+    {
+        printf("[ERROR] Failed to read servo config, using default mid = %.2f\r\n", SERVO_MOTOR_MID);
+        g_servo_mid = SERVO_MOTOR_MID;
+    }
+
+    fclose(fp);
 }
