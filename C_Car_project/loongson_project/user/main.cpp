@@ -13,15 +13,15 @@
 int all_init(){
     // 1. 初始化 IPS200 显示屏
     ips200_init("/dev/fb0");
-    printf("IPS200 display initialized.\r\n");
+    printf("IPS200 显示屏初始化完成\r\n");
 
     // 2. 初始化 UVC 摄像头
     if(uvc_camera_init("/dev/video0") < 0)
     {
-        printf("UVC camera initialization failed!\r\n");
+        printf("UVC 摄像头初始化失败！\r\n");
         return -1;
     }
-    printf("UVC camera initialized.\r\n");
+    printf("UVC 摄像头初始化完成\r\n");
 
     // 3. 初始化电机
     motor_init();
@@ -41,7 +41,7 @@ int all_init(){
     // 8. 初始化菜单系统
     menu_init();
 
-    printf("All modules initialized successfully!\r\n");
+    printf("所有模块初始化成功！\r\n");
     return 0;
 }
 
@@ -50,11 +50,11 @@ int main(int, char**)
     // 执行所有模块的初始化
     if(all_init() < 0)
     {
-        printf("Initialization failed, exiting...\r\n");
+        printf("初始化失败，程序退出...\r\n");
         return -1;
     }
 
-    printf("System started, entering main loop...\r\n");
+    printf("系统启动完成，进入主循环...\r\n");
 
     while(1)
     {
