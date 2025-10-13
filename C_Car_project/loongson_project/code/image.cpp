@@ -19,18 +19,18 @@
 //#include "motor.h"
 
 uint8 reference_point = 0;
-uint8 white_max_point = 0;             //��̬�׵�����?
-uint8 white_min_point = 0;             //��̬�׵���Сֵ
-uint8 remote_distance[IMAGE_W] = {0};   //�����
+uint8 white_max_point = 0;
+uint8 white_min_point = 0;
+uint8 remote_distance[IMAGE_W] = {0};
 uint8 reference_col = 0;
-uint8 reference_contrast_ratio = 0.1*200; //�ο��Աȶ�
-uint16 reference_line[IMAGE_H] = {0};      // �洢�ο���
-uint16 left_edge_line[IMAGE_H] = {0};      // �洢�����?
-uint16 right_edge_line[IMAGE_H] = {0};      // �洢�ұ���
-uint8 user_image[IMAGE_H][IMAGE_W];  //�洢ͼ��
+uint8 reference_contrast_ratio = 0.1*200;
+uint16 reference_line[IMAGE_H] = {0};
+uint16 left_edge_line[IMAGE_H] = {0};
+uint16 right_edge_line[IMAGE_H] = {0};
+uint8 user_image[IMAGE_H][IMAGE_W];
 
-uint8 mid_line[IMAGE_H] = {0};         //��������λ��
-uint8 mid_weight_1[IMAGE_H] = {           //��������Ȩ��
+uint8 mid_line[IMAGE_H] = {0};
+uint8 mid_weight_1[IMAGE_H] = {
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
@@ -45,7 +45,7 @@ uint8 mid_weight_1[IMAGE_H] = {           //��������Ȩ��
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1  
 };
 
-uint8 mid_weight_2[IMAGE_H] = {           //��������Ȩ��
+uint8 mid_weight_2[IMAGE_H] = {
 	
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
@@ -61,7 +61,7 @@ uint8 mid_weight_2[IMAGE_H] = {           //��������Ȩ��
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 
 };
 
-uint8 mid_weight_3[IMAGE_H] = {           //��������Ȩ��
+uint8 mid_weight_3[IMAGE_H] = {
 	
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
@@ -79,7 +79,7 @@ uint8 mid_weight_3[IMAGE_H] = {           //��������Ȩ��
 	  
 };
 
-uint8 mid_weight_4[IMAGE_H] = {           //��������Ȩ��
+uint8 mid_weight_4[IMAGE_H] = {
 	
 	
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
@@ -98,7 +98,7 @@ uint8 mid_weight_4[IMAGE_H] = {           //��������Ȩ��
 	  
 };
 
-uint8 mid_weight_5[IMAGE_H] = {           //��������Ȩ��
+uint8 mid_weight_5[IMAGE_H] = {
 	
 	
 	
@@ -117,7 +117,7 @@ uint8 mid_weight_5[IMAGE_H] = {           //��������Ȩ��
 	  
 };
 
-uint8 mid_weight[IMAGE_H] = {           //��������Ȩ��
+uint8 mid_weight[IMAGE_H] = {
 	
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
@@ -133,7 +133,7 @@ uint8 mid_weight[IMAGE_H] = {           //��������Ȩ��
 	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 
 };
 
-uint8 single_edge_err[IMAGE_H] = {           //��������Ȩ��
+uint8 single_edge_err[IMAGE_H] = {
 	11,11,12,13,13,14,15,15,16,17,
 	17,18,19,19,20,20,21,22,23,23, 
 	24,25,25,27,27,28,28,29,30,30,
@@ -147,21 +147,19 @@ uint8 single_edge_err[IMAGE_H] = {           //��������Ȩ��
 	78,79,79,80,80,81,82,82,83,84,
 	85,85,86,87,87,88,89,89,90,91 
 };
-uint8 final_mid_line = 0;                 //��Ȩ����ֵ
-uint8 last_final_mid_line = 0;            //�ϴμ�Ȩ����ֵ
-uint8 prospect = 100;                     //ǰհֵ
-uint8 cross_flag = 0;                    //ʮ�ֱ�־λ
-uint8 mid_mode = 0;                      //ѭ��ģʽ��0��ʾѭ�����ߣ�1ѭ����ߣ�?2ѭ�ұ���
+uint8 final_mid_line = 0;
+uint8 last_final_mid_line = 0;
+uint8 prospect = 100;                     //前瞻值
+uint8 cross_flag = 0;
+uint8 mid_mode = 0;
 uint8 circle_flag = 0;
 uint16 circle_time = 0;
-uint8 if_circle = 0;                     //1Ϊ����Բ����0Ϊ�ر�Բ��
+uint8 if_circle = 0;
 uint8 stop_search_row = 0;
 
 void get_image(void){
-	// ����ʽ�ȴ���ͼ��ˢ��
 	if(wait_image_refresh() < 0)
 	{
-		// ����ͷδ�ɼ���ͼ��������Ҫ�رյ�����رյ���ȡ�
 		exit(0); 
 	}
 	memcpy(user_image,rgay_image,IMAGE_H*IMAGE_W);
@@ -171,15 +169,15 @@ void get_image(void){
 
 
 void get_reference_point(const uint8 image[][IMAGE_W]){
-	uint16 temp = 0;                 //���ڱ���ͳ�Ƶ�������
-	uint32 temp1 = 0;               //���ڱ���ͳ�Ƶ�����ֵ
+	uint16 temp = 0;
+	uint32 temp1 = 0;
 	uint16 temp_j1 = (IMAGE_W-REFERENCE_COL)/2;    
 	uint16 temp_j2 = (IMAGE_W+REFERENCE_COL)/2;	
 	
 	temp = REFERENCE_ROW * REFERENCE_COL;
 	for(int i = IMAGE_H-REFERENCE_ROW;i <= IMAGE_H-1;i++){
 		for(int j = temp_j1;j <= temp_j2;j++){
-			temp1 += image[i][j];				//ͳ�Ƶ����?
+			temp1 += image[i][j];
 		}
 	}
 	reference_point = (uint8)func_limit_ab((temp1/temp),BLACKPOINT,255);
@@ -193,38 +191,38 @@ void get_reference_point(const uint8 image[][IMAGE_W]){
 
 void search_reference_col(const uint8 image[][IMAGE_W]){
 	int col,row;
-	int16 temp1 = 0,temp2 = 0,temp3 = 0;           //��ǰ�� �Աȵ� �Աȶ�
+	int16 temp1 = 0,temp2 = 0,temp3 = 0;
 	for(col = 0;col < IMAGE_W;col++){
 		remote_distance[col] = IMAGE_H-1;
 	}
-	for(col = 0;col < IMAGE_W;col+=CONTRASTOFFSET){                  //���У���������һ��
-		for	(row = IMAGE_H-1;row >= STOPROW+CONTRASTOFFSET;row-=CONTRASTOFFSET){    //���У��������ж�һ��
+	for(col = 0;col < IMAGE_W;col+=CONTRASTOFFSET){
+		for	(row = IMAGE_H-1;row >= STOPROW+CONTRASTOFFSET;row-=CONTRASTOFFSET){
 			temp1 = image[row][col];
 			temp2 = image[row-CONTRASTOFFSET][col];
 			
-			if(row == 5){   //����Աȶ�?
+			if(row == 5){
 				remote_distance[col] = (uint8)row;
 				break;
 			}
 			
-			if(temp2 > white_max_point){           //�Աȵ��ǰ׵�
+			if(temp2 > white_max_point){
 				continue;
 			}
-			if(temp1 < white_min_point){           //��ǰ���Ǻڵ�
+			if(temp1 < white_min_point){
 				remote_distance[col] = (uint8)row;
 				break;
  			}
 			
 			temp3 = (temp1 - temp2)*200/(temp1 + temp2);
 			
-			if(temp3 >reference_contrast_ratio ){   //����Աȶ�?
+			if(temp3 >reference_contrast_ratio ){
 				remote_distance[col] = (uint8)row;
 				break;
 			}
 		}
 	}
 	
-	for(col = 0;col < IMAGE_W;col+=CONTRASTOFFSET){    //Ѱ�������
+	for(col = 0;col < IMAGE_W;col+=CONTRASTOFFSET){
 		if(remote_distance[reference_col] > remote_distance[col])
 			reference_col = col;
 	}
@@ -237,22 +235,22 @@ void search_reference_col(const uint8 image[][IMAGE_W]){
 
 
 void search_line(const uint8 image[][IMAGE_W]){
-    uint8 row_max = IMAGE_H - 1;                        // ������?
-    uint8 row_min = STOPROW;                                    // ����Сֵ
-    uint8 col_max = IMAGE_W - CONTRASTOFFSET-1;           // ������?
-    uint8 col_min = CONTRASTOFFSET;                    // ����Сֵ
-    int16 leftstartcol  = reference_col;                // ��������ʼ��
-    int16 rightstartcol = reference_col;                // ��������ʼ��
-    int16 leftendcol    = col_min;                           // ��������ֹ��
-    int16 rightendcol   = col_max;                   // ��������ֹ��
-    uint8 search_time   = 0;                                    // �������ߴ���
-    uint8 temp1 = 0, temp2 = 0;                                 // ��ʱ����  ���ڴ洢ͼ���� 
-    int  temp3 = 0;                                             // ��ʱ����  ���ڴ洢�Աȶ�
-    int  leftstop = 0, rightstop = 0, stoppoint = 0;            // ������������
+    uint8 row_max = IMAGE_H - 1;
+    uint8 row_min = STOPROW;
+    uint8 col_max = IMAGE_W - CONTRASTOFFSET-1;
+    uint8 col_min = CONTRASTOFFSET;
+    int16 leftstartcol  = reference_col;
+    int16 rightstartcol = reference_col;
+    int16 leftendcol    = col_min;
+    int16 rightendcol   = col_max;
+    uint8 search_time   = 0;
+    uint8 temp1 = 0, temp2 = 0;
+    int  temp3 = 0;
+    int  leftstop = 0, rightstop = 0, stoppoint = 0;
 
     int col, row;
 
-    for(row = row_max; row >= row_min; row --){                //���߹��㵽����
+    for(row = row_max; row >= row_min; row --){
 		left_edge_line[row]  = col_min - CONTRASTOFFSET;
         right_edge_line[row] = col_max + CONTRASTOFFSET;
     }
@@ -262,7 +260,7 @@ void search_line(const uint8 image[][IMAGE_W]){
 		if(!leftstop){
 			search_time = 2-cross_flag;
 			do{
-				if(search_time == 1){                         //��һ��û�ѵ�
+				if(search_time == 1){
 					leftstartcol = reference_col;
 					leftendcol = col_min;
 				}
@@ -276,29 +274,27 @@ void search_line(const uint8 image[][IMAGE_W]){
 					temp2 = image[row][col - CONTRASTOFFSET];
 				
 					if(temp1 < white_min_point && col == leftstartcol && leftstartcol == reference_col){
-						//�жϲο����Ƿ�Ϊ�ڵ㣬���������в������������?
 						leftstop = 1;
 						stop_search_row = row;
 						
 						for(stoppoint = row;stoppoint >= 0;stoppoint--){
-							left_edge_line[stoppoint ] = col_min;		//�����������ϵı��߹���
+							left_edge_line[stoppoint ] = col_min;
 						}
 						search_time = 0;
 						break;
 					}
 					
-					if(temp1 < white_min_point){           //��ǰ��Ϊ�ڵ�
+					if(temp1 < white_min_point){
 						left_edge_line[row] = col;
 						break;
 					}
-					if(temp2 > white_max_point){           //�ο���Ϊ�׵�
+					if(temp2 > white_max_point){
 						continue;
 					}
-					temp3 = (temp1 - temp2)*200/(temp1 + temp2); //����Աȶ�?
+					temp3 = (temp1 - temp2)*200/(temp1 + temp2);
 					
 					if(temp3 >reference_contrast_ratio || col == col_min){   
-						left_edge_line[row] = func_limit_ab(col - CONTRASTOFFSET, 0, IMAGE_W-1);		//������߽�?
-						//��һ���������߰뾶������
+						left_edge_line[row] = func_limit_ab(col - CONTRASTOFFSET, 0, IMAGE_W-1);
 						leftstartcol = (uint8)func_limit_ab(col+SEARCHRANGE,col,col_max);  
 						leftendcol = (uint8)func_limit_ab(col-SEARCHRANGE,col_min,col);
 						search_time = 0;
@@ -312,7 +308,7 @@ void search_line(const uint8 image[][IMAGE_W]){
 		if(!rightstop){
 			search_time = 2-cross_flag;
 			do{
-				if(search_time == 1){                         //��һ��û�ѵ�
+				if(search_time == 1){
 					rightstartcol = reference_col;
 					rightendcol = col_max;
 				}
@@ -326,29 +322,27 @@ void search_line(const uint8 image[][IMAGE_W]){
 					temp2 = image[row][col + CONTRASTOFFSET];
 				
 					if(temp1 < white_min_point && col == rightstartcol && rightstartcol == reference_col){
-						//�жϲο����Ƿ�Ϊ�ڵ㣬���������в��������ұ���
 						rightstop = 1;
 						stop_search_row = row;
 
 						for(stoppoint = row;stoppoint >= 0;stoppoint--){
-							right_edge_line[stoppoint ] = col_max;		//�����������ϵı��߹���
+							right_edge_line[stoppoint ] = col_max;
 						}
 						search_time = 0;
 						break;
 					}
 					
-					if(temp1 < white_min_point){           //��ǰ��Ϊ�ڵ�
+					if(temp1 < white_min_point){
 						right_edge_line[row] = col;
 						break;
 					}
-					if(temp2 > white_max_point){           //�ο���Ϊ�׵�
+					if(temp2 > white_max_point){
 						continue;
 					}
-					temp3 = (temp1 - temp2)*200/(temp1 + temp2); //����Աȶ�?
+					temp3 = (temp1 - temp2)*200/(temp1 + temp2);
 					
 					if(temp3 >reference_contrast_ratio || col == col_max){   
-						right_edge_line[row] = func_limit_ab(col + CONTRASTOFFSET, 0, IMAGE_W-1);		//�����ұ߽�
-						//��һ���������߰뾶������
+						right_edge_line[row] = func_limit_ab(col + CONTRASTOFFSET, 0, IMAGE_W-1);
 						rightstartcol = (uint8)func_limit_ab(col-SEARCHRANGE,col_min,col);  
 						rightendcol = (uint8)func_limit_ab(col+SEARCHRANGE,col,col_max);
 						search_time = 0;
@@ -361,7 +355,6 @@ void search_line(const uint8 image[][IMAGE_W]){
 }
 
 uint8 image_find_jump_point(uint16 *edge_line,uint8 down_num,uint8 up_num,uint8 jump_num,uint8 model){
-	//down_num ���¶���ʼ�� up_num ���϶���ֹ��,modelΪ1ʱ���µ��� Ϊ0ʱ���ϵ���
 	uint8 temp_jump_point = 0;
 	uint8 temp_data;
 	
@@ -389,7 +382,6 @@ uint8 image_find_jump_point(uint16 *edge_line,uint8 down_num,uint8 up_num,uint8 
 }
 
 uint8 image_find_left_jump_point(uint8 down_num,uint8 up_num,uint8 model){
-	//down_num ���¶���ʼ�� up_num ���϶���ֹ��,modelΪ1ʱ���µ��� Ϊ0ʱ���ϵ���
 	uint8 temp_jump_point = 0;
 	uint8 temp_data;
 	
@@ -431,7 +423,6 @@ uint8 image_find_left_jump_point(uint8 down_num,uint8 up_num,uint8 model){
 }
 
 uint8 image_find_right_jump_point(uint8 down_num,uint8 up_num,uint8 model){
-	//down_num ���¶���ʼ�� up_num ���϶���ֹ��,modelΪ1ʱ���µ��� Ϊ0ʱ���ϵ���
 	uint8 temp_jump_point = 0;
 	uint8 temp_data;
 	
@@ -486,7 +477,6 @@ void image_connect_point(uint16 *array_value, uint8 num0, uint8 num1)
 
 void image_stretch_point(uint16 *array_value, uint8 num ,uint8 direction){
 	
-	//directionΪ1���������죬0����������
 	if((num+5>=IMAGE_H) ||(num-5<=0))
 		return;
 	
@@ -525,7 +515,7 @@ void image_cross_analysis(void){
 		cross_flag = 1;
 	}
 	
-	if(cross_flag == 1){       //��Ƭ��ɫ
+	if(cross_flag == 1){
 		start_point = 0;
 		end_point = 0;
 		start_point = image_find_left_jump_point(IMAGE_H - 5,IMAGE_H/4,0);
@@ -600,7 +590,7 @@ uint8 image_find_circle_point(uint16 *edge_line,uint8 down_num,uint8 up_num){
 
 void image_circle_analysis(void){
 	
-	if(circle_flag == 0){           //ʶ�𻷵�
+	if(circle_flag == 0){
 		mid_mode = 0;
 		for(int i = IMAGE_H-2;i>0;i--){
 			if(func_abs(left_edge_line[i]-left_edge_line[i+1])>3)
@@ -617,7 +607,7 @@ void image_circle_analysis(void){
 		if(end_point){
 			if(start_point - end_point>30){
 				circle_flag = 1;
-				circle_time = 0;     //��ʼ��ʱ
+				circle_time = 0;
 				beep_flag = 1;
 			}
 		}
@@ -629,14 +619,14 @@ void image_circle_analysis(void){
 		if(end_point){
 			if(end_point- start_point>30){
 				circle_flag = 1;
-				circle_time = 5;     //��ʼ��ʱ
+				circle_time = 5;
 				beep_flag = 1;
 			}
 		}
 		ips200_show_int(96,240,start_point,4);
 		ips200_show_int(128,240,end_point,4);
 	}
-	else if (circle_flag == 1){      //�����������ڳ��������������ֱ��?
+	else if (circle_flag == 1){
 		mid_mode = 1;
 		if(circle_time >= CIRCLE_1_TIME){
 			circle_time = 0;
@@ -644,7 +634,7 @@ void image_circle_analysis(void){
 			beep_flag = 1;
 		}
 	}
-	else if (circle_flag == 2){      //������ں����ұ�����?
+	else if (circle_flag == 2){
 		mid_mode = 2;
 		if(circle_time >= CIRCLE_2_TIME){
 			circle_time = 0;
@@ -653,14 +643,13 @@ void image_circle_analysis(void){
 
 		}
 	}
-	else if (circle_flag == 3){      //�뵺������ѭ��ת��
+	else if (circle_flag == 3){
 		mid_mode = 0;
-//		if(final_mid_line < IMAGE_W/2+10){//����������תʱ˵���������?
 //			mid_mode = 2;
 //			circle_time = 0;
 //			circle_flag = 4;
 //		}
-		if(left_edge_line[IMAGE_H/2]<3 && left_edge_line[IMAGE_H/2-1]<3 &&left_edge_line[IMAGE_H/2+1]<3){//����������תʱ˵���������?
+		if(left_edge_line[IMAGE_H/2]<3 && left_edge_line[IMAGE_H/2-1]<3 &&left_edge_line[IMAGE_H/2+1]<3){
 //		uint8 start_point = 0,end_point = 0;
 //		start_point = image_find_jump_point(left_edge_line,IMAGE_H-5,5,10,0);
 //		if(start_point){
@@ -671,7 +660,7 @@ void image_circle_analysis(void){
 
 		}
 	}
-	else if(circle_flag == 4){       //�ڳ��ڴ����ұ�����
+	else if(circle_flag == 4){
 		mid_mode = 0;
 		for(int i = IMAGE_H-1;i>0;i--){
 			left_edge_line[i] = IMAGE_W/3;
@@ -683,7 +672,7 @@ void image_circle_analysis(void){
 
 		}
 	}
-	else if(circle_flag == 5){       //�������ֱ���뿪����?
+	else if(circle_flag == 5){
 		mid_mode = 1;
 		if(circle_time >= CIRCLE_5_TIME){
 			circle_time = 0;
@@ -697,9 +686,9 @@ void image_circle_analysis(void){
 
 
 void image_calculate_mid(uint8 mode){
-	uint32 mid_weight_sum = 0;        //��Ȩ�����ۼ�ֵ
-	uint32 weight_sum = 0;            //Ȩ���ۼ�ֵ
-	uint8 temp = 0;                   //��ʱ�洢����
+	uint32 mid_weight_sum = 0;
+	uint32 weight_sum = 0;
+	uint8 temp = 0;
 	if(mode == 0){
 		for(int i = 0;i<IMAGE_H;i++){
 			mid_line[i] = (left_edge_line[i] + right_edge_line[i])/2;
@@ -728,7 +717,7 @@ void image_calculate_mid(uint8 mode){
 	if(!last_final_mid_line)
 		final_mid_line = temp;
 	else
-		final_mid_line = temp*0.8+last_final_mid_line*0.2;  //�����˲�
+		final_mid_line = temp*0.8+last_final_mid_line*0.2;
 
 	last_final_mid_line = final_mid_line;
 	
@@ -737,28 +726,28 @@ void image_calculate_mid(uint8 mode){
 void image_calculate_prospect(const uint8 image[][IMAGE_W]){
 	int col = IMAGE_W/2;
 	int16 temp1 = 0,temp2 = 0,temp3 = 0;
-	for	(int row = IMAGE_H-1;row > CONTRASTOFFSET;row--){    //���У��������ж�һ��
+	for	(int row = IMAGE_H-1;row > CONTRASTOFFSET;row--){
 		temp1 = image[row][col];
 		temp2 = image[row-CONTRASTOFFSET][col];
 		
-		if(row == 4){   //����Աȶ�?
+		if(row == 4){
 			prospect = IMAGE_H-(uint8)row;
 			break;
 		}
 		
-		if(temp1 < white_min_point){           //��ǰ���Ǻڵ�
+		if(temp1 < white_min_point){
 			prospect = IMAGE_H-(uint8)row;
 			break;
 		}
 		
-		if(temp2 > white_max_point){           //�Աȵ��ǰ׵�
+		if(temp2 > white_max_point){
 			continue;
 		}
 		
 		
 		temp3 = (temp1 - temp2)*200/(temp1 + temp2);
 		
-		if(temp3 >reference_contrast_ratio ){   //����Աȶ�?
+		if(temp3 >reference_contrast_ratio ){
 			prospect = IMAGE_H-(uint8)row;
 			break;
 		}
@@ -769,39 +758,32 @@ void image_calculate_prospect(const uint8 image[][IMAGE_W]){
 
 
 void image_display_edge_line(const uint8 image[][IMAGE_W], uint16 display_width, uint16 display_height) {
-    // ����ʾ�Ҷ�ͼ��
     ips200_show_gray_image(0, 0, rgay_image, UVC_WIDTH, UVC_HEIGHT);	
     
-    // ���ӱ߽���
     for(uint16 i = 0; i < IMAGE_H; i++) {
-        // �������������Ƿ�����Ч��Χ��
         if(left_edge_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)left_edge_line[i], i, RGB565_RED);
         }
         
-        // ����ұ��������Ƿ�����Ч��Χ��?
         if(right_edge_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)right_edge_line[i], i, RGB565_BLUE);
         }
         
-        // ���ο��������Ƿ�����Ч��Χ��
         if(reference_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)reference_line[i], i, RGB565_YELLOW);
         }
         
-        // ������������Ƿ�����Ч��Χ��?
         if(mid_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)mid_line[i], i, RGB565_GREEN);
         }
     }
     
-    // ��ʾ��������ֵ�����ӱ߽��飩
     if(final_mid_line < display_width) {
 //        ips200_show_int(96, 208, final_mid_line, 4);
     }
 }
 
-void image_get_left_err(void){     //��ȡ����������ߵ�ƫ������?
+void image_get_left_err(void){
 	for(int i = 0;i <= IMAGE_H-1;i++){
 		single_edge_err[i] = mid_line[i] - left_edge_line[i];
 	}
@@ -815,7 +797,7 @@ void stop_analysis(const uint8 image[][IMAGE_W]){
 			temp1 = image[row][col];
 			temp2 = image[row][col+CONTRASTOFFSET];
 			temp3 = (temp1 - temp2)*200/(temp1 + temp2);
-			if(temp3 >reference_contrast_ratio ){   //����Աȶ�?
+			if(temp3 >reference_contrast_ratio ){
 				stop_count++;
 			}
 		}
@@ -823,7 +805,6 @@ void stop_analysis(const uint8 image[][IMAGE_W]){
 //	ips200_show_int(96,288,stop_count,4);
 
 	if(stop_count> 35 /* && start_time > 30 */){
-		// 统一停车接口：只需设置 stop_flag = 1
 		stop_flag = 1;
 		beep_flag = 1;
 	}
@@ -864,18 +845,17 @@ void image_process(uint16 display_width,uint16 display_height,uint8 mode){
 
 #include <time.h>
 
-// 静态变量用于存储时间测量数�?
+// 静态变量用于存储时间测量数据
 static struct timespec img_start_time, img_end_time;
-static float last_process_time = 0.0f;       // 上一次处理时�?(ms)
-static float total_process_time = 0.0f;      // 总处理时�?(ms)
+static float last_process_time = 0.0f;       // 上一次处理时间(ms)
+static float total_process_time = 0.0f;      // 总处理时间(ms)
 static uint32 frame_count = 0;               // 帧计数器
-static float max_process_time = 0.0f;        // 最大处理时�?(ms)
-static float min_process_time = 999.0f;      // 最小处理时�?(ms)
+static float max_process_time = 0.0f;        // 最大处理时间(ms)
+static float min_process_time = 999.0f;      // 最小处理时间(ms)
 
 /**
- * @brief 开始图像处理计�?
+ * @brief 开始图像处理计时
  *
- * 使用方法：在 image_process() 函数开始时调用
  */
 void image_process_time_start(void)
 {
@@ -883,29 +863,26 @@ void image_process_time_start(void)
 }
 
 /**
- * @brief 结束图像处理计时并返回处理时�?
  *
- * 使用方法：在 image_process() 函数结束时调�?
  *
- * @return float 本次图像处理所用时间（毫秒�?
+ * @return float 本次图像处理所用时间(毫秒)
  */
 float image_process_time_end(void)
 {
     clock_gettime(CLOCK_MONOTONIC, &img_end_time);
 
-    // 计算时间差（纳秒级）
+    // 计算时间差(纳秒级)
     long seconds = img_end_time.tv_sec - img_start_time.tv_sec;
     long nanoseconds = img_end_time.tv_nsec - img_start_time.tv_nsec;
 
-    // 转换为毫�?
+    // 转换为毫秒
     float elapsed_ms = seconds * 1000.0f + nanoseconds / 1000000.0f;
 
-    // 更新统计数据
     last_process_time = elapsed_ms;
     total_process_time += elapsed_ms;
     frame_count++;
 
-    // 更新最�?/最小�?
+    // 更新最大/最小值
     if(elapsed_ms > max_process_time)
         max_process_time = elapsed_ms;
 
@@ -916,10 +893,8 @@ float image_process_time_end(void)
 }
 
 /**
- * @brief 打印图像处理时间统计信息
  *
- * 使用方法：每隔一段时间调用（如每100帧或每秒�?
- * 可以�? main() 中的循环里定期调�?
+ * 可以在 main() 中的循环里定期调用
  */
 void image_process_time_print(void)
 {
@@ -933,22 +908,22 @@ void image_process_time_print(void)
     float fps = 1000.0f / avg_time;  // 基于平均处理时间计算理论FPS
 
     printf("\n========== 图像处理时间统计 ==========\n");
-    printf("[ 帧数统计 ] 已处理帧�?: %u 帧\n", frame_count);
+    printf("[ 帧数统计 ] 已处理帧数: %u 帧\n", frame_count);
     printf("[ 本次时间 ] 上次处理: %.2f ms\n", last_process_time);
     printf("[ 平均时间 ] %.2f ms (理论FPS: %.1f)\n", avg_time, fps);
-    printf("[ 最大时�? ] %.2f ms\n", max_process_time);
-    printf("[ 最小时�? ] %.2f ms\n", min_process_time);
+    printf("[ 最大时间 ] %.2f ms\n", max_process_time);
+    printf("[ 最小时间 ] %.2f ms\n", min_process_time);
     printf("[ 总计时间 ] %.2f ms\n", total_process_time);
     printf("=====================================\n\n");
 
-    // 如果平均处理时间 > 10ms，给出警�?
+    // 如果平均处理时间 > 10ms, 给出警告
     if(avg_time > 10.0f)
     {
-        printf("⚠️  警告: 图像处理时间超过 10ms，可能无法满�? 100Hz 控制周期！\n");
+        printf("⚠️  警告: 图像处理时间超过 10ms, 可能无法满足 100Hz 控制周期!\n");
         printf("   建议: 降低分辨率或优化算法\n\n");
     }
     else if(avg_time < 8.0f)
     {
-        printf("�? 良好: 图像处理时间 < 8ms，可以满�? 100Hz 控制周期\n\n");
+        printf("✅ 良好: 图像处理时间 < 8ms, 可以满足 100Hz 控制周期\n\n");
     }
 }
