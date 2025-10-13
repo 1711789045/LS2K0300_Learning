@@ -30,6 +30,7 @@
 #include "zf_common_headfile.h"
 #include "servo.h"
 #include "auto_menu.h"
+#include "config_flash.h"  // 使用配置库
 #include "pid.h"
 #include "image.h"
 #include "control.h"
@@ -50,23 +51,20 @@ static struct pwm_info servo_pwm_info;
 // PID 控制器
 static PID_POSITIONAL_TypeDef turn_pid = {0};
 
-// 舵机PID参数（可通过菜单调节）
-float kp = 0.35;
-float ki = 0;
-float kd1 = 0.56;
-float kd2 = 0;
+// 舵机PID参数（已移至 config_flash.cpp 中统一管理）
+// 这里不再定义，直接使用 config_flash.h 中声明的变量：
+// extern float servo_pid_kp;
+// extern float servo_pid_ki;
+// extern float servo_pid_kd1;
+// extern float servo_pid_kd2;
 
 // 舵机控制变量
 float angle = 0;
-float servo_pid_kp = 0.35;
-float servo_pid_ki = 0;
-float servo_pid_kd1 = 0.56;
-float servo_pid_kd2 = 0;
 uint8 servo_f = 0;
 float last_err = 0;
 
-// 全局舵机中值变量
-float g_servo_mid = SERVO_MOTOR_MID;
+// 全局舵机中值变量（已移至 config_flash.cpp 中统一管理）
+// extern float g_servo_mid;
 
 // 占空比计算宏（根据角度计算PWM占空比）
 // 舵机 0-180度对应 0.5ms-2.5ms 高电平
@@ -76,11 +74,12 @@ float g_servo_mid = SERVO_MOTOR_MID;
  * @brief  舵机初始化
  * @param  无
  * @return 无
+ * @note   不再需要手动加载配置，config_init() 会在 main.cpp 中统一调用
  */
 void servo_init(void)
 {
-    // 从配置文件加载舵机中值
-    servo_load_config();
+    // 配置已经在 main.cpp 中通过 config_init() 加载
+    // g_servo_mid 已经被赋值，可以直接使用
 
     // 获取舵机PWM设备信息
     pwm_get_dev_info(SERVO_MOTOR_PWM, &servo_pwm_info);
@@ -88,6 +87,7 @@ void servo_init(void)
     // 打印PWM信息（调试用）
     printf("Servo PWM freq = %d Hz\r\n", servo_pwm_info.freq);
     printf("Servo PWM duty_max = %d\r\n", servo_pwm_info.duty_max);
+    printf("Loaded servo_mid = %.2f\r\n", g_servo_mid);
 
     // 设置舵机到中位
     servo_setangle(0);
@@ -127,6 +127,7 @@ void servo_setangle(float angle)
  * @param  kd1: 微分系数1
  * @param  kd2: 微分系数2
  * @return 无
+ * @note   这些参数已移至 config_flash 统一管理，本函数保留用于兼容性
  */
 void servo_set_pid(float kp, float ki, float kd1, float kd2)
 {
@@ -177,7 +178,7 @@ void servo_process(void)
     if(servo_f)
     {
         // 更新PID参数（从菜单系统）
-        servo_set_pid(kp, ki, kd1, kd2);
+        // 注意：现在 servo_pid_kp 等参数已经是全局变量，可以直接使用
 
         // 运行状态下进行舵机控制
         if(go_flag)
@@ -256,8 +257,8 @@ void servo_manual_adjust(void)
             if(button1)
             {
                 g_servo_mid = current_angle;  // 更新全局中值变量
-                servo_save_config();           // 保存到文件
-                printf("Servo mid saved to flash: %.2f\r\n", g_servo_mid);
+                config_save();                 // 使用配置库保存所有配置
+                printf("Configuration saved: servo_mid = %.2f\r\n", g_servo_mid);
 
                 // 清屏并退出
                 ips200_full(IPS200_DEFAULT_BGCOLOR);
@@ -303,65 +304,7 @@ void servo_manual_adjust(void)
     }
 }
 
-/**
- * @brief  保存舵机配置到文件
- * @param  无
- * @return 无
- * @note   将 g_servo_mid 保存到 /home/root/servo_config.txt
- */
-void servo_save_config(void)
-{
-    FILE *fp = fopen("/home/root/servo_config.txt", "w");
-    if(fp == NULL)
-    {
-        printf("[ERROR] Failed to open servo config file for writing\r\n");
-        return;
-    }
+// ==================== 旧的配置函数已移除 ====================
+// servo_save_config() 和 servo_load_config() 已移除
+// 现在统一使用 config_flash.cpp 中的 config_save() 和 config_load()
 
-    fprintf(fp, "%.2f\n", g_servo_mid);
-    fclose(fp);
-
-    printf("[INFO] Servo config saved: mid = %.2f\r\n", g_servo_mid);
-}
-
-/**
- * @brief  从文件读取舵机配置
- * @param  无
- * @return 无
- * @note   从 /home/root/servo_config.txt 读取 g_servo_mid
- *         如果文件不存在或读取失败，使用默认值 SERVO_MOTOR_MID
- */
-void servo_load_config(void)
-{
-    FILE *fp = fopen("/home/root/servo_config.txt", "r");
-    if(fp == NULL)
-    {
-        printf("[INFO] Servo config file not found, using default mid = %.2f\r\n", SERVO_MOTOR_MID);
-        g_servo_mid = SERVO_MOTOR_MID;
-        return;
-    }
-
-    float temp_mid = 0;
-    if(fscanf(fp, "%f", &temp_mid) == 1)
-    {
-        // 读取成功，验证值是否合理（在 50-90 度之间）
-        if(temp_mid >= 50.0 && temp_mid <= 90.0)
-        {
-            g_servo_mid = temp_mid;
-            printf("[INFO] Servo config loaded: mid = %.2f\r\n", g_servo_mid);
-        }
-        else
-        {
-            printf("[WARN] Invalid servo mid value (%.2f), using default %.2f\r\n",
-                   temp_mid, SERVO_MOTOR_MID);
-            g_servo_mid = SERVO_MOTOR_MID;
-        }
-    }
-    else
-    {
-        printf("[ERROR] Failed to read servo config, using default mid = %.2f\r\n", SERVO_MOTOR_MID);
-        g_servo_mid = SERVO_MOTOR_MID;
-    }
-
-    fclose(fp);
-}

@@ -1,5 +1,6 @@
 
 #include "zf_common_headfile.h"
+#include "config_flash.h"  // 配置库（必须最先初始化）
 #include "motor.h"
 #include "servo.h"
 #include "encoder.h"
@@ -11,6 +12,10 @@
 #include "control.h"
 
 int all_init(){
+    // 0. 初始化配置系统（最先执行，加载所有配置变量）
+    config_init();
+    printf("配置系统初始化完成\r\n");
+
     // 1. 初始化 IPS200 显示屏
     ips200_init("/dev/fb0");
     printf("IPS200 显示屏初始化完成\r\n");

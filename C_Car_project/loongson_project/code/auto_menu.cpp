@@ -3,6 +3,7 @@
 #include "key.h"
 #include "servo.h"
 #include "control.h"
+#include "config_flash.h"  // 包含配置库头文件
 
 #ifdef  MENU_USE_RTT
 extern rt_sem_t key1_sem;
@@ -540,10 +541,11 @@ void UNIT_SET(){
     unit_param_set(&test_d,TYPE_UINT16,1    ,6  ,0,NORMAL_PAR,"test_d");
     unit_param_set(&test_e,TYPE_UINT32,1    ,6  ,0,NORMAL_PAR,"test_e");
 
-    unit_param_set(&kp,     TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp");
-    unit_param_set(&ki,     TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_ki");
-    unit_param_set(&kd1,    TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd1");
-    unit_param_set(&kd2,    TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd2");
+    // 舵机PID参数（现在从 config_flash.cpp 中声明）
+    unit_param_set(&servo_pid_kp,  TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp");
+    unit_param_set(&servo_pid_ki,  TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_ki");
+    unit_param_set(&servo_pid_kd1, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd1");
+    unit_param_set(&servo_pid_kd2, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd2");
 }
 
 void FUN_INIT(){
