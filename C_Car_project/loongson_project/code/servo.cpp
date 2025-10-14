@@ -237,7 +237,8 @@ void servo_manual_adjust(void)
 
         printf("Entering servo manual adjust mode, current mid = %.2f\r\n", current_angle);
 
-        // 立即设置舵机到当前角度
+        // 立即设置舵机到当前中值角度(绝对角度)
+        printf("Setting servo to absolute angle: %.2f\r\n", current_angle);
         pwm_set_duty(SERVO_MOTOR_PWM, (uint16)SERVO_MOTOR_DUTY(current_angle));
 
         // 进入手动调整主循环
@@ -275,7 +276,9 @@ void servo_manual_adjust(void)
                 current_angle += step;
                 printf("Angle increased to: %.2f\r\n", current_angle);
 
-                // 立即更新舵机位置
+                // 立即更新舵机到绝对角度位置
+                printf("Setting servo PWM duty: %u (angle=%.2f)\r\n",
+                       (uint16)SERVO_MOTOR_DUTY(current_angle), current_angle);
                 pwm_set_duty(SERVO_MOTOR_PWM, (uint16)SERVO_MOTOR_DUTY(current_angle));
             }
 
@@ -285,7 +288,9 @@ void servo_manual_adjust(void)
                 current_angle -= step;
                 printf("Angle decreased to: %.2f\r\n", current_angle);
 
-                // 立即更新舵机位置
+                // 立即更新舵机到绝对角度位置
+                printf("Setting servo PWM duty: %u (angle=%.2f)\r\n",
+                       (uint16)SERVO_MOTOR_DUTY(current_angle), current_angle);
                 pwm_set_duty(SERVO_MOTOR_PWM, (uint16)SERVO_MOTOR_DUTY(current_angle));
             }
 
