@@ -28,26 +28,16 @@
 ********************************************************************************************************************/
 
 #include "config_flash.h"
+#include "servo.h"          // 引入舵机模块（包含舵机参数声明）
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-// ==================== 配置变量定义 ====================
-// 所有需要保存的变量都在这里定义
-
-// 舵机配置
-float g_servo_mid = 69.7;       // 舵机中值（默认值）
-float servo_pid_kp = 0.35;      // 舵机PID Kp参数
-float servo_pid_ki = 0.0;       // 舵机PID Ki参数
-float servo_pid_kd1 = 0.56;     // 舵机PID Kd1参数
-float servo_pid_kd2 = 0.0;      // 舵机PID Kd2参数
-
-// 电机配置（示例）
-// int motor_max_speed = 1000;
-
-// 图像处理配置（示例）
-// uint16 image_threshold = 128;
+// 未来可以添加更多模块头文件：
+// #include "motor.h"      // 电机模块
+// #include "image.h"      // 图像处理模块
+// ... 等
 
 // ==================== 内部数据结构 ====================
 

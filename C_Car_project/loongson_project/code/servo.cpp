@@ -51,20 +51,17 @@ static struct pwm_info servo_pwm_info;
 // PID 控制器
 static PID_POSITIONAL_TypeDef turn_pid = {0};
 
-// 舵机PID参数（已移至 config_flash.cpp 中统一管理）
-// 这里不再定义，直接使用 config_flash.h 中声明的变量：
-// extern float servo_pid_kp;
-// extern float servo_pid_ki;
-// extern float servo_pid_kd1;
-// extern float servo_pid_kd2;
+// ==================== 舵机配置参数（在本模块中定义）====================
+float g_servo_mid = 69.7;       // 舵机中值（默认值）
+float servo_pid_kp = 0.35;      // 舵机PID Kp参数
+float servo_pid_ki = 0.0;       // 舵机PID Ki参数
+float servo_pid_kd1 = 0.56;     // 舵机PID Kd1参数
+float servo_pid_kd2 = 0.0;      // 舵机PID Kd2参数
 
 // 舵机控制变量
 float angle = 0;
 uint8 servo_f = 0;
 float last_err = 0;
-
-// 全局舵机中值变量（已移至 config_flash.cpp 中统一管理）
-// extern float g_servo_mid;
 
 // 占空比计算宏（根据角度计算PWM占空比）
 // 舵机 0-180度对应 0.5ms-2.5ms 高电平

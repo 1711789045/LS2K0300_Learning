@@ -36,7 +36,14 @@
 
 // 舵机控制范围限制（度）
 #define SERVO_MOTOR_LIMIT           (15)      // 最大偏转角度限制
-// 注意：舵机中值 g_servo_mid 已移至 config_flash.h 中统一管理
+
+// ==================== 舵机配置参数声明 ====================
+// 这些参数在 servo.cpp 中定义，可被 config_flash 等模块引用
+extern float g_servo_mid;           // 舵机中值
+extern float servo_pid_kp;          // 舵机PID Kp参数
+extern float servo_pid_ki;          // 舵机PID Ki参数
+extern float servo_pid_kd1;         // 舵机PID Kd1参数
+extern float servo_pid_kd2;         // 舵机PID Kd2参数
 
 // 函数声明
 void servo_init(void);
@@ -45,13 +52,9 @@ void servo_set_pid(float kp, float ki, float kd1, float kd2);
 void servo_control(uint8 mid_line);
 void servo_process(void);
 void servo_manual_adjust(void);  // 舵机手动调整功能
-// 注意：servo_save_config() 和 servo_load_config() 已移除
-// 统一使用 config_flash.h 中的 config_save() 和 config_init()
 
-// 外部变量声明
+// 其他外部变量声明
 extern float angle;
 extern uint8 servo_f;
-// 注意：g_servo_mid, servo_pid_kp, servo_pid_ki, servo_pid_kd1, servo_pid_kd2
-// 已移至 config_flash.h 中统一声明和管理
 
 #endif

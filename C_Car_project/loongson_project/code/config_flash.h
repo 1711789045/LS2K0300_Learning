@@ -45,23 +45,14 @@
 #endif
 // ==================== 移植配置结束 ====================
 
-// ==================== 配置变量声明 ====================
-// 所有模块都可以通过 extern 使用这些变量
+// ==================== 引入各模块头文件 ====================
+// config_flash 通过包含各模块头文件来使用模块中定义的变量
+// 各模块的变量在各自的 .cpp 中定义，在各自的 .h 中用 extern 声明
 
-// 舵机配置
-extern float g_servo_mid;       // 舵机中值
-extern float servo_pid_kp;      // 舵机PID Kp参数
-extern float servo_pid_ki;      // 舵机PID Ki参数
-extern float servo_pid_kd1;     // 舵机PID Kd1参数
-extern float servo_pid_kd2;     // 舵机PID Kd2参数
-
-// 电机配置
-// extern int motor_max_speed;     // 电机最大速度（示例）
-
-// 图像处理配置
-// extern uint16 image_threshold;  // 图像阈值（示例）
-
-// ... 其他模块的配置变量可以在这里添加 ...
+// 未来可以添加更多模块：
+// #include "motor.h"      // 电机模块
+// #include "image.h"      // 图像处理模块
+// ... 等
 
 // ==================== API 函数 ====================
 
