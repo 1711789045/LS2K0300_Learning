@@ -138,6 +138,7 @@ void FUN_INIT();
 void Flash_Read();
 void Flash_Write();
 void Flash_Erase();
+void image_display();  // 实时图像显示函数(用于菜单调试)
 
 
 #endif

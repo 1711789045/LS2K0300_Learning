@@ -31,8 +31,8 @@ int all_init(){
     // 3. 初始化电机
     motor_init();
 
-   /*  // 4. 初始化舵机
-    servo_init(); */
+    // 4. 初始化舵机
+    servo_init();
 
     /* // 5. 初始化编码器
     encoder_init();

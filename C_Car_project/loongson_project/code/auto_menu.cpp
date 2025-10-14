@@ -551,5 +551,47 @@ void UNIT_SET(){
 void FUN_INIT(){
 	fun_init(car_start, "START");         // 启动小车
 	fun_init(servo_manual_adjust, "SERVO_ADJ");  // 舵机手动调整
+	fun_init(image_display, "IMG_VIEW");  // 实时图像显示
 	fun_init(NULL_FUN,   "NULL_FUN");
+}
+
+/**
+ * @brief  实时图像显示函数(用于菜单调试)
+ * @param  无
+ * @return 无
+ * @note   按确认键(IS_OK)进入实时图像显示模式
+ *         显示摄像头图像和赛道识别边线
+ *         按返回键(button1)退出到子菜单
+ */
+void image_display(void)
+{
+    if(IS_OK)  // 必须按下确认键才进入显示模式
+    {
+        printf("Entering image display mode...\r\n");
+
+        // 清屏
+        ips200_full(IPS200_DEFAULT_BGCOLOR);
+
+        // 进入实时显示主循环
+        while(1)
+        {
+            // 更新按键状态(必须在每次循环开始)
+            button_entry(NULL);
+
+            // 检测返回键(button1): 退出到子菜单
+            if(button1)
+            {
+                printf("Exiting image display mode\r\n");
+                // 清屏并退出
+                ips200_full(IPS200_DEFAULT_BGCOLOR);
+                break;
+            }
+
+            // 调用图像处理并显示(mode=1 表示显示边线)
+            image_process(IMAGE_W, IMAGE_H, 1);
+
+            // 主循环延迟,与按键处理一致
+            system_delay_ms(20);
+        }
+    }
 }
