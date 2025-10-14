@@ -208,8 +208,9 @@ void servo_process(void)
  * @param  无
  * @return 无
  * @note   必须按确认键(IS_OK)才进入调整模式
- *         在调整模式中，通过两个虚拟参数(+0.1/-0.1)调整舵机中值
- *         按button1(返回键)保存并退出
+ *         KEY3/KEY4: 快速调整角度(+0.1/-0.1)
+ *         KEY2: 微调步长切换(0.1/0.01)
+ *         KEY1: 保存并退出
  */
 void servo_manual_adjust(void)
 {
@@ -217,44 +218,35 @@ void servo_manual_adjust(void)
     {
         // 使用当前保存的中值初始化
         float current_angle = g_servo_mid;
+        float last_display_angle = current_angle;
+        float step = 0.1;  // 调整步长
 
-        // 选择的参数索引：0 = angle_inc (+0.1), 1 = angle_dec (-0.1)
-        uint8 param_index = 0;
-
-        // 清屏
+        // 清屏一次
         ips200_full(IPS200_DEFAULT_BGCOLOR);
 
+        // 显示固定标题和提示(只显示一次)
+        showstr(0, 0 * DIS_Y, "SERVO ADJUST");
+        showstr(0, 2 * DIS_Y, "Current:");
+        showfloat(80, 2 * DIS_Y, current_angle, 4, 2);  // 初始显示角度
+        showstr(0, 4 * DIS_Y, "Step:");
+        showfloat(60, 4 * DIS_Y, step, 3, 2);  // 初始显示步长
+        showstr(0, 6 * DIS_Y, "KEY1=SAVE");
+        showstr(0, 7 * DIS_Y, "KEY2=STEP");
+        showstr(0, 8 * DIS_Y, "KEY3=UP");
+        showstr(0, 9 * DIS_Y, "KEY4=DOWN");
+
         printf("Entering servo manual adjust mode, current mid = %.2f\r\n", current_angle);
+
+        // 立即设置舵机到当前角度
+        pwm_set_duty(SERVO_MOTOR_PWM, (uint16)SERVO_MOTOR_DUTY(current_angle));
 
         // 进入手动调整主循环
         while(1)
         {
-            // 更新按键状态（必须在每次循环中调用）
+            // 更新按键状态(必须在每次循环开始)
             button_entry(NULL);
 
-            // 清除上次显示
-            ips200_full(IPS200_DEFAULT_BGCOLOR);
-
-            // 显示标题和当前角度
-            showstr(0, 0 * DIS_Y, "SERVO ADJUST");
-            showstr(0, 1 * DIS_Y, "Current:");
-            showfloat(80, 1 * DIS_Y, current_angle, 4, 2);
-
-            // 显示两个虚拟参数
-            if(param_index == 0)
-                showstr(0, 3 * DIS_Y, ">angle +0.1");
-            else
-                showstr(0, 3 * DIS_Y, " angle +0.1");
-
-            if(param_index == 1)
-                showstr(0, 4 * DIS_Y, ">angle -0.1");
-            else
-                showstr(0, 4 * DIS_Y, " angle -0.1");
-
-            // 显示退出提示
-            showstr(0, 5 * DIS_Y, "KEY1=SAVE&EXIT");
-
-            // 检测返回键(button1)：保存并退出
+            // 检测返回键(button1): 保存并退出
             if(button1)
             {
                 g_servo_mid = current_angle;  // 更新全局中值变量
@@ -266,37 +258,48 @@ void servo_manual_adjust(void)
                 break;
             }
 
-            // 检测上下键：切换参数选择
-            if(button3)  // 向上
-            {
-                param_index = (param_index == 0) ? 1 : 0;
-            }
-            else if(button4)  // 向下
-            {
-                param_index = (param_index == 0) ? 1 : 0;
-            }
-
-            // 检测确认键(button2/IS_OK)：执行加/减操作
+            // 检测步长切换键(button2): 切换 0.1 <-> 0.01
             if(button2)
             {
-                if(param_index == 0)
-                {
-                    // angle_inc: +0.1
-                    current_angle += 0.1;
-                    printf("Angle increased to: %.2f\r\n", current_angle);
-                }
-                else if(param_index == 1)
-                {
-                    // angle_dec: -0.1
-                    current_angle -= 0.1;
-                    printf("Angle decreased to: %.2f\r\n", current_angle);
-                }
+                step = (step == 0.1) ? 0.01 : 0.1;
+                // 清除旧的步长显示
+                showstr(60, 4 * DIS_Y, "      ");
+                // 显示新步长
+                showfloat(60, 4 * DIS_Y, step, 3, 2);
+                printf("Step changed to: %.2f\r\n", step);
+            }
+
+            // 检测KEY3: 增加角度
+            if(button3)
+            {
+                current_angle += step;
+                printf("Angle increased to: %.2f\r\n", current_angle);
 
                 // 立即更新舵机位置
                 pwm_set_duty(SERVO_MOTOR_PWM, (uint16)SERVO_MOTOR_DUTY(current_angle));
             }
 
-            system_delay_ms(20);  // 主循环延迟，与button_entry的延迟一致
+            // 检测KEY4: 减小角度
+            if(button4)
+            {
+                current_angle -= step;
+                printf("Angle decreased to: %.2f\r\n", current_angle);
+
+                // 立即更新舵机位置
+                pwm_set_duty(SERVO_MOTOR_PWM, (uint16)SERVO_MOTOR_DUTY(current_angle));
+            }
+
+            // 只在角度变化时更新显示(减少屏幕刷新)
+            if(current_angle != last_display_angle)
+            {
+                // 清除旧的角度显示
+                showstr(80, 2 * DIS_Y, "        ");
+                // 显示新角度
+                showfloat(80, 2 * DIS_Y, current_angle, 4, 2);
+                last_display_angle = current_angle;
+            }
+
+            system_delay_ms(20);  // 主循环延迟,与button_entry一致
         }
     }
 }
