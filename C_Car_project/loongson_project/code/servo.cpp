@@ -34,6 +34,7 @@
 #include "pid.h"
 #include "image.h"
 #include "control.h"
+#include "key.h"           // 引入按键处理
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
@@ -228,6 +229,9 @@ void servo_manual_adjust(void)
         // 进入手动调整主循环
         while(1)
         {
+            // 更新按键状态（必须在每次循环中调用）
+            button_entry(NULL);
+
             // 清除上次显示
             ips200_full(IPS200_DEFAULT_BGCOLOR);
 
@@ -266,12 +270,10 @@ void servo_manual_adjust(void)
             if(button3)  // 向上
             {
                 param_index = (param_index == 0) ? 1 : 0;
-                system_delay_ms(100);  // 防抖延迟
             }
             else if(button4)  // 向下
             {
                 param_index = (param_index == 0) ? 1 : 0;
-                system_delay_ms(100);  // 防抖延迟
             }
 
             // 检测确认键(button2/IS_OK)：执行加/减操作
@@ -292,11 +294,9 @@ void servo_manual_adjust(void)
 
                 // 立即更新舵机位置
                 pwm_set_duty(SERVO_MOTOR_PWM, (uint16)SERVO_MOTOR_DUTY(current_angle));
-
-                system_delay_ms(100);  // 防抖延迟
             }
 
-            system_delay_ms(10);  // 主循环延迟
+            system_delay_ms(20);  // 主循环延迟，与button_entry的延迟一致
         }
     }
 }

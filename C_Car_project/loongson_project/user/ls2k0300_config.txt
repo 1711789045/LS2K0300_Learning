@@ -4,7 +4,7 @@
 # You can edit values manually and reboot to apply
 
 # Servo motor middle position (degree)
-servo_mid = 69.70
+servo_mid = 95
 
 # Servo PID Kp parameter
 servo_kp = 0.35
@@ -28,7 +28,7 @@ motor_ki = 2.00
 motor_kd = 4.00
 
 # Target speed
-speed = 2000
+speed = 0
 
 # Differential speed reduce coefficient
 dif_speed_reduce = 0.30
