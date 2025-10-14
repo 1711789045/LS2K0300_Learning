@@ -33,10 +33,10 @@
 #include "zf_common_typedef.h"
 
 // ==================== 移植配置 ====================
-// 配置文件路径（相对于 out/ 目录，可根据项目需要修改）
-// 默认：相对于 out/ 目录的上级 user/ 目录
+// 配置文件路径(绝对路径,程序在设备上运行时从 /home/root/ 启动)
+// 使用绝对路径确保在任何工作目录下都能正确读写
 #ifndef CONFIG_FILE_PATH
-#define CONFIG_FILE_PATH    "../user/ls2k0300_config.txt"
+#define CONFIG_FILE_PATH    "/home/root/ls2k0300_config.txt"
 #endif
 
 // 最大支持的配置项数量
