@@ -5,7 +5,7 @@
 uint8 go_flag = 0,stop_flag = 0,stop_time = 0;
 
 // 速度控制参数
-int16 speed = 2000;  // 目标速度
+int16 speed = 0;  // 目标速度
 uint8 start_time = 0;  // 启动计时
 
 // 差速控制参数
@@ -39,33 +39,31 @@ void car_start(void)
     }
 }
 
-// 停车函数（统一停车接口）
+// 停车函数(统一停车接口)
 void car_stop(void)
 {
     // 检测到停车标志位
     if(stop_flag)
     {
-        // 阶段1: 3秒减速阶段（stop_time 在 10ms 定时器中递增）
-        if(stop_time < 30)  // 10ms * 30 = 300ms = 3秒的1/10，实际是3秒需要300次
+        // 阶段1: 减速阶段(stop_time 在 10ms 定时器中递增)
+        if(stop_time < 30)  // 10ms * 30 = 300ms
         {
-            // 保持速度闭环，目标速度设为0，让车快速停下
-            // motor_stop() 函数已经在 motor.cpp 中实现了速度闭环减速
-            // 这里不需要额外操作，motor_process() 会调用 motor_stop()
+            // 保持电机运行,由 motor_process() 逐步减速
+            // 这里不做任何操作,让电机以当前速度运行
         }
-        else  // 阶段2: 3秒后，关闭所有硬件并复原标志位
+        else  // 阶段2: 300ms后,关闭所有硬件并复原标志位
         {
             // 关闭定时器
             if(pit_10ms_timer != nullptr)
                 pit_10ms_timer->stop();
-            if(pit_100ms_timer != nullptr)
-                pit_100ms_timer->stop();
+            /* if(pit_100ms_timer != nullptr)
+                pit_100ms_timer->stop(); */
 
-            // 关闭电机PWM
-            pwm_set_duty(MOTOR_L_PWM_CH4, 0);
-            pwm_set_duty(MOTOR_R_PWM_CH2, 0);
+            // 立即关闭电机(调用 motor_stop)
+            motor_stop();
 
-            // 舵机回中（可选，根据需要）
-            // servo_set_angle(SERVO_MID_ANGLE);
+            // 舵机回中
+            servo_setangle(0);
 
             // 复原所有标志位
             go_flag = 0;
@@ -79,7 +77,10 @@ void car_stop(void)
             circle_time = 0;
             mid_mode = 0;
 
-            printf("Car stopped!\r\n");
+            // 蜂鸣器提示
+            beep_flag = 1;
+
+            printf("Car stopped completely!\r\n");
         }
     }
 }

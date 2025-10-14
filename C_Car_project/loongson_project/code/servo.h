@@ -35,7 +35,7 @@
 #define SERVO_MOTOR_PWM             "/dev/zf_device_pwm_servo"
 
 // 舵机控制范围限制（度）
-#define SERVO_MOTOR_LIMIT           (15)      // 最大偏转角度限制
+#define SERVO_MOTOR_LIMIT           (13)      // 最大偏转角度限制
 
 // ==================== 舵机配置参数声明 ====================
 // 这些参数在 servo.cpp 中定义，可被 config_flash 等模块引用

@@ -1,6 +1,6 @@
 
 #include "zf_common_headfile.h"
-#include "config_flash.h"  // 配置库（必须最先初始化）
+#include "config_flash.h"  // 配置库(必须最先初始化)
 #include "motor.h"
 #include "servo.h"
 #include "encoder.h"
@@ -10,6 +10,33 @@
 #include "beep.h"
 #include "auto_menu.h"
 #include "control.h"
+#include <signal.h>  // 信号处理
+
+// Ctrl+C 信号处理函数
+void signal_handler(int signum)
+{
+    printf("\n\n[SIGNAL] Received signal %d (Ctrl+C), cleaning up...\r\n", signum);
+
+    // 立即停止电机
+    motor_stop();
+
+    // 舵机回中
+    servo_setangle(0);
+
+    // 停止定时器
+    if(pit_10ms_timer != nullptr)
+        pit_10ms_timer->stop();
+    if(pit_100ms_timer != nullptr)
+        pit_100ms_timer->stop();
+
+    // 清屏
+    ips200_full(IPS200_DEFAULT_BGCOLOR);
+
+    printf("[SIGNAL] Hardware cleaned up, exiting program...\r\n");
+
+    // 退出程序
+    exit(0);
+}
 
 int all_init(){
     // 0. 初始化配置系统（最先执行，加载所有配置变量）
@@ -52,14 +79,19 @@ int all_init(){
 
 int main(int, char**)
 {
+    // 注册 Ctrl+C 信号处理函数
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+    printf("Signal handlers registered (Ctrl+C will clean up hardware)\r\n");
+
     // 执行所有模块的初始化
     if(all_init() < 0)
     {
-        printf("初始化失败，程序退出...\r\n");
+        printf("初始化失败,程序退出...\r\n");
         return -1;
     }
 
-    printf("系统启动完成，进入主循环...\r\n");
+    printf("系统启动完成,进入主循环...\r\n");
 
     while(1)
     {
@@ -82,16 +114,16 @@ int main(int, char**)
                 continue;
 
             /* // 编码器处理（标志位驱动）
-            encoder_process();
+            encoder_process(); */
 
             // 舵机控制处理（标志位驱动）
             servo_process();
 
             // 电机控制处理（标志位驱动）
-            motor_process(); */
+            motor_process();
 
             // 图像处理（计时）
-            image_process_time_start();           // 开始计时
+            /* image_process_time_start();           // 开始计时
             image_process(IMAGE_W, IMAGE_H, 0);   // 图像处理（显示模式0：仅图像）
             float process_time = image_process_time_end();  // 结束计时并获取时间
 
@@ -101,7 +133,7 @@ int main(int, char**)
             {
                 image_process_time_print();
                 print_counter = 0;
-            }
+            } */
 
             // 短暂延时，避免CPU占用过高
             system_delay_ms(1);

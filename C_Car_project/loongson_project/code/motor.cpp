@@ -147,16 +147,21 @@ void motor_setspeed(int16 target, float current_l, float current_r,uint8 differe
     motor_setpwm(MOTOR_L, speed_l);
     motor_setpwm(MOTOR_R, speed_r);
 }
-void motor_stop(void){
-	motor_setspeed(0,encoder_data_l,encoder_data_r,0);
-	if(stop_time == 30){
-		beep_flag = 1;
-		stop_flag = 0;
-		pit_10ms_timer->stop();
-		pit_100ms_timer->stop();
-		pwm_set_duty(MOTOR_L_PWM_CH4, 0);
-    	pwm_set_duty(MOTOR_R_PWM_CH2, 0);
-	}
+/**
+ * @brief  电机停止函数
+ * @note   立即关闭电机 PWM 和方向引脚,用于紧急停止
+ */
+void motor_stop(void)
+{
+    // 立即关闭电机PWM
+    pwm_set_duty(MOTOR_L_PWM_CH4, 0);
+    pwm_set_duty(MOTOR_R_PWM_CH2, 0);
+
+    // 方向引脚设为低电平(可选,防止漏电)
+    gpio_set_level(MOTOR_L_DIR, 0);
+    gpio_set_level(MOTOR_R_DIR, 0);
+
+    printf("Motor stopped (PWM=0)\r\n");
 }
 
 void motor_protect(void){
@@ -187,7 +192,11 @@ void motor_process(void){
 	if(motor_f){
 		
 		if(go_flag){
-			motor_setspeed(speed,encoder_data_l,encoder_data_r,differential_mode);
+/* 			motor_setspeed(speed,encoder_data_l,encoder_data_r,differential_mode);
+ */			
+			motor_setpwm(MOTOR_L, speed);
+  			motor_setpwm(MOTOR_R, speed);
+
 			motor_protect();
 		}
 		if(stop_flag){
