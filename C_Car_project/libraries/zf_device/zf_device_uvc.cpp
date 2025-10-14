@@ -1,189 +1,87 @@
 #include "zf_device_uvc.h"
 
+#include <opencv2/opencv.hpp>
 #include <iostream>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <linux/videodev2.h>
-#include <cstring>
-#include <cerrno>
-#include <opencv2/opencv.hpp>  // 用于 MJPEG 解码
 
 using namespace std;
+using namespace cv;
 
-// V4L2 相关变量
-static int camera_fd = -1;
-static void* buffer_start = nullptr;
-static size_t buffer_length = 0;
+// OpenCV 摄像头对象
+static VideoCapture cap;
+static Mat frame_gray;
 
 uint8_t *rgay_image;    // 灰度图像数组指针
 static uint8_t gray_buffer[UVC_HEIGHT * UVC_WIDTH];  // 静态灰度缓冲区
 
 int8 uvc_camera_init(const char *path)
 {
-    // 1. 打开摄像头设备（阻塞模式）
-    camera_fd = open(path, O_RDWR);  // 移除 O_NONBLOCK，使用阻塞模式
-    if (camera_fd < 0)
-    {
-        printf("Failed to open camera device: %s (errno: %d)\r\n", path, errno);
-        return -1;
-    }
-    printf("Camera device opened: %s (fd=%d)\r\n", path, camera_fd);
+    // 打开摄像头 (参考龙邱方案：简洁初始化)
+    cap.open(0);  // /dev/video0
 
-    // 2. 查询设备能力
-    struct v4l2_capability cap;
-    if (ioctl(camera_fd, VIDIOC_QUERYCAP, &cap) < 0)
+    if (!cap.isOpened())
     {
-        printf("Failed to query camera capabilities\r\n");
-        close(camera_fd);
-        return -1;
-    }
-    printf("Camera: %s\r\n", cap.card);
-
-    // 3. 设置图像格式为 MJPEG（支持高帧率）
-    struct v4l2_format fmt;
-    memset(&fmt, 0, sizeof(fmt));
-    fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    fmt.fmt.pix.width = UVC_WIDTH;
-    fmt.fmt.pix.height = UVC_HEIGHT;
-    fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;  // 改用 MJPEG 格式（支持高帧率）
-    fmt.fmt.pix.field = V4L2_FIELD_NONE;
-
-    if (ioctl(camera_fd, VIDIOC_S_FMT, &fmt) < 0)
-    {
-        printf("Failed to set video format\r\n");
-        close(camera_fd);
+        printf("Failed to open camera\r\n");
         return -1;
     }
 
-    printf("Format set: %dx%d MJPEG\r\n", fmt.fmt.pix.width, fmt.fmt.pix.height);
+    printf("Camera opened successfully\r\n");
 
-    // 4. 设置帧率
-    struct v4l2_streamparm parm;
-    memset(&parm, 0, sizeof(parm));
-    parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    parm.parm.capture.timeperframe.numerator = 1;
-    parm.parm.capture.timeperframe.denominator = UVC_FPS;
+    // === 参考龙邱方案：只设置必要参数，移除额外开销 ===
 
-    if (ioctl(camera_fd, VIDIOC_S_PARM, &parm) < 0)
+    // 1. 设置 MJPEG 格式（支持高帧率的关键）
+    cap.set(CAP_PROP_FOURCC, VideoWriter::fourcc('M', 'J', 'P', 'G'));
+
+    // 2. 设置分辨率
+    cap.set(CAP_PROP_FRAME_WIDTH, UVC_WIDTH);
+    cap.set(CAP_PROP_FRAME_HEIGHT, UVC_HEIGHT);
+
+    // 3. 设置帧率（龙邱110fps摄像头）
+    cap.set(CAP_PROP_FPS, UVC_FPS);
+
+    // ⚠️ 移除以下设置（可能限制性能）：
+    // - CAP_PROP_BUFFERSIZE：可能不被V4L2支持
+    // - CAP_PROP_AUTO_EXPOSURE / CAP_PROP_EXPOSURE：增加处理开销
+
+    // 读取实际配置
+    int actual_width = cap.get(CAP_PROP_FRAME_WIDTH);
+    int actual_height = cap.get(CAP_PROP_FRAME_HEIGHT);
+    double actual_fps = cap.get(CAP_PROP_FPS);
+
+    printf("Camera config: %dx%d @ %.0f fps\r\n", actual_width, actual_height, actual_fps);
+
+    if (actual_fps < UVC_FPS)
     {
-        printf("Warning: Failed to set frame rate\r\n");
+        printf("⚠️  Warning: Requested %d fps, actual %.0f fps\r\n", UVC_FPS, actual_fps);
+        printf("   提示: 请确认使用龙邱110fps摄像头并安装了正确的UVC驱动\r\n");
     }
     else
     {
-        // 读取实际设置的帧率
-        ioctl(camera_fd, VIDIOC_G_PARM, &parm);
-        uint32_t actual_fps = parm.parm.capture.timeperframe.denominator / parm.parm.capture.timeperframe.numerator;
-        printf("Frame rate: requested=%d, actual=%u fps\r\n", UVC_FPS, actual_fps);
-
-        if(actual_fps < UVC_FPS)
-        {
-            printf("⚠️  Warning: Camera does not support %d fps, running at %u fps\r\n", UVC_FPS, actual_fps);
-        }
+        printf("✅ 摄像头初始化成功: 已达到目标帧率 %d fps\r\n", UVC_FPS);
     }
 
-    // 5. 请求缓冲区（使用 mmap 方式，最快）
-    struct v4l2_requestbuffers req;
-    memset(&req, 0, sizeof(req));
-    req.count = 1;  // 只使用1个缓冲区，最小延迟
-    req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    req.memory = V4L2_MEMORY_MMAP;
-
-    if (ioctl(camera_fd, VIDIOC_REQBUFS, &req) < 0)
-    {
-        printf("Failed to request buffers\r\n");
-        close(camera_fd);
-        return -1;
-    }
-
-    // 6. 映射缓冲区到用户空间
-    struct v4l2_buffer buf;
-    memset(&buf, 0, sizeof(buf));
-    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    buf.memory = V4L2_MEMORY_MMAP;
-    buf.index = 0;
-
-    if (ioctl(camera_fd, VIDIOC_QUERYBUF, &buf) < 0)
-    {
-        printf("Failed to query buffer\r\n");
-        close(camera_fd);
-        return -1;
-    }
-
-    buffer_length = buf.length;
-    buffer_start = mmap(NULL, buf.length, PROT_READ | PROT_WRITE, MAP_SHARED, camera_fd, buf.m.offset);
-
-    if (buffer_start == MAP_FAILED)
-    {
-        printf("Failed to mmap buffer\r\n");
-        close(camera_fd);
-        return -1;
-    }
-
-    printf("Buffer mapped: %zu bytes\r\n", buffer_length);
-
-    // 7. 将缓冲区入队
-    if (ioctl(camera_fd, VIDIOC_QBUF, &buf) < 0)
-    {
-        printf("Failed to queue buffer\r\n");
-        munmap(buffer_start, buffer_length);
-        close(camera_fd);
-        return -1;
-    }
-
-    // 8. 开始采集
-    enum v4l2_buf_type type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    if (ioctl(camera_fd, VIDIOC_STREAMON, &type) < 0)
-    {
-        printf("Failed to start streaming\r\n");
-        munmap(buffer_start, buffer_length);
-        close(camera_fd);
-        return -1;
-    }
-
-    printf("Camera streaming started successfully!\r\n");
     return 0;
 }
 
 
 int8 wait_image_refresh()
 {
-    // 1. 出队缓冲区（获取新图像） - 阻塞模式会自动等待
-    struct v4l2_buffer buf;
-    memset(&buf, 0, sizeof(buf));
-    buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    buf.memory = V4L2_MEMORY_MMAP;
+    Mat frame;
 
-    if (ioctl(camera_fd, VIDIOC_DQBUF, &buf) < 0)
+    // 读取一帧图像
+    cap.read(frame);
+
+    if (frame.empty())
     {
-        cerr << "Failed to dequeue buffer: errno=" << errno << endl;
+        cerr << "Error: Failed to read frame from camera" << endl;
         return -1;
     }
 
-    // 2. 解码 MJPEG 为灰度图（使用 OpenCV）
-    // 将 MJPEG 数据包装为 cv::Mat
-    cv::Mat mjpeg_data(1, buf.bytesused, CV_8UC1, buffer_start);
+    // 转换为灰度图
+    cvtColor(frame, frame_gray, COLOR_BGR2GRAY);
 
-    // 解码 MJPEG 为灰度图（直接解码为灰度，避免 BGR 转换）
-    cv::Mat decoded_gray = cv::imdecode(mjpeg_data, cv::IMREAD_GRAYSCALE);
-
-    if (decoded_gray.empty())
-    {
-        cerr << "Failed to decode MJPEG" << endl;
-        return -1;
-    }
-
-    // 3. 拷贝到灰度缓冲区
-    memcpy(gray_buffer, decoded_gray.data, UVC_WIDTH * UVC_HEIGHT);
+    // 拷贝到灰度缓冲区
+    memcpy(gray_buffer, frame_gray.data, UVC_WIDTH * UVC_HEIGHT);
     rgay_image = gray_buffer;
-
-    // 4. 将缓冲区重新入队（准备下一帧）
-    if (ioctl(camera_fd, VIDIOC_QBUF, &buf) < 0)
-    {
-        cerr << "Failed to requeue buffer" << endl;
-        return -1;
-    }
 
     return 0;
 }
