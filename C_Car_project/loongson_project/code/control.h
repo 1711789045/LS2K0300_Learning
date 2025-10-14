@@ -2,6 +2,9 @@
 #define __CONTROL_H__
 #include "zf_common_headfile.h"
 
+// ==================== 控制模块配置参数声明 ====================
+// 这些参数在 control.cpp 中定义，可被 config_flash 等模块引用
+
 // 控制标志位
 extern uint8 go_flag,stop_flag,stop_time;
 

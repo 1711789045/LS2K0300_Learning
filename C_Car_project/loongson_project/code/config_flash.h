@@ -49,9 +49,11 @@
 // config_flash 通过包含各模块头文件来使用模块中定义的变量
 // 各模块的变量在各自的 .cpp 中定义，在各自的 .h 中用 extern 声明
 
+#include "motor.h"      // 电机模块
+#include "control.h"    // 控制模块
+#include "image.h"      // 图像处理模块
+
 // 未来可以添加更多模块：
-// #include "motor.h"      // 电机模块
-// #include "image.h"      // 图像处理模块
 // ... 等
 
 // ==================== API 函数 ====================
@@ -87,6 +89,7 @@ void config_reset(void);
 void config_register_all(void);  // 内部函数：注册所有变量
 void config_add_float(const char *key, float *var, float default_val, const char *comment);
 void config_add_int(const char *key, int *var, int default_val, const char *comment);
+void config_add_int16(const char *key, int16 *var, int16 default_val, const char *comment);
 void config_add_uint8(const char *key, uint8 *var, uint8 default_val, const char *comment);
 void config_add_uint16(const char *key, uint16 *var, uint16 default_val, const char *comment);
 void config_add_uint32(const char *key, uint32 *var, uint32 default_val, const char *comment);

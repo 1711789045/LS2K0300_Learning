@@ -45,6 +45,7 @@
 typedef enum {
     CONFIG_TYPE_FLOAT = 0,
     CONFIG_TYPE_INT,
+    CONFIG_TYPE_INT16,
     CONFIG_TYPE_UINT8,
     CONFIG_TYPE_UINT16,
     CONFIG_TYPE_UINT32
@@ -58,6 +59,7 @@ typedef struct {
     union {
         float f;
         int i;
+        int16 i16;
         uint8 u8;
         uint16 u16;
         uint32 u32;
@@ -108,6 +110,27 @@ void config_add_int(const char *key, int *var, int default_val, const char *comm
     item->var_ptr = var;
     item->type = CONFIG_TYPE_INT;
     item->default_val.i = default_val;
+    strncpy(item->comment, comment, sizeof(item->comment) - 1);
+
+    config_item_count++;
+}
+
+/**
+ * @brief  添加 int16 类型配置项
+ */
+void config_add_int16(const char *key, int16 *var, int16 default_val, const char *comment)
+{
+    if (config_item_count >= CONFIG_MAX_ITEMS)
+    {
+        printf("[CONFIG ERROR] Config items limit exceeded!\r\n");
+        return;
+    }
+
+    config_item_t *item = &config_items[config_item_count];
+    strncpy(item->key, key, sizeof(item->key) - 1);
+    item->var_ptr = var;
+    item->type = CONFIG_TYPE_INT16;
+    item->default_val.i16 = default_val;
     strncpy(item->comment, comment, sizeof(item->comment) - 1);
 
     config_item_count++;
@@ -190,11 +213,32 @@ void config_register_all(void)
     config_add_float("servo_kd1",  &servo_pid_kd1, 0.56,  "Servo PID Kd1 parameter");
     config_add_float("servo_kd2",  &servo_pid_kd2, 0.0,   "Servo PID Kd2 parameter");
 
-    // 电机参数（示例）
-    // config_add_int("motor_speed", &motor_max_speed, 1000, "Motor max speed");
+    // 电机参数
+    config_add_float("motor_kp",   &motor_pid_kp,  8.0,   "Motor PID Kp parameter");
+    config_add_float("motor_ki",   &motor_pid_ki,  2.0,   "Motor PID Ki parameter");
+    config_add_float("motor_kd",   &motor_pid_kd,  4.0,   "Motor PID Kd parameter");
 
-    // 图像处理参数（示例）
-    // config_add_uint16("img_thresh", &image_threshold, 128, "Image threshold");
+    // 控制参数
+    config_add_int16("speed",            &speed,             2000, "Target speed");
+    config_add_float("dif_speed_reduce", &dif_speed_reduce, 0.3,  "Differential speed reduce coefficient");
+    config_add_float("dif_speed_plus",   &dif_speed_plus,   0.3,  "Differential speed plus coefficient");
+
+    // 图像处理参数
+    config_add_uint8("img_ref_row",        &cfg_reference_row,     5,   "Image reference row count");
+    config_add_uint8("img_ref_col",        &cfg_reference_col,     60,  "Image reference column count");
+    config_add_uint8("img_white_max_mul",  &cfg_whitemaxmul,       13,  "White max point multiplier (*0.1)");
+    config_add_uint8("img_white_min_mul",  &cfg_whiteminmul,       7,   "White min point multiplier (*0.1)");
+    config_add_uint8("img_black_point",    &cfg_blackpoint,        50,  "Black point threshold");
+    config_add_uint8("img_contrast_off",   &cfg_contrastoffset,    3,   "Contrast offset");
+    config_add_uint8("img_stop_row",       &cfg_stoprow,           0,   "Search stop row");
+    config_add_uint8("img_search_range",   &cfg_searchrange,       10,  "Search range");
+    config_add_uint16("img_circle_1_time", &cfg_circle_1_time,     15,  "Circle state 1 time (10ms unit)");
+    config_add_uint16("img_circle_2_time", &cfg_circle_2_time,     50,  "Circle state 2 time (10ms unit)");
+    config_add_uint16("img_circle_4_time", &cfg_circle_4_time,     25,  "Circle state 4 time (10ms unit)");
+    config_add_uint16("img_circle_5_time", &cfg_circle_5_time,     25,  "Circle state 5 time (10ms unit)");
+    config_add_uint8("img_stop_line",      &cfg_stop_analyse_line, 40,  "Stop line analysis row (from bottom)");
+    config_add_uint8("img_stop_thresh",    &cfg_stop_threshold,    30,  "Stop line detection threshold");
+    config_add_uint8("img_stretch_num",    &cfg_stretch_num,       80,  "Edge line stretch number");
 
     printf("[CONFIG] Registered %d configuration items.\r\n", config_item_count);
 }
@@ -223,6 +267,9 @@ bool config_load(void)
                     break;
                 case CONFIG_TYPE_INT:
                     *(int *)item->var_ptr = item->default_val.i;
+                    break;
+                case CONFIG_TYPE_INT16:
+                    *(int16 *)item->var_ptr = item->default_val.i16;
                     break;
                 case CONFIG_TYPE_UINT8:
                     *(uint8 *)item->var_ptr = item->default_val.u8;
@@ -273,6 +320,9 @@ bool config_load(void)
                         break;
                     case CONFIG_TYPE_INT:
                         *(int *)item->var_ptr = atoi(value);
+                        break;
+                    case CONFIG_TYPE_INT16:
+                        *(int16 *)item->var_ptr = (int16)atoi(value);
                         break;
                     case CONFIG_TYPE_UINT8:
                         *(uint8 *)item->var_ptr = (uint8)atoi(value);
@@ -342,6 +392,9 @@ void config_save(void)
             case CONFIG_TYPE_INT:
                 fprintf(fp, "%d\n", *(int *)item->var_ptr);
                 break;
+            case CONFIG_TYPE_INT16:
+                fprintf(fp, "%d\n", *(int16 *)item->var_ptr);
+                break;
             case CONFIG_TYPE_UINT8:
                 fprintf(fp, "%u\n", *(uint8 *)item->var_ptr);
                 break;
@@ -379,6 +432,9 @@ void config_reset(void)
                 break;
             case CONFIG_TYPE_INT:
                 *(int *)item->var_ptr = item->default_val.i;
+                break;
+            case CONFIG_TYPE_INT16:
+                *(int16 *)item->var_ptr = item->default_val.i16;
                 break;
             case CONFIG_TYPE_UINT8:
                 *(uint8 *)item->var_ptr = item->default_val.u8;

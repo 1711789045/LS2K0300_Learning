@@ -18,6 +18,23 @@
 #include "control.h"
 //#include "motor.h"
 
+// ==================== 图像处理配置参数（在本模块中定义）====================
+uint8 cfg_reference_row = 5;        // 参考点统计行数
+uint8 cfg_reference_col = 60;       // 参考列统计列数
+uint8 cfg_whitemaxmul = 13;         // 白点最大值相对参考点的倍数 10为倍数单位
+uint8 cfg_whiteminmul = 7;          // 白点最小值相对参考点的倍数 10为倍数单位
+uint8 cfg_blackpoint = 50;          // 黑点值
+uint8 cfg_contrastoffset = 3;       // 对比度偏移
+uint8 cfg_stoprow = 0;              // 搜索停止行
+uint8 cfg_searchrange = 10;         // 搜索半径
+uint16 cfg_circle_1_time = 15;      // 环岛状态一延时时间，单位10ms
+uint16 cfg_circle_2_time = 50;      // 环岛状态二延时时间，单位10ms
+uint16 cfg_circle_4_time = 25;      // 环岛状态四延时时间，单位10ms
+uint16 cfg_circle_5_time = 25;      // 环岛状态五延时时间，单位10ms
+uint8 cfg_stop_analyse_line = 40;   // 停止线分析行（从底部数）
+uint8 cfg_stop_threshold = 30;      // 停止线检测阈值
+uint8 cfg_stretch_num = 80;         // 边线延长数
+
 uint8 reference_point = 0;
 uint8 white_max_point = 0;
 uint8 white_min_point = 0;
@@ -815,26 +832,26 @@ void image_process(uint16 display_width,uint16 display_height,uint8 mode){
 	get_image();
 	reference_point = 0; white_max_point = 0;white_min_point = 0;reference_col = 0;
 	
-	/* get_reference_point(user_image);
+	get_reference_point(user_image);
 	search_reference_col(user_image);
-	search_line(user_image); */
+	search_line(user_image);
 	
 //	image_get_left_err();
 	
-	/* if(if_circle){
+	if(if_circle){
 		image_circle_analysis();
 	}
 	
 	if(!circle_flag){
 		image_cross_analysis();
-	} */
+	}
 	
-	/* if(go_flag)
+	if(go_flag)
 		stop_analysis(user_image);
 	
 
 	image_calculate_mid(mid_mode);
-	image_calculate_prospect(user_image); */
+	image_calculate_prospect(user_image);
 	
 	if(mode)
 		image_display_edge_line(user_image,display_width,display_height);

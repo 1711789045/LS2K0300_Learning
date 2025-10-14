@@ -20,12 +20,17 @@ extern struct pwm_info motor_2_pwm_info;
 #define CAR_B                   15
 #define CAR_L                   19
 
+// ==================== 电机配置参数声明 ====================
+// 这些参数在 motor.cpp 中定义，可被 config_flash 等模块引用
+extern float motor_pid_kp;          // 电机PID Kp参数
+extern float motor_pid_ki;          // 电机PID Ki参数
+extern float motor_pid_kd;          // 电机PID Kd参数
+
 // 电机控制变量（部分在 control.cpp 中定义，需包含 control.h）
 extern uint8 block_time;
 extern uint8 motor_f;
 extern uint8 differential_mode;
 extern int16 speed_l, speed_r;
-extern float motor_pid_kp, motor_pid_ki, motor_pid_kd;
 
 void motor_init(void);
 void motor_set_pid(float kp,float ki,float kd);

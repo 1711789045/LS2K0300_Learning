@@ -7,22 +7,40 @@
 #define IMAGE_W            UVC_WIDTH
 #define IMAGE_H            UVC_HEIGHT
 
-#define REFERENCE_ROW       5          //参考点统计行数
-#define REFERENCE_COL       60         //参考列统计列数
-#define WHITEMAXMUL        13         //白点最大值相对参考点的倍数 10为倍数单位
-#define WHITEMINMUL         7          //白点最小值相对参考点的倍数 10为倍数单位
-#define BLACKPOINT          50         //黑点值
+// ==================== 图像处理配置参数声明 ====================
+// 这些参数在 image.cpp 中定义，可被 config_flash 等模块引用
+extern uint8 cfg_reference_row;        // 参考点统计行数
+extern uint8 cfg_reference_col;        // 参考列统计列数
+extern uint8 cfg_whitemaxmul;          // 白点最大值相对参考点的倍数 10为倍数单位
+extern uint8 cfg_whiteminmul;          // 白点最小值相对参考点的倍数 10为倍数单位
+extern uint8 cfg_blackpoint;           // 黑点值
+extern uint8 cfg_contrastoffset;       // 对比度偏移
+extern uint8 cfg_stoprow;              // 搜索停止行
+extern uint8 cfg_searchrange;          // 搜索半径
+extern uint16 cfg_circle_1_time;       // 环岛状态一延时时间，单位10ms
+extern uint16 cfg_circle_2_time;       // 环岛状态二延时时间，单位10ms
+extern uint16 cfg_circle_4_time;       // 环岛状态四延时时间，单位10ms
+extern uint16 cfg_circle_5_time;       // 环岛状态五延时时间，单位10ms
+extern uint8 cfg_stop_analyse_line;    // 停止线分析行（从底部数）
+extern uint8 cfg_stop_threshold;       // 停止线检测阈值
+extern uint8 cfg_stretch_num;          // 边线延长数
 
-#define CONTRASTOFFSET      3          //对比度偏移
-#define STOPROW            0           //搜索停止行
-#define SEARCHRANGE        10          //搜索半径
-#define CIRCLE_1_TIME      15        //环岛状态一延时时间，单位10ms
-#define CIRCLE_2_TIME      50         //环岛状态二延时时间，单位10ms
-#define CIRCLE_4_TIME      25           //环岛状态四延时时间，单位10ms
-#define CIRCLE_5_TIME      25           //环岛状态五延时时间，单位10ms
-#define STOP_ANALYSE_LINE  (IMAGE_H-40)          //停止线分析行
-#define STOP_THRESHOLD    30			 //停止线检测阈值
-#define STRETCH_NUM       80          //边线延长数
+// 向后兼容的宏定义（引用全局变量）
+#define REFERENCE_ROW       cfg_reference_row
+#define REFERENCE_COL       cfg_reference_col
+#define WHITEMAXMUL         cfg_whitemaxmul
+#define WHITEMINMUL         cfg_whiteminmul
+#define BLACKPOINT          cfg_blackpoint
+#define CONTRASTOFFSET      cfg_contrastoffset
+#define STOPROW             cfg_stoprow
+#define SEARCHRANGE         cfg_searchrange
+#define CIRCLE_1_TIME       cfg_circle_1_time
+#define CIRCLE_2_TIME       cfg_circle_2_time
+#define CIRCLE_4_TIME       cfg_circle_4_time
+#define CIRCLE_5_TIME       cfg_circle_5_time
+#define STOP_ANALYSE_LINE   (IMAGE_H-cfg_stop_analyse_line)
+#define STOP_THRESHOLD      cfg_stop_threshold
+#define STRETCH_NUM         cfg_stretch_num
 
 extern uint8 reference_point;
 extern uint8 white_max_point;          //动态白点最大值
