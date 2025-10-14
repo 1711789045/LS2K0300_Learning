@@ -528,18 +528,9 @@ void NULL_FUN(){
 
 }
 
-float test_a=1.1f;
-int test_b=100;
-double test_c=100;
-uint16 test_d=20;
-uint32 test_e=32;
-
 void UNIT_SET(){
-    unit_param_set(&test_a,TYPE_FLOAT ,0.5  ,3  ,3,NORMAL_PAR,"test_a");
-    unit_param_set(&test_b,TYPE_INT   ,2    ,6  ,0,NORMAL_PAR,"test_b");
-    unit_param_set(&test_c,TYPE_DOUBLE,11.11,4  ,4,NORMAL_PAR,"test_c");
-    unit_param_set(&test_d,TYPE_UINT16,1    ,6  ,0,NORMAL_PAR,"test_d");
-    unit_param_set(&test_e,TYPE_UINT32,1    ,6  ,0,NORMAL_PAR,"test_e");
+    // 速度控制参数
+    unit_param_set(&speed, TYPE_INT, 100, 6, 0, NORMAL_PAR, "speed");
 
     // 舵机PID参数（现在从 config_flash.cpp 中声明）
     unit_param_set(&servo_pid_kp,  TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp");
