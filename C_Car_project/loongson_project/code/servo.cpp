@@ -175,6 +175,9 @@ void servo_process(void)
 {
     if(servo_f)
     {
+        // 读取IMU660RA陀螺仪数据
+        imu660ra_get_gyro();
+
         // 更新PID参数（从菜单系统）
         // 注意：现在 servo_pid_kp 等参数已经是全局变量，可以直接使用
 
