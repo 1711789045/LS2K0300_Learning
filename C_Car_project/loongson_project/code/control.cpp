@@ -62,8 +62,8 @@ void car_stop(void)
             // 立即关闭电机(调用 motor_stop)
             motor_stop();
 
-            // 舵机回中
-            servo_setangle(0);
+            // 禁用舵机PWM输出(允许手动转动)
+            servo_disable();
 
             // 复原所有标志位
             go_flag = 0;

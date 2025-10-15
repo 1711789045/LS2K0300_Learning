@@ -87,8 +87,21 @@ void servo_init(void)
     printf("Servo PWM duty_max = %d\r\n", servo_pwm_info.duty_max);
     printf("Loaded servo_mid = %.2f\r\n", g_servo_mid);
 
-    // 设置舵机到中位
-    servo_setangle(0);
+    // 初始化时禁用舵机PWM输出,保持无信号状态
+    servo_disable();
+    printf("Servo initialized in disabled state (no PWM)\r\n");
+}
+
+/**
+ * @brief  禁用舵机PWM输出
+ * @param  无
+ * @return 无
+ * @note   将PWM占空比设置为0,使舵机失去信号,可以手动转动
+ */
+void servo_disable(void)
+{
+    // 将占空比设为0,关闭PWM输出
+    pwm_set_duty(SERVO_MOTOR_PWM, 0);
 }
 
 /**
@@ -186,6 +199,11 @@ void servo_process(void)
         {
             servo_control(final_mid_line);
         }
+        else
+        {
+            // 未发车状态(go_flag=0)下禁用舵机PWM,可以手动转动
+            servo_disable();
+        }
 
         // 停止状态处理
         if(stop_flag)
@@ -197,8 +215,8 @@ void servo_process(void)
             }
             else
             {
-                // 超时后舵机回中位
-                servo_setangle(0);
+                // 超时后禁用舵机PWM,不再输出信号
+                servo_disable();
             }
         }
 

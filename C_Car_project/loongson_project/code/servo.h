@@ -48,6 +48,7 @@ extern float servo_pid_kd2;         // 舵机PID Kd2参数
 // 函数声明
 void servo_init(void);
 void servo_setangle(float angle);
+void servo_disable(void);        // 禁用舵机PWM输出
 void servo_set_pid(float kp, float ki, float kd1, float kd2);
 void servo_control(uint8 mid_line);
 void servo_process(void);
