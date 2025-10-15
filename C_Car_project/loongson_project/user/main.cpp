@@ -64,13 +64,17 @@ int all_init(){
     /* // 5. 初始化编码器
     encoder_init();
  */
-    // 6. 初始化定时器
+    // 6. 初始化 IMU660RA
+    imu_get_dev_info();  // 获取IMU设备信息
+    printf("IMU660RA 初始化完成\r\n");
+
+    // 7. 初始化定时器
     pit_init();
 
-    // 7. 初始化按键
+    // 8. 初始化按键
     key_into();
 
-    // 8. 初始化菜单系统
+    // 9. 初始化菜单系统
     menu_init();
 
     printf("所有模块初始化成功！\r\n");
@@ -115,6 +119,8 @@ int main(int, char**)
 
             /* // 编码器处理（标志位驱动）
             encoder_process(); */
+
+            image_process(IMAGE_W, IMAGE_H, 0);   // 图像处理（显示模式0：仅图像）
 
             // 舵机控制处理（标志位驱动）
             servo_process();

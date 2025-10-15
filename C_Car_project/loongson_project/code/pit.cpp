@@ -7,6 +7,9 @@ timer_fd *pit_100ms_timer;
 // 10ms定时器回调函数 - 快速控制任务
 void pit_10ms_callback()
 {
+    // 读取IMU660RA陀螺仪数据
+    imu660ra_get_gyro();
+
     // 舵机控制标志位（10ms周期）
     servo_f = 1;
 
