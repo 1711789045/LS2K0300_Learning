@@ -193,12 +193,15 @@ void search_line(const uint8 image[][IMAGE_W]){
 					temp1 = image[row][col];
 					temp2 = image[row][col - CONTRASTOFFSET];
 				
+					// 判断参考列是否为黑点，若是则左右边线都不再搜索
 					if(temp1 < white_min_point && col == leftstartcol && leftstartcol == reference_col){
 						leftstop = 1;
+						rightstop = 1;  // 左右对称：同时停止右边搜索
 						stop_search_row = row;
-						
+
 						for(stoppoint = row;stoppoint >= 0;stoppoint--){
 							left_edge_line[stoppoint ] = col_min;
+							right_edge_line[stoppoint ] = col_max;  // 同时填充右边线
 						}
 						search_time = 0;
 						break;
@@ -246,11 +249,14 @@ void search_line(const uint8 image[][IMAGE_W]){
 					temp1 = image[row][col];
 					temp2 = image[row][col + CONTRASTOFFSET];
 				
+					// 判断参考列是否为黑点，若是则左右边线都不再搜索
 					if(temp1 < white_min_point && col == rightstartcol && rightstartcol == reference_col){
+						leftstop = 1;  // 左右对称：同时停止左边搜索
 						rightstop = 1;
 						stop_search_row = row;
 
 						for(stoppoint = row;stoppoint >= 0;stoppoint--){
+							left_edge_line[stoppoint ] = col_min;  // 同时填充左边线
 							right_edge_line[stoppoint ] = col_max;
 						}
 						search_time = 0;
