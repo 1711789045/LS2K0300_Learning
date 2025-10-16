@@ -126,7 +126,11 @@ void search_reference_col(const uint8 image[][IMAGE_W]){
 				remote_distance[col] = (uint8)row;
 				break;
  			}
-			
+
+			// 防止除零错误
+			if(temp1 + temp2 == 0){
+				continue;
+			}
 			temp3 = (temp1 - temp2)*200/(temp1 + temp2);
 			
 			if(temp3 >reference_contrast_ratio ){
@@ -205,6 +209,11 @@ void search_line(const uint8 image[][IMAGE_W]){
 					if(temp2 > white_max_point){
 						continue;
 					}
+
+					// 防止除零错误
+					if(temp1 + temp2 == 0){
+						continue;
+					}
 					temp3 = (temp1 - temp2)*200/(temp1 + temp2);
 					
 					if(temp3 >reference_contrast_ratio || col == col_min){   
@@ -251,6 +260,11 @@ void search_line(const uint8 image[][IMAGE_W]){
 						break;
 					}
 					if(temp2 > white_max_point){
+						continue;
+					}
+
+					// 防止除零错误
+					if(temp1 + temp2 == 0){
 						continue;
 					}
 					temp3 = (temp1 - temp2)*200/(temp1 + temp2);
@@ -674,8 +688,11 @@ void image_calculate_prospect(const uint8 image[][IMAGE_W]){
 		if(temp2 > white_max_point){
 			continue;
 		}
-		
-		
+
+		// 防止除零错误
+		if(temp1 + temp2 == 0){
+			continue;
+		}
 		temp3 = (temp1 - temp2)*200/(temp1 + temp2);
 		
 		if(temp3 >reference_contrast_ratio ){
@@ -727,6 +744,11 @@ void stop_analysis(const uint8 image[][IMAGE_W]){
 		for(int col = 0;col<IMAGE_W-CONTRASTOFFSET;col+=CONTRASTOFFSET){
 			temp1 = image[row][col];
 			temp2 = image[row][col+CONTRASTOFFSET];
+
+			// 防止除零错误
+			if(temp1 + temp2 == 0){
+				continue;
+			}
 			temp3 = (temp1 - temp2)*200/(temp1 + temp2);
 			if(temp3 >reference_contrast_ratio ){
 				stop_count++;
