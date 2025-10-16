@@ -400,46 +400,6 @@ void config_save(void)
     printf("[CONFIG] Configuration saved to %s\r\n", CONFIG_FILE_PATH);
 }
 
-/**
- * @brief  恢复默认值
- */
-void config_reset(void)
-{
-    printf("[CONFIG] Resetting configuration to default values...\r\n");
-
-    // 将所有变量恢复为默认值
-    for (uint8 i = 0; i < config_item_count; i++)
-    {
-        config_item_t *item = &config_items[i];
-
-        switch (item->type)
-        {
-            case CONFIG_TYPE_FLOAT:
-                *(float *)item->var_ptr = item->default_val.f;
-                break;
-            case CONFIG_TYPE_INT:
-                *(int *)item->var_ptr = item->default_val.i;
-                break;
-            case CONFIG_TYPE_INT16:
-                *(int16 *)item->var_ptr = item->default_val.i16;
-                break;
-            case CONFIG_TYPE_UINT8:
-                *(uint8 *)item->var_ptr = item->default_val.u8;
-                break;
-            case CONFIG_TYPE_UINT16:
-                *(uint16 *)item->var_ptr = item->default_val.u16;
-                break;
-            case CONFIG_TYPE_UINT32:
-                *(uint32 *)item->var_ptr = item->default_val.u32;
-                break;
-        }
-    }
-
-    // 保存到文件
-    config_save();
-    printf("[CONFIG] Configuration reset completed.\r\n");
-}
-
 // ==================== 对外API ====================
 
 /**

@@ -567,7 +567,6 @@ void FUN_INIT(){
 	fun_init(servo_manual_adjust, "SERVO_ADJ");// 舵机手动调整
 	fun_init(image_display, "IMG_VIEW");       // 实时图像显示
 	fun_init(config_save, "CFG_SAVE");         // 手动保存配置
-	fun_init(config_reset, "CFG_RESET");       // 恢复默认配置
 	fun_init(NULL_FUN,   "NULL_FUN");
 }
 

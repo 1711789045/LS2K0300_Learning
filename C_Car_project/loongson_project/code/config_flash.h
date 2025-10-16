@@ -77,14 +77,6 @@ void config_init(void);
  */
 void config_save(void);
 
-/**
- * @brief  恢复所有配置为默认值
- * @param  无
- * @return 无
- * @note   将所有变量恢复为默认值，并保存到文件
- */
-void config_reset(void);
-
 // ==================== 内部函数（不需要外部调用）====================
 void config_register_all(void);  // 内部函数：注册所有变量
 void config_add_float(const char *key, float *var, float default_val, const char *comment);
