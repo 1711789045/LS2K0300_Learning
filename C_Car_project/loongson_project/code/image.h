@@ -10,7 +10,7 @@
 // ==================== 图像处理配置参数声明 ====================
 // 这些参数在 image.cpp 中定义，可被 config_flash 等模块引用
 extern uint8 reference_row;        // 参考点统计行数
-extern uint8 reference_col;        // 参考列统计列数
+extern uint8 cfg_reference_col;    // 参考列统计列数（配置参数）
 extern uint8 whitemaxmul;          // 白点最大值相对参考点的倍数 10为倍数单位
 extern uint8 whiteminmul;          // 白点最小值相对参考点的倍数 10为倍数单位
 extern uint8 blackpoint;           // 黑点值
@@ -28,7 +28,7 @@ extern uint8 mid_calc_center_row;  // 中线计算中心行（从底部数）
 
 // 向后兼容的宏定义（引用全局变量）
 #define REFERENCE_ROW       reference_row
-#define REFERENCE_COL       reference_col
+#define REFERENCE_COL       cfg_reference_col
 #define WHITEMAXMUL         whitemaxmul
 #define WHITEMINMUL         whiteminmul
 #define BLACKPOINT          blackpoint
@@ -48,7 +48,7 @@ extern uint8 reference_point;
 extern uint8 white_max_point;          //动态白点最大值
 extern uint8 white_min_point;          //动态白点最小值
 extern uint8 remote_distance[IMAGE_W]; //远距离数组
-extern uint8 reference_col;
+extern uint8 reference_col;            // 运行时变量（每帧动态更新）
 extern uint8 reference_contrast_ratio; //参考点对比度
 extern uint16 reference_line[IMAGE_H];      // 存储参考线
 extern uint16 left_edge_line[IMAGE_H];      // 存储左边线

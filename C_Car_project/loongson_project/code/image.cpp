@@ -20,7 +20,7 @@
 
 // ==================== 图像处理配置参数（在本模块中定义）====================
 uint8 reference_row = 5;        // 参考点统计行数
-uint8 reference_col = 60;       // 参考列统计列数
+uint8 cfg_reference_col = 60;   // 参考列统计列数（配置参数）
 uint8 whitemaxmul = 13;         // 白点最大值相对参考点的倍数 10为倍数单位
 uint8 whiteminmul = 7;          // 白点最小值相对参考点的倍数 10为倍数单位
 uint8 blackpoint = 50;          // 黑点值
@@ -40,6 +40,7 @@ uint8 reference_point = 0;
 uint8 white_max_point = 0;
 uint8 white_min_point = 0;
 uint8 remote_distance[IMAGE_W] = {0};
+uint8 reference_col = 0;        // 运行时变量（每帧动态更新）
 uint8 reference_contrast_ratio = 0.1*200;
 uint16 reference_line[IMAGE_H] = {0};
 uint16 left_edge_line[IMAGE_H] = {0};
@@ -766,7 +767,7 @@ void stop_analysis(const uint8 image[][IMAGE_W]){
 
 void image_process(uint16 display_width,uint16 display_height,uint8 mode){
 	get_image();
-	reference_point = 0; white_max_point = 0; white_min_point = 0;
+	reference_point = 0; white_max_point = 0; white_min_point = 0; reference_col = 0;
 	
 	get_reference_point(user_image);
 	search_reference_col(user_image);
