@@ -71,7 +71,7 @@ float pid_positional(PID_POSITIONAL_TypeDef *pid, float target, float current,
 	pid->error_sum += error;
 	
     float d_error1 = error-pid->last_error;
-	float d_error2 = -(imu660ra_gyro_z)*0.01;
+	float d_error2 = (imu660ra_gyro_z)*0.01;
 
 	
 //	ips200_show_float(0,288,error-pid->last_error,2,2);

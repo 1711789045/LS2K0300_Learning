@@ -621,6 +621,10 @@ void image_calculate_mid(uint8 mode){
 	uint8 temp = 0;
 	uint8 center_row = 0;
 
+	// 边界值定义（与search_line中保持一致）
+	uint8 col_max = IMAGE_W - CONTRASTOFFSET - 1;
+	uint8 col_min = CONTRASTOFFSET;
+
 	// 计算中线（根据模式）
 	if(mode == 0){
 		for(int i = 0;i<IMAGE_H;i++){
@@ -638,11 +642,50 @@ void image_calculate_mid(uint8 mode){
 		}
 	}
 
-	// 连续7行中线取平均
-	// 中心行从底部数（IMAGE_H - mid_calc_center_row）
+	// 从设定的中心行开始，向下搜索连续7行都有效的区域
+	// 初始中心行从底部数（IMAGE_H - mid_calc_center_row）
 	center_row = IMAGE_H - mid_calc_center_row;
 
-	// 取中心行前后各3行，共7行
+	// 从远处(小row)向近处(大row)搜索有效区域
+	bool found_valid_region = false;
+	for(uint8 search_row = center_row; search_row <= IMAGE_H - 4; search_row++){
+		// 检查以search_row为中心的连续7行是否都有效
+		bool all_valid = true;
+
+		// 检查前后各3行（共7行）
+		for(int offset = -3; offset <= 3; offset++){
+			int row = search_row + offset;
+
+			// 边界检查
+			if(row < 0 || row >= IMAGE_H || row < stop_search_row){
+				all_valid = false;
+				break;
+			}
+
+			// 判断该行的边线是否有效（不是贴边值）
+			if(left_edge_line[row] <= col_min + 5 ||
+			   right_edge_line[row] >= col_max - 5){
+				all_valid = false;
+				break;
+			}
+		}
+
+		if(all_valid){
+			// 找到了连续7行都有效的区域
+			center_row = search_row;
+			found_valid_region = true;
+			break;
+		}
+	}
+
+	// 如果没找到有效区域，使用图像最底部7行
+	if(!found_valid_region){
+		center_row = IMAGE_H - 4;  // 保证能取前后3行
+	}
+
+	// 使用找到的center_row计算7行中线平均值
+	mid_sum = 0;
+	valid_count = 0;
 	for(int offset = -3; offset <= 3; offset++){
 		int row = center_row + offset;
 		// 边界检查
