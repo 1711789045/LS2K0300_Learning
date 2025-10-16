@@ -24,6 +24,7 @@ extern uint16 circle_5_time;       // 环岛状态五延时时间，单位10ms
 extern uint8 stop_analyse_line;    // 停止线分析行（从底部数）
 extern uint8 stop_threshold;       // 停止线检测阈值
 extern uint8 stretch_num;          // 边线延长数
+extern uint8 mid_calc_center_row;  // 中线计算中心行（从底部数）
 
 // 向后兼容的宏定义（引用全局变量）
 #define REFERENCE_ROW       reference_row
@@ -41,6 +42,7 @@ extern uint8 stretch_num;          // 边线延长数
 #define STOP_ANALYSE_LINE   (IMAGE_H-stop_analyse_line)
 #define STOP_THRESHOLD      stop_threshold
 #define STRETCH_NUM         stretch_num
+#define MID_CALC_CENTER_ROW mid_calc_center_row
 
 extern uint8 reference_point;
 extern uint8 white_max_point;          //动态白点最大值

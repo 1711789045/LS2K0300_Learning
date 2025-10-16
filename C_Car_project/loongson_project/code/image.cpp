@@ -34,6 +34,7 @@ uint16 circle_5_time = 25;      // 环岛状态五延时时间，单位10ms
 uint8 stop_analyse_line = 40;   // 停止线分析行（从底部数）
 uint8 stop_threshold = 30;      // 停止线检测阈值
 uint8 stretch_num = 80;         // 边线延长数
+uint8 mid_calc_center_row = 90; // 中线计算中心行（从底部数）
 
 uint8 reference_point = 0;
 uint8 white_max_point = 0;
@@ -47,21 +48,6 @@ uint16 right_edge_line[IMAGE_H] = {0};
 uint8 user_image[IMAGE_H][IMAGE_W];
 
 uint8 mid_line[IMAGE_H] = {0};
-uint8 mid_weight[IMAGE_H] = {
-
-	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
-	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
-	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
-	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
-	6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,
-	7 ,8 ,9 ,10,11,12,13,14,15,16,
-	17,18,19,20,20,20,20,19,18,17,
-	16,15,14,13,12,11,10,9 ,8 ,7 ,
-	6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,
-	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
-	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
-	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1
-};
 
 uint8 single_edge_err[IMAGE_H] = {
 	11,11,12,13,13,14,15,15,16,17,
@@ -630,9 +616,12 @@ void image_circle_analysis(void){
 
 
 void image_calculate_mid(uint8 mode){
-	uint32 mid_weight_sum = 0;
-	uint32 weight_sum = 0;
+	uint32 mid_sum = 0;
+	uint8 valid_count = 0;
 	uint8 temp = 0;
+	uint8 center_row = 0;
+
+	// 计算中线（根据模式）
 	if(mode == 0){
 		for(int i = 0;i<IMAGE_H;i++){
 			mid_line[i] = (left_edge_line[i] + right_edge_line[i])/2;
@@ -649,22 +638,36 @@ void image_calculate_mid(uint8 mode){
 		}
 	}
 
+	// 连续7行中线取平均
+	// 中心行从底部数（IMAGE_H - mid_calc_center_row）
+	center_row = IMAGE_H - mid_calc_center_row;
 
-	for(int i = 0;i<IMAGE_H;i++){
-		if(i >= stop_search_row){
-			weight_sum += mid_weight[i];
-			mid_weight_sum += mid_line[i]*mid_weight[i];
+	// 取中心行前后各3行，共7行
+	for(int offset = -3; offset <= 3; offset++){
+		int row = center_row + offset;
+		// 边界检查
+		if(row >= 0 && row < IMAGE_H && row >= stop_search_row){
+			mid_sum += mid_line[row];
+			valid_count++;
 		}
-
 	}
-	temp = (uint8)(mid_weight_sum/weight_sum);
+
+	// 计算平均值
+	if(valid_count > 0){
+		temp = (uint8)(mid_sum / valid_count);
+	}
+	else{
+		// 如果没有有效行，使用图像中心
+		temp = IMAGE_W / 2;
+	}
+
+	// 低通滤波
 	if(!last_final_mid_line)
 		final_mid_line = temp;
 	else
 		final_mid_line = temp*0.8+last_final_mid_line*0.2;
 
 	last_final_mid_line = final_mid_line;
-
 }
 
 void image_calculate_prospect(const uint8 image[][IMAGE_W]){
