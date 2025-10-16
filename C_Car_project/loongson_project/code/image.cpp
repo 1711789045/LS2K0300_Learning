@@ -744,7 +744,7 @@ void stop_analysis(const uint8 image[][IMAGE_W]){
 
 void image_process(uint16 display_width,uint16 display_height,uint8 mode){
 	get_image();
-	reference_point = 0; white_max_point = 0;white_min_point = 0;reference_col = 0;
+	reference_point = 0; white_max_point = 0; white_min_point = 0;
 	
 	get_reference_point(user_image);
 	search_reference_col(user_image);
