@@ -40,7 +40,6 @@ uint8 reference_point = 0;
 uint8 white_max_point = 0;
 uint8 white_min_point = 0;
 uint8 remote_distance[IMAGE_W] = {0};
-uint8 reference_col = 0;
 uint8 reference_contrast_ratio = 0.1*200;
 uint16 reference_line[IMAGE_H] = {0};
 uint16 left_edge_line[IMAGE_H] = {0};
