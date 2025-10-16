@@ -352,6 +352,8 @@ void change_value(param_set* param)
 			{
 				*p_value +=	delta_x;
 				showfloat(0,(SON_NUM+1)*DIS_Y,*p_value,num,point_num);
+				// 自动保存到 flash
+				config_save();
 			}
 			if(is_show_num){
 				showstr(0,(SON_NUM+1)*DIS_Y,"            ");
@@ -364,6 +366,8 @@ void change_value(param_set* param)
 			{
 				*p_value +=	(double)delta_x;
 				showfloat(0,(SON_NUM+1)*DIS_Y,*p_value,num,point_num);
+				// 自动保存到 flash
+				config_save();
 			}
 			if(is_show_num){
 				showstr(0,(SON_NUM+1)*DIS_Y,"            ");
@@ -376,11 +380,13 @@ void change_value(param_set* param)
 			{
 				*p_value +=	(int)delta_x;
 				showint32(0,(SON_NUM+1)*DIS_Y,*p_value,num);
+				// 自动保存到 flash
+				config_save();
 			}
 			if(is_show_num){
 				showstr(0,(SON_NUM+1)*DIS_Y,"        ");
 				showint32(0,(SON_NUM+1)*DIS_Y,*p_value,num);
-			}			
+			}
 		}else if(type==TYPE_UINT16){
 			uint16 *p_value;
 			p_value = (uint16*)(value);
@@ -388,11 +394,13 @@ void change_value(param_set* param)
 			{
 				*p_value +=	(int)delta_x;
 				showuint16(0,(SON_NUM+1)*DIS_Y,*p_value,num);
+				// 自动保存到 flash
+				config_save();
 			}
 			if(is_show_num){
 				showstr(0,(SON_NUM+1)*DIS_Y,"         ");
 				showuint16(0,(SON_NUM+1)*DIS_Y,*p_value,num);
-			}			
+			}
 		}else if(type==TYPE_UINT32){
 			uint32 *p_value;
 			p_value = (uint32*)(value);
@@ -400,14 +408,16 @@ void change_value(param_set* param)
 			{
 				*p_value +=	(int)delta_x;
 				showuint32(0,(SON_NUM+1)*DIS_Y,*p_value,num);
+				// 自动保存到 flash
+				config_save();
 			}
 			if(is_show_num){
 				showstr(0,(SON_NUM+1)*DIS_Y,"         ");
 				showuint32(0,(SON_NUM+1)*DIS_Y,*p_value,num);
-			}			
+			}
 		}
 	}
-	//last_index = p_unit->m_index[1];	
+	//last_index = p_unit->m_index[1];
 }
 
 void is_first_in_page()
@@ -529,20 +539,57 @@ void NULL_FUN(){
 }
 
 void UNIT_SET(){
-    // 速度控制参数
+    // ==================== 控制参数 ====================
     unit_param_set(&speed, TYPE_INT, 100, 6, 0, NORMAL_PAR, "speed");
+    unit_param_set(&dif_speed_reduce, TYPE_FLOAT, 0.1, 3, 2, NORMAL_PAR, "dif_reduce");
+    unit_param_set(&dif_speed_plus,   TYPE_FLOAT, 0.1, 3, 2, NORMAL_PAR, "dif_plus");
 
-    // 舵机PID参数（现在从 config_flash.cpp 中声明）
+    // ==================== 舵机参数 ====================
+    unit_param_set(&g_servo_mid,   TYPE_FLOAT, 0.1,  3, 2, NORMAL_PAR, "servo_mid");
     unit_param_set(&servo_pid_kp,  TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp");
     unit_param_set(&servo_pid_ki,  TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_ki");
     unit_param_set(&servo_pid_kd1, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd1");
     unit_param_set(&servo_pid_kd2, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd2");
+
+    // ==================== 电机参数 ====================
+    unit_param_set(&motor_pid_kp, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kp");
+    unit_param_set(&motor_pid_ki, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_ki");
+    unit_param_set(&motor_pid_kd, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kd");
+
+    // ==================== 图像处理参数 ====================
+    // 参考点和阈值
+    unit_param_set(&cfg_reference_row, TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_refrow");
+    unit_param_set(&cfg_reference_col, TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "img_refcol");
+    unit_param_set(&cfg_whitemaxmul,   TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_wmaxmul");
+    unit_param_set(&cfg_whiteminmul,   TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_wminmul");
+    unit_param_set(&cfg_blackpoint,    TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "img_black");
+    unit_param_set(&cfg_contrastoffset,TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_contr");
+
+    // 搜索参数
+    unit_param_set(&cfg_stoprow,       TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_stoprow");
+    unit_param_set(&cfg_searchrange,   TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_search");
+    unit_param_set(&cfg_stretch_num,   TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "img_stretch");
+
+    // 环岛时间参数
+    unit_param_set(&cfg_circle_1_time, TYPE_UINT16, 1, 4, 0, NORMAL_PAR, "circle_t1");
+    unit_param_set(&cfg_circle_2_time, TYPE_UINT16, 5, 4, 0, NORMAL_PAR, "circle_t2");
+    unit_param_set(&cfg_circle_4_time, TYPE_UINT16, 5, 4, 0, NORMAL_PAR, "circle_t4");
+    unit_param_set(&cfg_circle_5_time, TYPE_UINT16, 5, 4, 0, NORMAL_PAR, "circle_t5");
+
+    // 停止线参数
+    unit_param_set(&cfg_stop_analyse_line, TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "stop_line");
+    unit_param_set(&cfg_stop_threshold,    TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "stop_thr");
+
+    // 中线计算参数
+    unit_param_set(&cfg_mid_calc_center_row, TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "mid_center");
 }
 
 void FUN_INIT(){
-	fun_init(car_start, "START");         // 启动小车
-	fun_init(servo_manual_adjust, "SERVO_ADJ");  // 舵机手动调整
-	fun_init(image_display, "IMG_VIEW");  // 实时图像显示
+	fun_init(car_start, "START");              // 启动小车
+	fun_init(servo_manual_adjust, "SERVO_ADJ");// 舵机手动调整
+	fun_init(image_display, "IMG_VIEW");       // 实时图像显示
+	fun_init(config_save, "CFG_SAVE");         // 手动保存配置
+	fun_init(config_reset, "CFG_RESET");       // 恢复默认配置
 	fun_init(NULL_FUN,   "NULL_FUN");
 }
 

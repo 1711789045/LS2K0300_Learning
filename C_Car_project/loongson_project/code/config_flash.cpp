@@ -223,6 +223,23 @@ void config_register_all(void)
     config_add_float("dif_speed_reduce", &dif_speed_reduce, 0.3,  "Differential speed reduce coefficient");
     config_add_float("dif_speed_plus",   &dif_speed_plus,   0.3,  "Differential speed plus coefficient");
 
+    // 图像处理参数
+    config_add_uint8("img_ref_row",      &cfg_reference_row,      5,   "Image reference row count");
+    config_add_uint8("img_ref_col",      &cfg_reference_col,      60,  "Image reference column count");
+    config_add_uint8("img_whitemaxmul",  &cfg_whitemaxmul,        13,  "White point max multiplier (x10)");
+    config_add_uint8("img_whiteminmul",  &cfg_whiteminmul,        7,   "White point min multiplier (x10)");
+    config_add_uint8("img_blackpoint",   &cfg_blackpoint,         50,  "Black point threshold");
+    config_add_uint8("img_contrast",     &cfg_contrastoffset,     3,   "Contrast offset");
+    config_add_uint8("img_stoprow",      &cfg_stoprow,            0,   "Search stop row");
+    config_add_uint8("img_searchrange",  &cfg_searchrange,        10,  "Search range radius");
+    config_add_uint16("img_circle_1t",   &cfg_circle_1_time,      15,  "Circle state 1 time (x10ms)");
+    config_add_uint16("img_circle_2t",   &cfg_circle_2_time,      50,  "Circle state 2 time (x10ms)");
+    config_add_uint16("img_circle_4t",   &cfg_circle_4_time,      25,  "Circle state 4 time (x10ms)");
+    config_add_uint16("img_circle_5t",   &cfg_circle_5_time,      25,  "Circle state 5 time (x10ms)");
+    config_add_uint8("img_stop_line",    &cfg_stop_analyse_line,  40,  "Stop line analysis row (from bottom)");
+    config_add_uint8("img_stop_thresh",  &cfg_stop_threshold,     30,  "Stop line detection threshold");
+    config_add_uint8("img_stretch_num",  &cfg_stretch_num,        80,  "Edge line extension count");
+    config_add_uint8("img_mid_center",   &cfg_mid_calc_center_row,90,  "Mid-line calc center row (from bottom)");
 
     printf("[CONFIG] Registered %d configuration items.\r\n", config_item_count);
 }
