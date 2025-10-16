@@ -19,22 +19,22 @@
 //#include "motor.h"
 
 // ==================== 图像处理配置参数（在本模块中定义）====================
-uint8 cfg_reference_row = 5;        // 参考点统计行数
-uint8 cfg_reference_col = 60;       // 参考列统计列数
-uint8 cfg_whitemaxmul = 13;         // 白点最大值相对参考点的倍数 10为倍数单位
-uint8 cfg_whiteminmul = 7;          // 白点最小值相对参考点的倍数 10为倍数单位
-uint8 cfg_blackpoint = 50;          // 黑点值
-uint8 cfg_contrastoffset = 3;       // 对比度偏移
-uint8 cfg_stoprow = 0;              // 搜索停止行
-uint8 cfg_searchrange = 10;         // 搜索半径
-uint16 cfg_circle_1_time = 15;      // 环岛状态一延时时间，单位10ms
-uint16 cfg_circle_2_time = 50;      // 环岛状态二延时时间，单位10ms
-uint16 cfg_circle_4_time = 25;      // 环岛状态四延时时间，单位10ms
-uint16 cfg_circle_5_time = 25;      // 环岛状态五延时时间，单位10ms
-uint8 cfg_stop_analyse_line = 40;   // 停止线分析行（从底部数）
-uint8 cfg_stop_threshold = 30;      // 停止线检测阈值
-uint8 cfg_stretch_num = 80;         // 边线延长数
-uint8 cfg_mid_calc_center_row = 90; // 中线计算中心行（从底部数）
+uint8 reference_row = 5;        // 参考点统计行数
+uint8 reference_col = 60;       // 参考列统计列数
+uint8 whitemaxmul = 13;         // 白点最大值相对参考点的倍数 10为倍数单位
+uint8 whiteminmul = 7;          // 白点最小值相对参考点的倍数 10为倍数单位
+uint8 blackpoint = 50;          // 黑点值
+uint8 contrastoffset = 3;       // 对比度偏移
+uint8 stoprow = 0;              // 搜索停止行
+uint8 searchrange = 10;         // 搜索半径
+uint16 circle_1_time = 15;      // 环岛状态一延时时间，单位10ms
+uint16 circle_2_time = 50;      // 环岛状态二延时时间，单位10ms
+uint16 circle_4_time = 25;      // 环岛状态四延时时间，单位10ms
+uint16 circle_5_time = 25;      // 环岛状态五延时时间，单位10ms
+uint8 stop_analyse_line = 40;   // 停止线分析行（从底部数）
+uint8 stop_threshold = 30;      // 停止线检测阈值
+uint8 stretch_num = 80;         // 边线延长数
+uint8 mid_calc_center_row = 90; // 中线计算中心行（从底部数）
 
 uint8 reference_point = 0;
 uint8 white_max_point = 0;

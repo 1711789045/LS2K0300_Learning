@@ -558,7 +558,7 @@ void UNIT_SET(){
 
     // ==================== 图像处理参数 ====================
     // 中线计算中心行（从底部数）
-    unit_param_set(&cfg_mid_calc_center_row, TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "mid_center");
+    unit_param_set(&mid_calc_center_row, TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "mid_center");
 }
 
 void FUN_INIT(){
