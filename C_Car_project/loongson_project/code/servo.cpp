@@ -54,7 +54,8 @@ static PID_POSITIONAL_TypeDef turn_pid = {0};
 
 // ==================== 舵机配置参数（在本模块中定义）====================
 float g_servo_mid = 69.7;       // 舵机中值（默认值）
-float servo_pid_kp = 0.35;      // 舵机PID Kp参数
+float servo_pid_kp0 = 0.1;      // 舵机PID Kp0参数（常数项）
+float servo_pid_kp2 = 0.35;     // 舵机PID Kp2参数（二次项系数）
 float servo_pid_ki = 0.0;       // 舵机PID Ki参数
 float servo_pid_kd1 = 0.56;     // 舵机PID Kd1参数
 float servo_pid_kd2 = 0.0;      // 舵机PID Kd2参数
@@ -133,16 +134,17 @@ void servo_setangle(float angle)
 
 /**
  * @brief  设置舵机PID参数
- * @param  kp: 比例系数
+ * @param  kp: 比例系数（已废弃，建议直接修改 servo_pid_kp0 和 servo_pid_kp2）
  * @param  ki: 积分系数
  * @param  kd1: 微分系数1
  * @param  kd2: 微分系数2
  * @return 无
  * @note   这些参数已移至 config_flash 统一管理，本函数保留用于兼容性
+ *         kp 参数已拆分为 kp0 和 kp2，此函数不再修改 kp
  */
 void servo_set_pid(float kp, float ki, float kd1, float kd2)
 {
-    servo_pid_kp = kp;
+    // kp 参数已拆分为 kp0 和 kp2，此函数不再设置 kp
     servo_pid_ki = ki;
     servo_pid_kd1 = kd1;
     servo_pid_kd2 = kd2;
@@ -160,8 +162,8 @@ void servo_control(uint8 mid_line)
     float kp = 0, kd = 0;
 
     // 变增益PID控制
-    // kp根据误差大小动态调整
-    kp = func_limit_ab(servo_pid_kp * (err * err) / 1000 + 0.1, 0, 3);
+    // kp = kp2 * err^2 / 1000 + kp0 （二次函数形式）
+    kp = func_limit_ab(servo_pid_kp2 * (err * err) / 1000 + servo_pid_kp0, 0, 3);
     kd = servo_pid_kd2;
 
     // 当误差突变且较大时，减小微分系数

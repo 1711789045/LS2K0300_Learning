@@ -40,7 +40,8 @@
 // ==================== 舵机配置参数声明 ====================
 // 这些参数在 servo.cpp 中定义，可被 config_flash 等模块引用
 extern float g_servo_mid;           // 舵机中值
-extern float servo_pid_kp;          // 舵机PID Kp参数
+extern float servo_pid_kp0;         // 舵机PID Kp0参数（常数项）
+extern float servo_pid_kp2;         // 舵机PID Kp2参数（二次项系数）
 extern float servo_pid_ki;          // 舵机PID Ki参数
 extern float servo_pid_kd1;         // 舵机PID Kd1参数
 extern float servo_pid_kd2;         // 舵机PID Kd2参数

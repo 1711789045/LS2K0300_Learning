@@ -208,7 +208,8 @@ void config_register_all(void)
 {
     // 舵机参数
     config_add_float("servo_mid",  &g_servo_mid,   69.7,  "Servo motor middle position (degree)");
-    config_add_float("servo_kp",   &servo_pid_kp,  0.35,  "Servo PID Kp parameter");
+    config_add_float("servo_kp0",  &servo_pid_kp0, 0.1,   "Servo PID Kp0 parameter (constant term)");
+    config_add_float("servo_kp2",  &servo_pid_kp2, 0.35,  "Servo PID Kp2 parameter (quadratic coefficient)");
     config_add_float("servo_ki",   &servo_pid_ki,  0.0,   "Servo PID Ki parameter");
     config_add_float("servo_kd1",  &servo_pid_kd1, 0.56,  "Servo PID Kd1 parameter");
     config_add_float("servo_kd2",  &servo_pid_kd2, 0.0,   "Servo PID Kd2 parameter");

@@ -546,7 +546,8 @@ void UNIT_SET(){
 
     // ==================== 舵机参数 ====================
     unit_param_set(&g_servo_mid,   TYPE_FLOAT, 0.1,  3, 2, NORMAL_PAR, "servo_mid");
-    unit_param_set(&servo_pid_kp,  TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp");
+    unit_param_set(&servo_pid_kp0, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp0");
+    unit_param_set(&servo_pid_kp2, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp2");
     unit_param_set(&servo_pid_ki,  TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_ki");
     unit_param_set(&servo_pid_kd1, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd1");
     unit_param_set(&servo_pid_kd2, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd2");
