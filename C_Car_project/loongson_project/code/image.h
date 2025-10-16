@@ -24,6 +24,7 @@ extern uint16 cfg_circle_5_time;       // 环岛状态五延时时间，单位10
 extern uint8 cfg_stop_analyse_line;    // 停止线分析行（从底部数）
 extern uint8 cfg_stop_threshold;       // 停止线检测阈值
 extern uint8 cfg_stretch_num;          // 边线延长数
+extern uint8 cfg_mid_calc_center_row;  // 中线计算中心行（从底部数）
 
 // 向后兼容的宏定义（引用全局变量）
 #define REFERENCE_ROW       cfg_reference_row
@@ -41,6 +42,7 @@ extern uint8 cfg_stretch_num;          // 边线延长数
 #define STOP_ANALYSE_LINE   (IMAGE_H-cfg_stop_analyse_line)
 #define STOP_THRESHOLD      cfg_stop_threshold
 #define STRETCH_NUM         cfg_stretch_num
+#define MID_CALC_CENTER_ROW cfg_mid_calc_center_row
 
 extern uint8 reference_point;
 extern uint8 white_max_point;          //动态白点最大值
@@ -59,14 +61,6 @@ extern uint16 circle_time;
 extern uint8 cross_flag;                   //十字标志位
 extern uint8 mid_mode;                    //循迹模式
 extern uint8 if_circle;                     //1为进入圆环，0为不进入圆环
-extern uint8 mid_weight_1[IMAGE_H];
-extern uint8 mid_weight_2[IMAGE_H];
-extern uint8 mid_weight_3[IMAGE_H];
-extern uint8 mid_weight_4[IMAGE_H];
-extern uint8 mid_weight_5[IMAGE_H];
-
-
-extern uint8 mid_weight[IMAGE_H];
 
 
 
