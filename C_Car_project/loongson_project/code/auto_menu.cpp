@@ -557,30 +557,7 @@ void UNIT_SET(){
     unit_param_set(&motor_pid_kd, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kd");
 
     // ==================== 图像处理参数 ====================
-    // 参考点和阈值
-    unit_param_set(&cfg_reference_row, TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_refrow");
-    unit_param_set(&cfg_reference_col, TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "img_refcol");
-    unit_param_set(&cfg_whitemaxmul,   TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_wmaxmul");
-    unit_param_set(&cfg_whiteminmul,   TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_wminmul");
-    unit_param_set(&cfg_blackpoint,    TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "img_black");
-    unit_param_set(&cfg_contrastoffset,TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_contr");
-
-    // 搜索参数
-    unit_param_set(&cfg_stoprow,       TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_stoprow");
-    unit_param_set(&cfg_searchrange,   TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "img_search");
-    unit_param_set(&cfg_stretch_num,   TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "img_stretch");
-
-    // 环岛时间参数
-    unit_param_set(&cfg_circle_1_time, TYPE_UINT16, 1, 4, 0, NORMAL_PAR, "circle_t1");
-    unit_param_set(&cfg_circle_2_time, TYPE_UINT16, 5, 4, 0, NORMAL_PAR, "circle_t2");
-    unit_param_set(&cfg_circle_4_time, TYPE_UINT16, 5, 4, 0, NORMAL_PAR, "circle_t4");
-    unit_param_set(&cfg_circle_5_time, TYPE_UINT16, 5, 4, 0, NORMAL_PAR, "circle_t5");
-
-    // 停止线参数
-    unit_param_set(&cfg_stop_analyse_line, TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "stop_line");
-    unit_param_set(&cfg_stop_threshold,    TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "stop_thr");
-
-    // 中线计算参数
+    // 中线计算中心行（从底部数）
     unit_param_set(&cfg_mid_calc_center_row, TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "mid_center");
 }
 
