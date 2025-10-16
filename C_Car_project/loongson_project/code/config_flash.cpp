@@ -223,9 +223,6 @@ void config_register_all(void)
     config_add_float("dif_speed_reduce", &dif_speed_reduce, 0.3,  "Differential speed reduce coefficient");
     config_add_float("dif_speed_plus",   &dif_speed_plus,   0.3,  "Differential speed plus coefficient");
 
-    // 图像处理参数
-    config_add_uint8("img_mid_center",   &mid_calc_center_row, 90, "Mid-line calc center row (from bottom)");
-
     printf("[CONFIG] Registered %d configuration items.\r\n", config_item_count);
 }
 

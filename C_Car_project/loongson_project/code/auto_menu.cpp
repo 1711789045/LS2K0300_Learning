@@ -555,10 +555,6 @@ void UNIT_SET(){
     unit_param_set(&motor_pid_kp, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kp");
     unit_param_set(&motor_pid_ki, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_ki");
     unit_param_set(&motor_pid_kd, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kd");
-
-    // ==================== 图像处理参数 ====================
-    // 中线计算中心行（从底部数）
-    unit_param_set(&mid_calc_center_row, TYPE_UINT16, 5, 3, 0, NORMAL_PAR, "mid_center");
 }
 
 void FUN_INIT(){
