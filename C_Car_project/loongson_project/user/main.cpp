@@ -120,8 +120,8 @@ int main(int, char**)
             /* // 编码器处理（标志位驱动）
             encoder_process(); */
 
-            image_process(IMAGE_W, IMAGE_H, 0);   // 图像处理（显示模式0：仅图像）
-
+/*             image_process(IMAGE_W, IMAGE_H, 0);   // 图像处理（显示模式0：仅图像）
+ */
             // 舵机控制处理（标志位驱动）
             servo_process();
 
@@ -129,7 +129,7 @@ int main(int, char**)
             motor_process();
 
             // 图像处理（计时）
-            /* image_process_time_start();           // 开始计时
+            image_process_time_start();           // 开始计时
             image_process(IMAGE_W, IMAGE_H, 0);   // 图像处理（显示模式0：仅图像）
             float process_time = image_process_time_end();  // 结束计时并获取时间
 
@@ -139,7 +139,7 @@ int main(int, char**)
             {
                 image_process_time_print();
                 print_counter = 0;
-            } */
+            }
 
             // 短暂延时，避免CPU占用过高
             system_delay_ms(1);

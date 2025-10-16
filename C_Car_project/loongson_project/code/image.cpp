@@ -737,6 +737,12 @@ void image_get_left_err(void){
 }
 
 void stop_analysis(const uint8 image[][IMAGE_W]){
+	// 临时禁用停车检测 - 检测位置不正确导致误触发
+	// 原问题：STOP_ANALYSE_LINE = IMAGE_H - 40 = 80（从顶部数）
+	// 这会检测图像上半部分，很容易误触发
+	// TODO: 修正停车检测位置到图像底部近处
+	return;
+
 	int16 temp1 = 0,temp2 = 0,temp3 = 0;
 	uint16 stop_count = 0;
 	for(int row = STOP_ANALYSE_LINE-1;row<=STOP_ANALYSE_LINE+1;row++){
