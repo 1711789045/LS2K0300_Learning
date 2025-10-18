@@ -203,6 +203,9 @@ void motor_protect(void){
  */
 void motor_ackermann_control(int16 base_speed, float steering_angle)
 {
+	// 限制转向角在±30度范围内
+	steering_angle = func_limit_ab(steering_angle, -30.0f, 30.0f);
+
 	// 将角度转换为弧度
 	float alpha_rad = steering_angle * 3.14159265f / 180.0f;
 
