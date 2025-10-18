@@ -28,6 +28,7 @@ float motor_pid_kp = 8.0,motor_pid_ki = 2.0,motor_pid_kd = 4.0;
 // 阿克曼差速控制参数
 float inner_wheel_coef = 0.8;  // 内轮系数（内轮减速为主）
 float outer_wheel_coef = 0.2;  // 外轮系数（外轮加速为辅）
+uint16 differential_enable = 1; // 差速开关（默认开启）
 
 void motor_init(void){
 	pwm_get_dev_info(MOTOR_L_PWM_CH4, &motor_1_pwm_info);
@@ -239,10 +240,18 @@ void motor_process(void){
 	if(motor_f){
 
 		if(go_flag){
-			// 使用阿克曼差速控制
-			// alpha = angle * 2（根据您的说明）
-			float steering_angle = angle * 2.0f;
-			motor_ackermann_control(speed, steering_angle);
+			// 判断是否启用差速控制
+			if(differential_enable){
+				// 启用差速：使用阿克曼差速控制
+				// alpha = angle * 2（根据您的说明）
+				float steering_angle = angle * 2.0f;
+				motor_ackermann_control(speed, steering_angle);
+			}
+			else{
+				// 关闭差速：匀速控制，左右轮同速
+				motor_setpwm(MOTOR_L, speed);
+				motor_setpwm(MOTOR_R, speed);
+			}
 
 			motor_protect();
 		}

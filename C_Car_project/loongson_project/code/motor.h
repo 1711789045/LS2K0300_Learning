@@ -29,6 +29,7 @@ extern float motor_pid_kd;          // 电机PID Kd参数
 // 阿克曼差速控制参数
 extern float inner_wheel_coef;      // 内轮系数（默认0.8，内轮减速为主）
 extern float outer_wheel_coef;      // 外轮系数（默认0.2，外轮加速为辅）
+extern uint16 differential_enable;  // 差速开关（0=关闭匀速, 1=开启差速）
 
 // 电机控制变量（部分在 control.cpp 中定义，需包含 control.h）
 extern uint8 block_time;

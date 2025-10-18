@@ -563,6 +563,7 @@ void UNIT_SET(){
     unit_param_set(&motor_pid_kd, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kd");
 
     // ==================== 阿克曼差速参数 ====================
+    unit_param_set(&differential_enable, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "dif_switch");
     unit_param_set(&inner_wheel_coef, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "inner_coef");
     unit_param_set(&outer_wheel_coef, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "outer_coef");
 
