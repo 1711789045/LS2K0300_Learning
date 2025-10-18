@@ -8,10 +8,6 @@ uint8 go_flag = 0,stop_flag = 0,stop_time = 0;
 int16 speed = 0;  // 目标速度
 uint8 start_time = 0;  // 启动计时
 
-// 差速控制参数
-float dif_speed_reduce = 0.3;  // 差速减速系数
-float dif_speed_plus = 0.3;    // 差速加速系数
-
 // 发车函数
 void car_start(void)
 {

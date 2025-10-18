@@ -3,7 +3,8 @@
 #include "key.h"
 #include "servo.h"
 #include "control.h"
-#include "config_flash.h"  // 包含配置库头文件
+#include "motor.h"          // 包含电机头文件（用于差速参数）
+#include "config_flash.h"   // 包含配置库头文件
 
 #ifdef  MENU_USE_RTT
 extern rt_sem_t key1_sem;
@@ -547,8 +548,6 @@ void NULL_FUN(){
 void UNIT_SET(){
     // ==================== 控制参数 ====================
     unit_param_set(&speed, TYPE_INT, 100, 6, 0, NORMAL_PAR, "speed");
-    unit_param_set(&dif_speed_reduce, TYPE_FLOAT, 0.1, 3, 2, NORMAL_PAR, "dif_reduce");
-    unit_param_set(&dif_speed_plus,   TYPE_FLOAT, 0.1, 3, 2, NORMAL_PAR, "dif_plus");
 
     // ==================== 舵机参数 ====================
     unit_param_set(&g_servo_mid,   TYPE_FLOAT, 0.1,  3, 2, NORMAL_PAR, "servo_mid");
@@ -562,6 +561,10 @@ void UNIT_SET(){
     unit_param_set(&motor_pid_kp, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kp");
     unit_param_set(&motor_pid_ki, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_ki");
     unit_param_set(&motor_pid_kd, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kd");
+
+    // ==================== 阿克曼差速参数 ====================
+    unit_param_set(&inner_wheel_coef, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "inner_coef");
+    unit_param_set(&outer_wheel_coef, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "outer_coef");
 
     // ==================== 图像处理参数 ====================
     // 权重数组选择（1-5）

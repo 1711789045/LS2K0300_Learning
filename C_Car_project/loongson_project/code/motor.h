@@ -26,6 +26,10 @@ extern float motor_pid_kp;          // 电机PID Kp参数
 extern float motor_pid_ki;          // 电机PID Ki参数
 extern float motor_pid_kd;          // 电机PID Kd参数
 
+// 阿克曼差速控制参数
+extern float inner_wheel_coef;      // 内轮系数（默认0.8，内轮减速为主）
+extern float outer_wheel_coef;      // 外轮系数（默认0.2，外轮加速为辅）
+
 // 电机控制变量（部分在 control.cpp 中定义，需包含 control.h）
 extern uint8 block_time;
 extern uint8 motor_f;
@@ -36,6 +40,7 @@ void motor_init(void);
 void motor_set_pid(float kp,float ki,float kd);
 void motor_setpwm(uint8 motor,int16 speed);
 void motor_setspeed(int16 target, float current_l, float current_r,uint8 differential_mode) ;
+void motor_ackermann_control(int16 base_speed, float steering_angle);  // 阿克曼差速控制
 void motor_stop(void);           // 电机立即停止(关闭PWM)
 void motor_lose_line_protect(void);
 void motor_process(void);

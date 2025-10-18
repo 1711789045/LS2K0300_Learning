@@ -25,6 +25,10 @@ static PID_INCREMENT_TypeDef pid_right = {0};
 
 float motor_pid_kp = 8.0,motor_pid_ki = 2.0,motor_pid_kd = 4.0;
 
+// 阿克曼差速控制参数
+float inner_wheel_coef = 0.8;  // 内轮系数（内轮减速为主）
+float outer_wheel_coef = 0.2;  // 外轮系数（外轮加速为辅）
+
 void motor_init(void){
 	pwm_get_dev_info(MOTOR_L_PWM_CH4, &motor_1_pwm_info);
     pwm_get_dev_info(MOTOR_R_PWM_CH2, &motor_2_pwm_info);
@@ -186,16 +190,59 @@ void motor_protect(void){
 //		block_time = 0;
 }
 
+/**
+ * @brief  阿克曼差速控制函数
+ * @param  base_speed: 基础速度（目标平均速度）
+ * @param  steering_angle: 前轮转向角（度）
+ * @note   基于阿克曼转向模型计算左右轮差速
+ *         左轮：V_left = V * (1 - B*tan(α)/(2*L)) * coef
+ *         右轮：V_right = V * (1 + B*tan(α)/(2*L)) * coef
+ *         内轮主要减速（系数0.8），外轮辅助加速（系数0.2）
+ */
+void motor_ackermann_control(int16 base_speed, float steering_angle)
+{
+	// 将角度转换为弧度
+	float alpha_rad = steering_angle * 3.14159265f / 180.0f;
+
+	// 计算阿克曼差速系数 k = B*tan(α)/(2*L)
+	float k = (float)CAR_B * tanf(alpha_rad) / (2.0f * (float)CAR_L);
+
+	// 计算左右轮速度
+	float v_left = (float)base_speed * (1.0f - k);
+	float v_right = (float)base_speed * (1.0f + k);
+
+	// 判断内外轮并应用系数
+	if(steering_angle > 0.5f) {
+		// 右转：左轮是外轮，右轮是内轮
+		v_left = v_left * (1.0f + (outer_wheel_coef - 1.0f) * k / fabsf(k));
+		v_right = v_right * (1.0f - (1.0f - inner_wheel_coef) * k / fabsf(k));
+	}
+	else if(steering_angle < -0.5f) {
+		// 左转：右轮是外轮，左轮是内轮
+		v_right = v_right * (1.0f + (outer_wheel_coef - 1.0f) * fabsf(k) / k);
+		v_left = v_left * (1.0f - (1.0f - inner_wheel_coef) * fabsf(k) / k);
+	}
+	// else: 直行，不需要调整系数
+
+	// 限幅并赋值
+	speed_l = (int16)func_limit_ab(v_left, -SPEED_LIMIT, SPEED_LIMIT);
+	speed_r = (int16)func_limit_ab(v_right, -SPEED_LIMIT, SPEED_LIMIT);
+
+	// 设置PWM
+	motor_setpwm(MOTOR_L, speed_l);
+	motor_setpwm(MOTOR_R, speed_r);
+}
+
 
 
 void motor_process(void){
 	if(motor_f){
-		
+
 		if(go_flag){
-/* 			motor_setspeed(speed,encoder_data_l,encoder_data_r,differential_mode);
- */			
-			motor_setpwm(MOTOR_L, speed);
-  			motor_setpwm(MOTOR_R, speed);
+			// 使用阿克曼差速控制
+			// alpha = angle * 2（根据您的说明）
+			float steering_angle = angle * 2.0f;
+			motor_ackermann_control(speed, steering_angle);
 
 			motor_protect();
 		}
