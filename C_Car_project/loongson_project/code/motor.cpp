@@ -196,8 +196,8 @@ void motor_protect(void){
  * @param  steering_angle: 前轮转向角（度）
  * @note   基于阿克曼转向模型计算左右轮差速
  *         公式：k = B*tan(α)/(2*L)
- *         α>0右转: 左轮内轮减速 V*(1-inner_coef*k), 右轮外轮加速 V*(1+outer_coef*k)
- *         α<0左转: 右轮内轮减速 V*(1-inner_coef*|k|), 左轮外轮加速 V*(1+outer_coef*|k|)
+ *         α>0右转: 右轮内轮减速 V*(1-inner_coef*k), 左轮外轮加速 V*(1+outer_coef*k)
+ *         α<0左转: 左轮内轮减速 V*(1-inner_coef*|k|), 右轮外轮加速 V*(1+outer_coef*|k|)
  *         内轮系数inner_wheel_coef（默认0.8），外轮系数outer_wheel_coef（默认0.2）
  *         差速主要靠内轮减速，少部分靠外轮加速
  */
@@ -213,19 +213,19 @@ void motor_ackermann_control(int16 base_speed, float steering_angle)
 
 	// 判断转向方向，应用内外轮系数
 	if(steering_angle > 0.5f) {
-		// 右转（k > 0）：左轮是内轮，右轮是外轮
-		// 左轮（内轮）：主要减速
-		// 右轮（外轮）：少量加速
-		v_left = (float)base_speed * (1.0f - inner_wheel_coef * k);
-		v_right = (float)base_speed * (1.0f + outer_wheel_coef * k);
-	}
-	else if(steering_angle < -0.5f) {
-		// 左转（k < 0）：右轮是内轮，左轮是外轮
+		// 右转（k > 0）：右轮是内轮，左轮是外轮
 		// 右轮（内轮）：主要减速
 		// 左轮（外轮）：少量加速
+		v_right = (float)base_speed * (1.0f - inner_wheel_coef * k);
+		v_left = (float)base_speed * (1.0f + outer_wheel_coef * k);
+	}
+	else if(steering_angle < -0.5f) {
+		// 左转（k < 0）：左轮是内轮，右轮是外轮
+		// 左轮（内轮）：主要减速
+		// 右轮（外轮）：少量加速
 		// 注意：k是负数，所以用-k得到正数
-		v_right = (float)base_speed * (1.0f + inner_wheel_coef * k);  // k<0, 相当于减速
-		v_left = (float)base_speed * (1.0f - outer_wheel_coef * k);   // k<0, 相当于加速
+		v_left = (float)base_speed * (1.0f + inner_wheel_coef * k);   // k<0, 相当于减速
+		v_right = (float)base_speed * (1.0f - outer_wheel_coef * k);  // k<0, 相当于加速
 	}
 	else {
 		// 直行：左右轮同速
