@@ -221,8 +221,6 @@ void config_register_all(void)
 
     // 控制参数
     config_add_int16("speed",            &speed,             2000, "Target speed");
-    config_add_float("dif_speed_reduce", &dif_speed_reduce, 0.3,  "Differential speed reduce coefficient");
-    config_add_float("dif_speed_plus",   &dif_speed_plus,   0.3,  "Differential speed plus coefficient");
 
     // 图像处理参数
     config_add_uint16("img_mid_weight",   &mid_weight_select,   2,  "Mid-line weight array selection (1-5)");
