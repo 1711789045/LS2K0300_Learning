@@ -36,6 +36,7 @@ uint8 stop_threshold = 30;      // 停止线检测阈值
 uint8 stretch_num = 80;         // 边线延长数
 uint8 mid_calc_center_row = 90; // 中线计算中心行（从底部数）
 uint16 mid_weight_select = 2;   // 权重数组选择（1-5，默认2）
+uint16 cross_enable = 0;        // 十字识别开关（默认关闭）
 
 uint8 reference_point = 0;
 uint8 white_max_point = 0;
@@ -903,28 +904,33 @@ void stop_analysis(const uint8 image[][IMAGE_W]){
 void image_process(uint16 display_width,uint16 display_height,uint8 mode){
 	get_image();
 	reference_point = 0; white_max_point = 0; white_min_point = 0; reference_col = 0;
-	
+
 	get_reference_point(user_image);
 	search_reference_col(user_image);
 	search_line(user_image);
-	
+
 //	image_get_left_err();
-	
+
 	/* if(if_circle){
 		image_circle_analysis();
 	}
-	
+
 	if(!circle_flag){
 		image_cross_analysis();
 	} */
-	
+
+	// 根据开关决定是否启用十字识别
+	if(cross_enable && !circle_flag){
+		image_cross_analysis();
+	}
+
 	//if(go_flag)
 	//	stop_analysis(user_image);
-	
+
 
 	image_calculate_mid(mid_mode);
 	image_calculate_prospect(user_image);
-	
+
 	if(mode)
 		image_display_edge_line(user_image,display_width,display_height);
 }

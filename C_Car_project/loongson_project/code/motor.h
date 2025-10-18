@@ -18,7 +18,7 @@ extern struct pwm_info motor_2_pwm_info;
 #define SPEED_LIMIT             6000           // 速度限制
 
 #define CAR_B                   15
-#define CAR_L                   19
+#define CAR_L                   20
 
 // ==================== 电机配置参数声明 ====================
 // 这些参数在 motor.cpp 中定义，可被 config_flash 等模块引用

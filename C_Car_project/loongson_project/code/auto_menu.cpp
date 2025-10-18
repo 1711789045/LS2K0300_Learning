@@ -570,6 +570,8 @@ void UNIT_SET(){
     // ==================== 图像处理参数 ====================
     // 权重数组选择（1-5）
     unit_param_set(&mid_weight_select, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "mid_weight");
+    // 十字识别开关（0=关闭，1=开启）
+    unit_param_set(&cross_enable, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "cross_switch");
 }
 
 void FUN_INIT(){

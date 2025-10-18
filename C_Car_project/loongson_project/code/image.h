@@ -26,6 +26,7 @@ extern uint8 stop_threshold;       // 停止线检测阈值
 extern uint8 stretch_num;          // 边线延长数
 extern uint8 mid_calc_center_row;  // 中线计算中心行（从底部数）
 extern uint16 mid_weight_select;   // 权重数组选择（1-5）
+extern uint16 cross_enable;        // 十字识别开关（0=关闭, 1=开启）
 
 // 向后兼容的宏定义（引用全局变量）
 #define REFERENCE_ROW       reference_row
