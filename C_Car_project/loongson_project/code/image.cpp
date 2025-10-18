@@ -48,6 +48,21 @@ uint16 right_edge_line[IMAGE_H] = {0};
 uint8 user_image[IMAGE_H][IMAGE_W];
 
 uint8 mid_line[IMAGE_H] = {0};
+uint8 mid_weight[IMAGE_H] = {
+
+	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
+	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
+	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
+	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
+	6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,
+	7 ,8 ,9 ,10,11,12,13,14,15,16,
+	17,18,19,20,20,20,20,19,18,17,
+	16,15,14,13,12,11,10,9 ,8 ,7 ,
+	6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,6 ,
+	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
+	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,
+	1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1
+};
 
 uint8 single_edge_err[IMAGE_H] = {
 	11,11,12,13,13,14,15,15,16,17,
@@ -622,14 +637,9 @@ void image_circle_analysis(void){
 
 
 void image_calculate_mid(uint8 mode){
-	uint32 mid_sum = 0;
-	uint8 valid_count = 0;
+	uint32 mid_weight_sum = 0;
+	uint32 weight_sum = 0;
 	uint8 temp = 0;
-	uint8 center_row = 0;
-
-	// 边界值定义（与search_line中保持一致）
-	uint8 col_max = IMAGE_W - CONTRASTOFFSET - 1;
-	uint8 col_min = CONTRASTOFFSET;
 
 	// 计算中线（根据模式）
 	if(mode == 0){
@@ -648,67 +658,14 @@ void image_calculate_mid(uint8 mode){
 		}
 	}
 
-	// 从设定的中心行开始，向下搜索连续7行都有效的区域
-	// 初始中心行从底部数（IMAGE_H - mid_calc_center_row）
-	center_row = IMAGE_H - mid_calc_center_row;
-
-	// 从远处(小row)向近处(大row)搜索有效区域
-	bool found_valid_region = false;
-	for(uint8 search_row = center_row; search_row <= IMAGE_H - 4; search_row++){
-		// 检查以search_row为中心的连续7行是否都有效
-		bool all_valid = true;
-
-		// 检查前后各3行（共7行）
-		for(int offset = -3; offset <= 3; offset++){
-			int row = search_row + offset;
-
-			// 边界检查
-			if(row < 0 || row >= IMAGE_H || row < stop_search_row){
-				all_valid = false;
-				break;
-			}
-
-			// 判断该行的边线是否有效（不是贴边值）
-			if(left_edge_line[row] <= col_min + 5 ||
-			   right_edge_line[row] >= col_max - 5){
-				all_valid = false;
-				break;
-			}
-		}
-
-		if(all_valid){
-			// 找到了连续7行都有效的区域
-			center_row = search_row;
-			found_valid_region = true;
-			break;
+	// 使用权重数组计算加权平均中线
+	for(int i = 0;i<IMAGE_H;i++){
+		if(i >= stop_search_row){
+			weight_sum += mid_weight[i];
+			mid_weight_sum += mid_line[i]*mid_weight[i];
 		}
 	}
-
-	// 如果没找到有效区域，使用图像最底部7行
-	if(!found_valid_region){
-		center_row = IMAGE_H - 4;  // 保证能取前后3行
-	}
-
-	// 使用找到的center_row计算7行中线平均值
-	mid_sum = 0;
-	valid_count = 0;
-	for(int offset = -3; offset <= 3; offset++){
-		int row = center_row + offset;
-		// 边界检查
-		if(row >= 0 && row < IMAGE_H && row >= stop_search_row){
-			mid_sum += mid_line[row];
-			valid_count++;
-		}
-	}
-
-	// 计算平均值
-	if(valid_count > 0){
-		temp = (uint8)(mid_sum / valid_count);
-	}
-	else{
-		// 如果没有有效行，使用图像中心
-		temp = IMAGE_W / 2;
-	}
+	temp = (uint8)(mid_weight_sum/weight_sum);
 
 	// 低通滤波
 	if(!last_final_mid_line)
@@ -793,7 +750,7 @@ void stop_analysis(const uint8 image[][IMAGE_W]){
 	// 原问题：STOP_ANALYSE_LINE = IMAGE_H - 40 = 80（从顶部数）
 	// 这会检测图像上半部分，很容易误触发
 	// TODO: 修正停车检测位置到图像底部近处
-	return;
+
 
 	int16 temp1 = 0,temp2 = 0,temp3 = 0;
 	uint16 stop_count = 0;
@@ -831,16 +788,16 @@ void image_process(uint16 display_width,uint16 display_height,uint8 mode){
 	
 //	image_get_left_err();
 	
-	if(if_circle){
+	/* if(if_circle){
 		image_circle_analysis();
 	}
 	
 	if(!circle_flag){
 		image_cross_analysis();
-	}
+	} */
 	
-	if(go_flag)
-		stop_analysis(user_image);
+	//if(go_flag)
+	//	stop_analysis(user_image);
 	
 
 	image_calculate_mid(mid_mode);
