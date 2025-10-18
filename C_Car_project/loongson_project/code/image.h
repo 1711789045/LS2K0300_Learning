@@ -25,6 +25,7 @@ extern uint8 stop_analyse_line;    // 停止线分析行（从底部数）
 extern uint8 stop_threshold;       // 停止线检测阈值
 extern uint8 stretch_num;          // 边线延长数
 extern uint8 mid_calc_center_row;  // 中线计算中心行（从底部数）
+extern uint16 mid_weight_select;   // 权重数组选择（1-5）
 
 // 向后兼容的宏定义（引用全局变量）
 #define REFERENCE_ROW       reference_row
@@ -43,6 +44,7 @@ extern uint8 mid_calc_center_row;  // 中线计算中心行（从底部数）
 #define STOP_THRESHOLD      stop_threshold
 #define STRETCH_NUM         stretch_num
 #define MID_CALC_CENTER_ROW mid_calc_center_row
+#define MID_WEIGHT_SELECT   mid_weight_select
 
 extern uint8 reference_point;
 extern uint8 white_max_point;          //动态白点最大值
@@ -62,6 +64,14 @@ extern uint8 cross_flag;                   //十字标志位
 extern uint8 mid_mode;                    //循迹模式
 extern uint8 if_circle;                     //1为进入圆环，0为不进入圆环
 
+// 预设权重数组（1-5，用于不同场景）
+extern uint8 mid_weight_1[IMAGE_H];
+extern uint8 mid_weight_2[IMAGE_H];
+extern uint8 mid_weight_3[IMAGE_H];
+extern uint8 mid_weight_4[IMAGE_H];
+extern uint8 mid_weight_5[IMAGE_H];
+extern uint8 mid_weight[IMAGE_H];          // 当前使用的权重数组
+
 
 
 void get_image(void);
@@ -70,6 +80,7 @@ void search_reference_col(const uint8 image[][IMAGE_W]);
 void search_line(const uint8 image[][IMAGE_W]);
 void image_display_edge_line(const uint8 image[][IMAGE_W],uint16 width,uint16 height);
 void image_process(uint16 display_width,uint16 display_height,uint8 mode);
+void select_mid_weight(uint16 select);     // 选择使用的权重数组（1-5）
 
 // 图像处理时间测量函数
 void image_process_time_start(void);     // 开始计时

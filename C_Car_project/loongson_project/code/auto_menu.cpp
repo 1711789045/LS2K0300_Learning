@@ -394,6 +394,12 @@ void change_value(param_set* param)
 			{
 				*p_value +=	(int)delta_x;
 				showuint16(0,(SON_NUM+1)*DIS_Y,*p_value,num);
+
+				// 如果修改的是 mid_weight_select，调用切换函数
+				if(p_value == &mid_weight_select){
+					select_mid_weight(mid_weight_select);
+				}
+
 				// 自动保存到 flash
 				config_save();
 			}
@@ -558,8 +564,8 @@ void UNIT_SET(){
     unit_param_set(&motor_pid_kd, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kd");
 
     // ==================== 图像处理参数 ====================
-    // 中线计算中心行（从底部数）
-    unit_param_set(&mid_calc_center_row, TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "mid_center");
+    // 权重数组选择（1-5）
+    unit_param_set(&mid_weight_select, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "mid_weight");
 }
 
 void FUN_INIT(){

@@ -77,6 +77,10 @@ int all_init(){
     // 9. 初始化菜单系统
     menu_init();
 
+    // 10. 应用从配置文件加载的权重数组选择
+    select_mid_weight(mid_weight_select);
+    printf("权重数组已设置为: %d\r\n", mid_weight_select);
+
     printf("所有模块初始化成功！\r\n");
     return 0;
 }

@@ -225,7 +225,7 @@ void config_register_all(void)
     config_add_float("dif_speed_plus",   &dif_speed_plus,   0.3,  "Differential speed plus coefficient");
 
     // 图像处理参数
-    config_add_uint8("img_mid_center",   &mid_calc_center_row, 90, "Mid-line calc center row (from bottom)");
+    config_add_uint16("img_mid_weight",   &mid_weight_select,   2,  "Mid-line weight array selection (1-5)");
 
     printf("[CONFIG] Registered %d configuration items.\r\n", config_item_count);
 }
