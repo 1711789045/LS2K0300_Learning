@@ -171,6 +171,27 @@ uint16 circle_time = 0;
 uint8 if_circle = 0;
 uint8 stop_search_row = 0;
 
+// ==================== 新十字补线相关变量定义 ====================
+int16 continuity_pointLeft[2] = {0, 0};    // 左不连续点[0]存某行，[1]存某列
+int16 continuity_pointRight[2] = {0, 0};   // 右不连续点[0]存某行，[1]存某列
+int16 Right_Down_Find = 0;                 // 右下点
+int16 Left_Down_Find = 0;                  // 左下点
+int16 Right_Up_Find = 0;                   // 右上点
+int16 Left_Up_Find = 0;                    // 左上点
+uint16 leftfollowline[IMAGE_H] = {0};      // 左跟随线（补线后的边线）
+uint16 rightfollowline[IMAGE_H] = {0};     // 右跟随线（补线后的边线）
+float dx1[5] = {0};                        // 左边线滑动平均滤波数组
+float dx2[5] = {0};                        // 右边线滑动平均滤波数组
+
+// 十字状态枚举定义
+enum CrossStatus {
+    CROSS_STRAIGHT,    // 直道行驶
+    CROSS_ROAD,        // 十字路口
+    CROSS_ROAD_L,      // 左斜入十字
+    CROSS_ROAD_R       // 右斜入十字
+};
+static enum CrossStatus cross_status = CROSS_STRAIGHT;
+
 void get_image(void){
 	if(wait_image_refresh() < 0)
 	{
@@ -575,67 +596,9 @@ void image_stretch_point(uint16 *array_value, uint8 num ,uint8 direction){
 	}
 	
 
-    
+
 }
 
-void image_cross_analysis(void){
-	uint32 track_width = 0;
-	uint8 start_point = 0,end_point = 0;
-	for(int i = (IMAGE_H * 2 / 3);i >  (IMAGE_H / 3);i--){
-		track_width += (right_edge_line[i] - left_edge_line[i]);
-	}
-	
-	if(!cross_flag && track_width > (IMAGE_W * (IMAGE_H * 4 / 15))){
-		cross_flag = 1;
-	}
-	
-	if(cross_flag == 1){
-		start_point = 0;
-		end_point = 0;
-		start_point = image_find_left_jump_point(IMAGE_H - 5,IMAGE_H/4,0);
-		end_point = image_find_left_jump_point(IMAGE_H - 5,IMAGE_H/3,1);
-		if(end_point && start_point){
-			image_connect_point(left_edge_line,end_point,start_point);
-		}
-		if(end_point && !start_point){
-			image_stretch_point(left_edge_line,end_point,1);
-		}
-		if(!end_point && start_point){
-			image_stretch_point(left_edge_line,start_point,0);
-		}
-		
-		
-		ips200_show_int(96,224,start_point,4);
-		ips200_show_int(128,224,end_point,4);
-		
-		start_point = 0;
-		end_point = 0;
-		start_point = image_find_right_jump_point(IMAGE_H - 5,IMAGE_H/4,0);
-		end_point = image_find_right_jump_point(IMAGE_H - 5,IMAGE_H/3,1);
-		
-		if(end_point && start_point){
-			image_connect_point(right_edge_line,end_point,start_point);
-		}
-		if(end_point && !start_point){
-			image_stretch_point(right_edge_line,end_point,1);
-		}
-		if(!end_point && start_point){
-			image_stretch_point(right_edge_line,start_point,0);
-		}
-		
-		ips200_show_int(96,240,start_point,4);
-		ips200_show_int(128,240,end_point,4);
-
-		
-		if(track_width < (IMAGE_W * (IMAGE_H * 1 / 5))){
-			cross_flag = 0;
-		}
-		
-		
-		
-
-	}
-}
 
 uint8 image_find_circle_point(uint16 *edge_line,uint8 down_num,uint8 up_num){
 	uint8 temp_jump_point = 0;
@@ -897,6 +860,544 @@ void stop_analysis(const uint8 image[][IMAGE_W]){
 	if(stop_count> 35 /* && start_time > 30 */){
 		stop_flag = 1;
 		beep_flag = 1;
+	}
+}
+
+
+// ==================== 新十字补线辅助函数 ====================
+
+/**
+ * @brief 找下面的两个拐点，供十字使用
+ * @param start 搜索的范围起点
+ * @param end 搜索的范围终点
+ * @note 运行完之后查看 Right_Down_Find 和 Left_Down_Find，没找到时为0
+ */
+void Find_Down_Point(int16 start, int16 end)
+{
+	int16 i, t;
+	Right_Down_Find = 0;
+	Left_Down_Find = 0;
+
+	if(start < end) {  // 从下往上找，大的索引在图象下面
+		t = start;
+		start = end;
+		end = t;
+	}
+
+	if(start >= IMAGE_H - 1 - 3)  // 下面5行数据不稳定，不能作为边界点来判断，舍弃
+		start = IMAGE_H - 1 - 3;
+	if(end >= IMAGE_H - 5)
+		end = IMAGE_H - 5;
+	if(end <= 5)
+		end = 5;
+
+	for(i = start; i >= end; i--)
+	{
+		// 查找左下拐点
+		if(Left_Down_Find == 0 &&  // 只找第一个符合条件的点
+			(left_edge_line[i] > 0) &&  // 左边界点不能为0
+			func_abs(left_edge_line[i] - left_edge_line[i+1]) <= 5 &&
+			func_abs(left_edge_line[i+1] - left_edge_line[i+2]) <= 5 &&
+			func_abs(left_edge_line[i+2] - left_edge_line[i+3]) <= 5 &&
+			((left_edge_line[i] - left_edge_line[i-2]) >= 3 || left_edge_line[i-2] <= 0) &&
+			((left_edge_line[i] - left_edge_line[i-3]) >= 5 || left_edge_line[i-3] <= 0) &&
+			((left_edge_line[i] - left_edge_line[i-4]) >= 5 || left_edge_line[i-4] <= 0))
+		{
+			Left_Down_Find = i + 2;  // 获取行数即可
+			if(Left_Down_Find == start + 2) {
+				Left_Down_Find = 0;  // 如果是起始行，说明没有找到
+			}
+		}
+
+		// 查找右下拐点
+		if(Right_Down_Find == 0 &&  // 只找第一个符合条件的点
+			func_abs(right_edge_line[i] - right_edge_line[i+1]) <= 5 &&
+			func_abs(right_edge_line[i+1] - right_edge_line[i+2]) <= 5 &&
+			func_abs(right_edge_line[i+2] - right_edge_line[i+3]) <= 5 &&
+			right_edge_line[i] < IMAGE_W - 1 &&  // 右边界点不能为IMAGE_W-1
+			((right_edge_line[i] - right_edge_line[i-2]) <= -3 || right_edge_line[i-2] > IMAGE_W - 2) &&
+			((right_edge_line[i] - right_edge_line[i-3]) <= -5 || right_edge_line[i-3] > IMAGE_W - 2) &&
+			((right_edge_line[i] - right_edge_line[i-4]) <= -5 || right_edge_line[i-4] > IMAGE_W - 2))
+		{
+			Right_Down_Find = i + 2;
+			if(Right_Down_Find == start + 2) {
+				Right_Down_Find = 0;  // 如果是起始行，说明没有找到
+			}
+		}
+
+		if(Left_Down_Find != 0 && Right_Down_Find != 0)  // 两个找到就退出
+		{
+			break;
+		}
+	}
+}
+
+/**
+ * @brief 找上面的两个拐点，供十字使用，从上往下找
+ * @param start 搜索的范围起点
+ * @param end 搜索的范围终点
+ * @note 运行完之后查看 Left_Up_Find 和 Right_Up_Find，没找到时为0
+ */
+void Find_Up_Point(int16 start, int16 end)
+{
+	int16 i, t;
+	Left_Up_Find = 0;
+	Right_Up_Find = 0;
+
+	if(start > end) {
+		t = start;
+		start = end;
+		end = t;
+	}
+
+	// start<end 由上往下
+	if(end >= IMAGE_H - 5)
+		end = IMAGE_H - 5;
+	if(end <= 5)  // 即使最长白列非常长，也要舍弃部分点，防止数组越界
+		end = 5;
+	if(start <= 5)  // 下面5行数据不稳定，不能作为边界点来判断，舍弃
+		start = 5;
+	if(start < stop_search_row + 5) {
+		start = stop_search_row + 5;
+	}
+
+	for(i = start; i <= end; i++)
+	{
+		// 查找左上拐点
+		if(Left_Up_Find == 0 &&  // 只找第一个符合条件的点
+			func_abs(left_edge_line[i] - left_edge_line[i-1]) <= 3 &&
+			func_abs(left_edge_line[i-1] - left_edge_line[i-2]) <= 3 &&
+			func_abs(left_edge_line[i-2] - left_edge_line[i-3]) <= 3 &&
+			((left_edge_line[i] - left_edge_line[i+2]) >= 3) &&
+			((left_edge_line[i] - left_edge_line[i+3]) >= 5) &&
+			((left_edge_line[i] - left_edge_line[i+4]) >= 10))
+		{
+			Left_Up_Find = i - 2;  // 获取行数即可
+			if(Left_Up_Find == start - 2) {
+				Left_Up_Find = 0;  // 如果是起始行，说明没有找到
+			}
+		}
+
+		// 查找右上拐点
+		if(Right_Up_Find == 0 &&  // 只找第一个符合条件的点
+			func_abs(right_edge_line[i] - right_edge_line[i-1]) <= 3 &&
+			func_abs(right_edge_line[i-1] - right_edge_line[i-2]) <= 3 &&
+			func_abs(right_edge_line[i-2] - right_edge_line[i-3]) <= 3 &&
+			((right_edge_line[i] - right_edge_line[i+2]) <= -3) &&
+			((right_edge_line[i] - right_edge_line[i+3]) <= -5) &&
+			((right_edge_line[i] - right_edge_line[i+4]) <= -10))
+		{
+			Right_Up_Find = i - 2;  // 获取行数即可
+			if(Right_Up_Find == start - 2) {
+				Right_Up_Find = 0;  // 如果是起始行，说明没有找到
+			}
+		}
+
+		if(Left_Up_Find != 0 && Right_Up_Find != 0)  // 下面两个找到就出去
+		{
+			break;
+		}
+	}
+}
+
+/**
+ * @brief 确定连续性，用于处理右侧线
+ * @param start 起点
+ * @param end 终点
+ * @return 不连续点的位置，0表示连续
+ */
+int16 continuity_right(uint8 start, uint8 end)
+{
+	int16 i;
+	int16 continuity_change_flag = 0;
+
+	if(start >= IMAGE_H - 2)  // 数组越界保护
+		start = IMAGE_H - 2;
+	if(end <= 1) {
+		end = 1;
+	}
+	if(start < end) {
+		uint8 t = start;
+		start = end;
+		end = t;
+	}
+
+	for(i = start; i >= end; i--)
+	{
+		if(func_abs(right_edge_line[i] - right_edge_line[i-1]) >= 5)  // 连续性阈值是5
+		{
+			continuity_change_flag = i;  // 在i处不连续了
+			break;
+		}
+	}
+
+	return continuity_change_flag;
+}
+
+/**
+ * @brief 确定从start到end连续性，用于处理左侧线
+ * @param start 起点
+ * @param end 终点
+ * @return 不连续点的位置，0表示连续
+ */
+int16 continuity_left(uint8 start, uint8 end)
+{
+	int16 i;
+	int16 continuity_change_flag = 0;
+
+	if(start >= IMAGE_H - 2)  // 数组越界保护
+		start = IMAGE_H - 2;
+	if(end <= 1) {
+		end = 1;
+	}
+	if(start < end) {
+		uint8 t = start;
+		start = end;
+		end = t;
+	}
+
+	for(i = start; i >= end; i--)
+	{
+		if(func_abs(left_edge_line[i] - left_edge_line[i-1]) >= 5)  // 连续性阈值是5
+		{
+			continuity_change_flag = i;  // 在i处不连续了
+			break;
+		}
+	}
+
+	return continuity_change_flag;
+}
+
+/**
+ * @brief 补线右（带增长率）
+ * @param startx 起点x
+ * @param starty 起点y
+ * @param endy 终点y
+ * @param dx 增长率（x1-x2）/(y1-y2)
+ */
+void draw_Rline_k(int16 startx, int16 starty, int16 endy, float dx)
+{
+	int16 step = (starty < endy) ? 1 : -1;
+
+	if(dx == 0) {
+		for(int16 i = starty; i != endy; i += step) {
+			rightfollowline[i] = startx;
+		}
+		return;
+	}
+
+	for(int16 i = starty; i != endy; i += step) {
+		int16 temp = startx + (int16)((float)(i - starty) * dx);
+		if(temp < 0) temp = 0;  // 防止越界
+		if(temp > IMAGE_W - 1) temp = IMAGE_W - 1;  // 防止越界
+		rightfollowline[i] = temp;
+	}
+}
+
+/**
+ * @brief 右两点间连线
+ * @param startx 起点x
+ * @param starty 起点y
+ * @param endy 终点y
+ * @param endx 终点x
+ */
+void add_Rline_k(int16 startx, int16 starty, int16 endy, int16 endx)
+{
+	if(endy != starty) {
+		float dx = (float)(endx - startx) / (float)(endy - starty);
+		draw_Rline_k(startx, starty, endy, dx);
+	}
+}
+
+/**
+ * @brief 补线左（带增长率）
+ * @param startx 起点x
+ * @param starty 起点y
+ * @param endy 终点y
+ * @param dx 增长率（x1-x2）/(y1-y2)
+ */
+void draw_Lline_k(int16 startx, int16 starty, int16 endy, float dx)
+{
+	int16 step = (starty < endy) ? 1 : -1;
+
+	if(dx == 0) {
+		for(int16 i = starty; i != endy; i += step) {
+			leftfollowline[i] = startx;
+		}
+		return;
+	}
+
+	for(int16 i = starty; i != endy; i += step) {
+		int16 temp = startx + (int16)((float)(i - starty) * dx);
+		if(temp < 0) temp = 0;  // 防止越界
+		if(temp > IMAGE_W - 1) temp = IMAGE_W - 1;  // 防止越界
+		leftfollowline[i] = temp;
+	}
+}
+
+/**
+ * @brief 左两点间连线
+ * @param startx 起点x
+ * @param starty 起点y
+ * @param endy 终点y
+ * @param endx 终点x
+ */
+void add_Lline_k(int16 startx, int16 starty, int16 endy, int16 endx)
+{
+	if(endy != starty) {
+		float dx = (float)(endx - startx) / (float)(endy - starty);
+		draw_Lline_k(startx, starty, endy, dx);
+	}
+}
+
+/**
+ * @brief 滑动平均滤波左
+ * @param dx 新的增长率
+ */
+void dx1_left_average(float dx)
+{
+	for(uint8 i = 1; i < 5; i++) {
+		dx1[i-1] = dx1[i];
+	}
+	dx1[4] = dx;
+}
+
+/**
+ * @brief 滑动平均滤波右
+ * @param dx 新的增长率
+ */
+void dx2_right_average(float dx)
+{
+	for(uint8 i = 1; i < 5; i++) {
+		dx2[i-1] = dx2[i];
+	}
+	dx2[4] = dx;
+}
+
+/**
+ * @brief 自上而下补左线
+ * @param start 起点
+ */
+void lenthen_Left_bondarise(int16 start)
+{
+	if(start < 7) start = 7;
+	if(start > IMAGE_H - 1) start = IMAGE_H - 1;
+
+	float dx = (float)(left_edge_line[start] - left_edge_line[start-5]) / 5;
+	dx1_left_average(dx);
+	float dx_average = (dx1[0] + dx1[1] + dx1[2] + dx1[3] + dx1[4]) / 5;
+
+	for(int16 i = start; i < IMAGE_H - 1; i++)
+	{
+		float temp_value = (float)left_edge_line[start] + dx_average * (float)(i - start);
+
+		if(temp_value < 0) {
+			leftfollowline[i] = 0;
+		} else if(temp_value > (float)IMAGE_W - 2) {
+			leftfollowline[i] = IMAGE_W - 1;
+		} else {
+			leftfollowline[i] = (int16)temp_value;
+		}
+	}
+}
+
+/**
+ * @brief 自上而下补右线
+ * @param start 起点
+ */
+void lenthen_Right_bondarise(int16 start)
+{
+	if(start < 7) start = 7;
+	if(start > IMAGE_H - 1) start = IMAGE_H - 1;
+
+	float dx = (float)(right_edge_line[start] - right_edge_line[start-5]) / 5;
+	dx2_right_average(dx);
+	float dx_average = (dx2[0] + dx2[1] + dx2[2] + dx2[3] + dx2[4]) / 5;
+
+	for(int16 i = start; i < IMAGE_H - 1; i++)
+	{
+		float temp_value = (float)right_edge_line[start] + dx_average * (float)(i - start);
+
+		if(temp_value > IMAGE_W - 2) {
+			rightfollowline[i] = IMAGE_W - 1;
+		} else if(temp_value < 0) {
+			rightfollowline[i] = 0;
+		} else {
+			rightfollowline[i] = (int16)temp_value;
+		}
+	}
+}
+
+
+/**
+ * @brief 新十字补线主函数（完全替换旧的 image_cross_analysis）
+ *
+ * 功能说明：
+ * 1. 使用四点检测法：查找左上、左下、右上、右下四个拐点
+ * 2. 使用状态机管理十字识别：CROSS_STRAIGHT -> CROSS_ROAD/CROSS_ROAD_L/CROSS_ROAD_R
+ * 3. 智能补线策略：根据拐点情况自适应补线
+ *
+ * 核心流程：
+ * - 直道状态：检测是否进入十字（通过连续性和拐点判断）
+ * - 十字状态：根据拐点情况进行智能补线
+ * - 斜入十字：单边拐点处理
+ */
+void image_cross_analysis(void)
+{
+	// 初始化跟随线（补线后的边线）
+	memcpy(leftfollowline, left_edge_line, sizeof(left_edge_line));
+	memcpy(rightfollowline, right_edge_line, sizeof(right_edge_line));
+
+	// 查找上下半段边界点
+	Find_Up_Point(IMAGE_H - 1, stop_search_row);      // 查找上半段边界点（左上、右上）
+	Find_Down_Point(IMAGE_H - 1, stop_search_row);    // 查找下半段边界点（左下、右下）
+
+	// 左右连续性判断
+	continuity_pointLeft[0] = continuity_left(IMAGE_H - 1, stop_search_row + 5);    // 左连续性判断
+	continuity_pointRight[0] = continuity_right(IMAGE_H - 1, stop_search_row + 5);  // 右连续性判断
+	continuity_pointLeft[1] = left_edge_line[continuity_pointLeft[0]];              // 左连续性点列
+	continuity_pointRight[1] = right_edge_line[continuity_pointRight[0]];           // 右连续性点列
+
+	// ==================== 直道状态：检测是否进入十字 ====================
+	if(cross_status == CROSS_STRAIGHT) {
+		// 只有在截止行较近时才检测十字
+		if(stop_search_row < 11) {
+			// 情况1：正入十字 - 左右不连续点都找到，且左右上拐点都找到
+			if(continuity_pointLeft[0] != 0 && continuity_pointRight[0] != 0 &&
+			   Right_Up_Find != 0 && Left_Up_Find != 0 &&
+			   (Right_Up_Find > stop_search_row - 2 && Left_Up_Find > stop_search_row - 2))
+			{
+				cross_status = CROSS_ROAD;  // 进入十字路口状态
+				cross_flag = 1;
+				return;
+			}
+
+			// 情况2：左斜入十字 - 左不连续点找到且右不连续点未找到，且左上拐点找到
+			if(continuity_pointLeft[0] != 0 && continuity_pointRight[0] == 0 &&
+			   Left_Up_Find != 0 && Left_Up_Find > stop_search_row - 2)
+			{
+				cross_status = CROSS_ROAD_L;  // 进入左斜入十字状态
+				cross_flag = 1;
+				return;
+			}
+
+			// 情况3：右斜入十字 - 左不连续点未找到且右不连续点找到，且右上拐点找到
+			if(continuity_pointLeft[0] == 0 && continuity_pointRight[0] != 0 &&
+			   Right_Up_Find != 0 && Right_Up_Find > stop_search_row - 2)
+			{
+				cross_status = CROSS_ROAD_R;  // 进入右斜入十字状态
+				cross_flag = 1;
+				return;
+			}
+		}
+	}
+
+	// ==================== 十字路口状态处理（正入） ====================
+	if(cross_status == CROSS_ROAD) {
+		// 确保下拐点在上拐点下方
+		if(Left_Down_Find <= Left_Up_Find) Left_Down_Find = 0;
+		if(Right_Down_Find <= Right_Up_Find) Right_Down_Find = 0;
+
+		/* 边界线拟合策略 */
+		if(Left_Down_Find != 0 && Right_Down_Find != 0) {
+			// 情况1：左右下点均有效 → 双边界直线拟合
+			add_Rline_k(right_edge_line[Right_Down_Find], Right_Down_Find,
+			           Right_Up_Find - 2, right_edge_line[Right_Up_Find - 2]);
+			add_Lline_k(left_edge_line[Left_Down_Find], Left_Down_Find,
+			           Left_Up_Find - 2, left_edge_line[Left_Up_Find - 2]);
+		}
+		else if(Left_Down_Find == 0 && Right_Down_Find != 0) {
+			// 情况2：仅右下点有效 → 右边界拟合+左边界延长
+			add_Rline_k(right_edge_line[Right_Down_Find], Right_Down_Find,
+			           Right_Up_Find, right_edge_line[Right_Up_Find]);
+			lenthen_Left_bondarise(Left_Up_Find);
+		}
+		else if(Left_Down_Find != 0 && Right_Down_Find == 0) {
+			// 情况3：仅左下点有效 → 左边界拟合+右边界延长
+			lenthen_Right_bondarise(Right_Up_Find);
+			add_Lline_k(left_edge_line[Left_Down_Find], Left_Down_Find,
+			           Left_Up_Find, left_edge_line[Left_Up_Find]);
+		}
+		else {
+			// 情况4：无有效下点 → 双边界延长
+			lenthen_Right_bondarise(Right_Up_Find);
+			lenthen_Left_bondarise(Left_Up_Find);
+		}
+
+		// 异常处理：突变点失效时恢复原始边界
+		if(Right_Up_Find == 0) memcpy(rightfollowline, right_edge_line, sizeof(right_edge_line));
+		if(Left_Up_Find == 0) memcpy(leftfollowline, left_edge_line, sizeof(left_edge_line));
+
+		// 退出十字状态判断
+		if(Right_Up_Find == 0 || Left_Up_Find == 0) {
+			cross_status = CROSS_STRAIGHT;
+			cross_flag = 0;
+			return;
+		}
+
+		// 将补线后的边线复制回原边线数组
+		memcpy(left_edge_line, leftfollowline, sizeof(left_edge_line));
+		memcpy(right_edge_line, rightfollowline, sizeof(right_edge_line));
+	}
+
+	// ==================== 左斜入十字状态处理 ====================
+	if(cross_status == CROSS_ROAD_L) {
+		// 如果左右上点都有效，转为正入十字
+		if(Left_Up_Find && Right_Up_Find) {
+			cross_status = CROSS_ROAD;
+			return;
+		}
+
+		// 如果找到了左上点和左下点
+		if(Left_Up_Find != 0 && Left_Down_Find != 0) {
+			add_Lline_k(left_edge_line[Left_Down_Find], Left_Down_Find,
+			           Left_Up_Find, left_edge_line[Left_Up_Find]);
+		}
+
+		// 如果只找到了左上点
+		if(Left_Up_Find != 0 && Left_Down_Find == 0) {
+			lenthen_Left_bondarise(Left_Up_Find);
+		}
+
+		// 如果左上点未找到，返回直道状态
+		if(Left_Up_Find == 0) {
+			cross_status = CROSS_STRAIGHT;
+			cross_flag = 0;
+		}
+
+		// 将补线后的边线复制回原边线数组
+		memcpy(left_edge_line, leftfollowline, sizeof(left_edge_line));
+		memcpy(right_edge_line, rightfollowline, sizeof(right_edge_line));
+	}
+
+	// ==================== 右斜入十字状态处理 ====================
+	if(cross_status == CROSS_ROAD_R) {
+		// 如果左右上点都有效，转为正入十字
+		if(Left_Up_Find && Right_Up_Find) {
+			cross_status = CROSS_ROAD;
+			return;
+		}
+
+		// 如果找到了右上点和右下点
+		if(Right_Up_Find != 0 && Right_Down_Find != 0) {
+			add_Rline_k(right_edge_line[Right_Down_Find], Right_Down_Find,
+			           Right_Up_Find, right_edge_line[Right_Up_Find]);
+		}
+
+		// 如果只找到了右上点
+		if(Right_Up_Find != 0 && Right_Down_Find == 0) {
+			lenthen_Right_bondarise(Right_Up_Find);
+		}
+
+		// 如果右上点未找到，返回直道状态
+		if(Right_Up_Find == 0) {
+			cross_status = CROSS_STRAIGHT;
+			cross_flag = 0;
+		}
+
+		// 将补线后的边线复制回原边线数组
+		memcpy(left_edge_line, leftfollowline, sizeof(left_edge_line));
+		memcpy(right_edge_line, rightfollowline, sizeof(right_edge_line));
 	}
 }
 

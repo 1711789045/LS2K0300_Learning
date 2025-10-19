@@ -73,7 +73,17 @@ extern uint8 mid_weight_4[IMAGE_H];
 extern uint8 mid_weight_5[IMAGE_H];
 extern uint8 mid_weight[IMAGE_H];          // 当前使用的权重数组
 
-
+// ==================== 新十字补线相关变量声明 ====================
+extern int16 continuity_pointLeft[2];      // 左不连续点[0]存某行，[1]存某列
+extern int16 continuity_pointRight[2];     // 右不连续点[0]存某行，[1]存某列
+extern int16 Right_Down_Find;              // 右下点
+extern int16 Left_Down_Find;               // 左下点
+extern int16 Right_Up_Find;                // 右上点
+extern int16 Left_Up_Find;                 // 左上点
+extern uint16 leftfollowline[IMAGE_H];     // 左跟随线（补线后的边线）
+extern uint16 rightfollowline[IMAGE_H];    // 右跟随线（补线后的边线）
+extern float dx1[5];                       // 左边线滑动平均滤波数组
+extern float dx2[5];                       // 右边线滑动平均滤波数组
 
 void get_image(void);
 void get_reference_point(const uint8 image[][IMAGE_W]);
