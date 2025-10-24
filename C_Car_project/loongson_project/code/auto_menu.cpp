@@ -591,6 +591,7 @@ void FUN_INIT(){
 	fun_init(car_start, "START");              // 启动小车
 	fun_init(servo_manual_adjust, "SERVO_ADJ");// 舵机手动调整
 	fun_init(image_display, "IMG_VIEW");       // 实时图像显示
+	fun_init(dynamic_weight_debug, "DYN_DEBUG");// 动态权重调试
 	fun_init(config_save, "CFG_SAVE");         // 手动保存配置
 	fun_init(NULL_FUN,   "NULL_FUN");
 }
@@ -629,6 +630,115 @@ void image_display(void)
 
             // 调用图像处理并显示(mode=1 表示显示边线)
             image_process(IMAGE_W, IMAGE_H, 1);
+
+            // 主循环延迟,与按键处理一致
+            system_delay_ms(20);
+        }
+    }
+}
+
+/**
+ * @brief  动态权重调试函数(用于菜单调试)
+ * @param  无
+ * @return 无
+ * @note   按确认键(IS_OK)进入动态权重调试模式
+ *         显示摄像头图像、边线识别、曲率值和所有动态权重参数
+ *         按返回键(button1)退出到子菜单
+ */
+void dynamic_weight_debug(void)
+{
+    if(IS_OK)  // 必须按下确认键才进入调试模式
+    {
+        printf("Entering dynamic weight debug mode...\r\n");
+
+        // 清屏
+        ips200_full(IPS200_DEFAULT_BGCOLOR);
+
+        // 进入实时调试主循环
+        while(1)
+        {
+            // 更新按键状态(必须在每次循环开始)
+            button_entry(NULL);
+
+            // 检测返回键(button1): 退出到子菜单
+            if(button1)
+            {
+                printf("Exiting dynamic weight debug mode\r\n");
+                // 清屏并退出
+                ips200_full(IPS200_DEFAULT_BGCOLOR);
+                break;
+            }
+
+            // 调用图像处理并显示(mode=1 表示显示边线)
+            image_process(IMAGE_W, IMAGE_H, 1);
+
+            // ==================== 动态权重调试信息显示 ====================
+            // 显示在图像右侧区域（图像宽度180，屏幕宽度320）
+            uint16 x_offset = 185;  // 显示起始X坐标
+            uint16 y_start = 0;     // 显示起始Y坐标
+            uint16 line_h = 16;     // 行高
+
+            // 标题
+            ips200_show_string(x_offset, y_start, "DynWgt Debug");
+
+            // 1. 开关状态
+            if(dynamic_weight_enable) {
+                ips200_show_string(x_offset, y_start + line_h * 1, "SW:ON ");
+            } else {
+                ips200_show_string(x_offset, y_start + line_h * 1, "SW:OFF");
+            }
+
+            // 2. 当前曲率值（原始和滤波后）
+            ips200_show_string(x_offset, y_start + line_h * 2, "RawC:");
+            ips200_show_float(x_offset + 40, y_start + line_h * 2, raw_curvature, 2, 1);
+
+            ips200_show_string(x_offset, y_start + line_h * 3, "Curv:");
+            ips200_show_float(x_offset + 40, y_start + line_h * 3, current_curvature, 2, 1);
+
+            // 3. 权重状态和使用的权重数组
+            ips200_show_string(x_offset, y_start + line_h * 4, "Stat:");
+            ips200_show_int(x_offset + 40, y_start + line_h * 4, dynamic_weight_status, 1);
+
+            // 状态说明
+            if(dynamic_weight_enable) {
+                if(dynamic_weight_status == 0) {
+                    ips200_show_string(x_offset + 56, y_start + line_h * 4, "FAR");  // 远前瞻
+                } else if(dynamic_weight_status == 1) {
+                    ips200_show_string(x_offset + 56, y_start + line_h * 4, "MID");  // 中前瞻
+                } else {
+                    ips200_show_string(x_offset + 56, y_start + line_h * 4, "NEAR"); // 近前瞻
+                }
+            } else {
+                // 关闭时显示固定权重编号
+                ips200_show_string(x_offset + 56, y_start + line_h * 4, "FIX");
+                ips200_show_int(x_offset + 88, y_start + line_h * 4, mid_weight_select, 1);
+            }
+
+            // 4. 曲率阈值参数
+            ips200_show_string(x_offset, y_start + line_h * 5, "Low:");
+            ips200_show_int(x_offset + 32, y_start + line_h * 5, curvature_threshold_low, 2);
+
+            ips200_show_string(x_offset, y_start + line_h * 6, "High:");
+            ips200_show_int(x_offset + 40, y_start + line_h * 6, curvature_threshold_high, 2);
+
+            // 5. 切换速度
+            ips200_show_string(x_offset, y_start + line_h * 7, "Spd:");
+            ips200_show_int(x_offset + 32, y_start + line_h * 7, weight_shift_speed, 2);
+
+            // 6. 滤波系数
+            ips200_show_string(x_offset, y_start + line_h * 8, "Filt:");
+            ips200_show_float(x_offset + 40, y_start + line_h * 8, curvature_filter_ratio, 1, 2);
+
+            // 7. 中线偏差（用于判断曲率计算是否正确）
+            ips200_show_string(x_offset, y_start + line_h * 9, "Mid:");
+            ips200_show_int(x_offset + 32, y_start + line_h * 9, final_mid_line, 3);
+
+            // 8. 搜索截止行（用于判断前方可见距离）
+            ips200_show_string(x_offset, y_start + line_h * 10, "Stop:");
+            ips200_show_int(x_offset + 40, y_start + line_h * 10, stop_search_row, 3);
+
+            // 提示信息（底部）
+            ips200_show_string(x_offset, y_start + line_h * 13, "KEY1:EXIT");
 
             // 主循环延迟,与按键处理一致
             system_delay_ms(20);

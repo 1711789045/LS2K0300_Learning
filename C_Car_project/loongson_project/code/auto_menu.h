@@ -138,7 +138,8 @@ void FUN_INIT();
 void Flash_Read();
 void Flash_Write();
 void Flash_Erase();
-void image_display();  // 实时图像显示函数(用于菜单调试)
+void image_display();           // 实时图像显示函数(用于菜单调试)
+void dynamic_weight_debug();    // 动态权重调试函数(用于菜单调试)
 
 
 #endif
