@@ -5,6 +5,7 @@
 #include "control.h"
 #include "motor.h"          // 包含电机头文件（用于差速参数）
 #include "config_flash.h"   // 包含配置库头文件
+#include "image.h"          // 包含图像处理头文件（用于动态前瞻参数）
 
 #ifdef  MENU_USE_RTT
 extern rt_sem_t key1_sem;
@@ -572,6 +573,18 @@ void UNIT_SET(){
     unit_param_set(&mid_weight_select, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "mid_weight");
     // 十字识别开关（0=关闭，1=开启）
     unit_param_set(&cross_enable, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "cross_switch");
+
+    // ==================== 动态前瞻权重参数 ====================
+    // 动态权重开关（0=关闭，1=开启）
+    unit_param_set(&dynamic_weight_enable, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "dyn_enable");
+    // 曲率低阈值（小于此值为直道，远前瞻）
+    unit_param_set(&curvature_threshold_low, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "curv_low");
+    // 曲率高阈值（大于此值为急弯，近前瞻）
+    unit_param_set(&curvature_threshold_high, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "curv_high");
+    // 权重切换速度（1-10，值越大切换越快）
+    unit_param_set(&weight_shift_speed, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "shift_spd");
+    // 曲率滤波系数（0-1，越大越平滑）
+    unit_param_set(&curvature_filter_ratio, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "curv_filter");
 }
 
 void FUN_INIT(){
