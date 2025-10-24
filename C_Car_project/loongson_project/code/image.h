@@ -28,6 +28,19 @@ extern uint8 mid_calc_center_row;  // 中线计算中心行（从底部数）
 extern uint16 mid_weight_select;   // 权重数组选择（1-5）
 extern uint16 cross_enable;        // 十字识别开关（0=关闭, 1=开启）
 
+// ==================== 动态前瞻权重配置参数声明 ====================
+extern uint8 dynamic_weight_enable;    // 动态权重开关（0=关闭, 1=开启）
+extern uint8 curvature_threshold_low;  // 曲率低阈值（小于此值为直道，远前瞻）
+extern uint8 curvature_threshold_high; // 曲率高阈值（大于此值为急弯，近前瞻）
+extern uint8 weight_shift_speed;       // 权重切换速度（1-10，值越大切换越快）
+extern float curvature_filter_ratio;   // 曲率滤波系数（0-1，越大越平滑）
+
+// ==================== 动态前瞻权重运行时变量声明 ====================
+extern float current_curvature;        // 当前赛道曲率（滤波后）
+extern float raw_curvature;            // 原始曲率值（未滤波）
+extern uint8 dynamic_weight_status;    // 当前权重状态（0=远前瞻 1=中等 2=近前瞻）
+extern uint8 dynamic_weight_target[IMAGE_H];  // 目标权重数组
+
 // 向后兼容的宏定义（引用全局变量）
 #define REFERENCE_ROW       reference_row
 #define REFERENCE_COL       cfg_reference_col
@@ -97,5 +110,10 @@ void select_mid_weight(uint16 select);     // 选择使用的权重数组（1-5�
 void image_process_time_start(void);     // 开始计时
 float image_process_time_end(void);      // 结束计时，返回处理时间（毫秒）
 void image_process_time_print(void);     // 打印统计信息
+
+// 动态前瞻权重函数
+float calculate_curvature(void);                  // 计算赛道曲率
+void adjust_weight_by_curvature(float curvature); // 根据曲率调整权重
+void dynamic_weight_adjust(void);                 // 动态前瞻权重主函数
 
 #endif

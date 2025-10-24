@@ -38,6 +38,13 @@ uint8 mid_calc_center_row = 90; // 中线计算中心行（从底部数）
 uint16 mid_weight_select = 2;   // 权重数组选择（1-5，默认2）
 uint16 cross_enable = 0;        // 十字识别开关（默认关闭）
 
+// ==================== 动态前瞻权重配置参数 ====================
+uint8 dynamic_weight_enable = 1;    // 动态权重开关（0=关闭使用固定权重, 1=开启）
+uint8 curvature_threshold_low = 5;  // 曲率低阈值（小于此值为直道，远前瞻）
+uint8 curvature_threshold_high = 15;// 曲率高阈值（大于此值为急弯，近前瞻）
+uint8 weight_shift_speed = 3;       // 权重切换速度（1-10，值越大切换越快）
+float curvature_filter_ratio = 0.7; // 曲率滤波系数（0-1，越大越平滑）
+
 uint8 reference_point = 0;
 uint8 white_max_point = 0;
 uint8 white_min_point = 0;
@@ -164,12 +171,18 @@ uint8 single_edge_err[IMAGE_H] = {
 uint8 final_mid_line = 0;
 uint8 last_final_mid_line = 0;
 uint8 prospect = 100;                     //前瞻值
-uint8 cross_flag = 0;
+uint8 cross_flag = 0;                     // 十字标志位(与cross_status同步: 0=直道 1=十字)
 uint8 mid_mode = 0;
 uint8 circle_flag = 0;
 uint16 circle_time = 0;
 uint8 if_circle = 0;
 uint8 stop_search_row = 0;
+
+// ==================== 动态前瞻权重运行时变量 ====================
+float current_curvature = 0.0f;           // 当前赛道曲率（滤波后）
+float raw_curvature = 0.0f;               // 原始曲率值（未滤波）
+uint8 dynamic_weight_status = 0;          // 当前权重状态（0=远前瞻 1=中等 2=近前瞻）
+uint8 dynamic_weight_target[IMAGE_H];     // 目标权重数组（动态计算）
 
 // ==================== 新十字补线相关变量定义 ====================
 int16 continuity_pointLeft[2] = {0, 0};    // 左不连续点[0]存某行，[1]存某列
@@ -335,8 +348,11 @@ void search_line(const uint8 image[][IMAGE_W]){
     }
 	stop_search_row = 0;
 
-	for(row = row_max;row >= row_min;row--){                   
+	for(row = row_max;row >= row_min;row--){
 		if(!leftstop){
+			// 边缘跟随优化控制:
+			// - cross_flag=0(直道): search_time=2, 优先跟随上一行位置搜索,提高效率
+			// - cross_flag=1(十字): search_time=1, 禁用跟随直接整行搜索,确保找到远处上拐点
 			search_time = 2-cross_flag;
 			do{
 				if(search_time == 1){
@@ -390,9 +406,11 @@ void search_line(const uint8 image[][IMAGE_W]){
 				}
 			}while(search_time);
 		}
-		
-		
+
 		if(!rightstop){
+			// 边缘跟随优化控制(同左边):
+			// - cross_flag=0(直道): search_time=2, 优先跟随上一行位置搜索,提高效率
+			// - cross_flag=1(十字): search_time=1, 禁用跟随直接整行搜索,确保找到远处上拐点
 			search_time = 2-cross_flag;
 			do{
 				if(search_time == 1){
@@ -800,28 +818,51 @@ void image_calculate_prospect(const uint8 image[][IMAGE_W]){
 
 
 void image_display_edge_line(const uint8 image[][IMAGE_W], uint16 display_width, uint16 display_height) {
-    ips200_show_gray_image(0, 0, rgay_image, UVC_WIDTH, UVC_HEIGHT);	
-    
+    ips200_show_gray_image(0, 0, rgay_image, UVC_WIDTH, UVC_HEIGHT);
+
     for(uint16 i = 0; i < IMAGE_H; i++) {
         if(left_edge_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)left_edge_line[i], i, RGB565_RED);
         }
-        
+
         if(right_edge_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)right_edge_line[i], i, RGB565_BLUE);
         }
-        
+
         if(reference_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)reference_line[i], i, RGB565_YELLOW);
         }
-        
+
         if(mid_line[i] < display_width && i < display_height) {
             ips200_draw_point((uint16)mid_line[i], i, RGB565_GREEN);
         }
     }
-    
+
     if(final_mid_line < display_width) {
 //        ips200_show_int(96, 208, final_mid_line, 4);
+    }
+
+    // ==================== 动态前瞻权重调试信息显示 ====================
+    // 显示在图像右侧区域（图像宽度180，屏幕宽度320）
+    if(dynamic_weight_enable) {
+        ips200_show_string(185, 144, "DynWgt:ON");          // 动态权重开关状态
+        ips200_show_string(185, 160, "Curv:");              // 曲率标签
+        ips200_show_float(220, 160, current_curvature, 1, 1); // 当前曲率（滤波后）
+        ips200_show_string(185, 176, "Stat:");              // 状态标签
+        ips200_show_int(220, 176, dynamic_weight_status, 1); // 权重状态（0/1/2）
+
+        // 状态说明文字
+        if(dynamic_weight_status == 0) {
+            ips200_show_string(230, 176, "FAR");  // 远前瞻（直道）
+        } else if(dynamic_weight_status == 1) {
+            ips200_show_string(230, 176, "MID");  // 中前瞻（缓弯）
+        } else {
+            ips200_show_string(230, 176, "NEAR"); // 近前瞻（急弯）
+        }
+    } else {
+        ips200_show_string(185, 144, "DynWgt:OFF");         // 动态权重关闭
+        ips200_show_string(185, 160, "FixWgt:");            // 固定权重标签
+        ips200_show_int(235, 160, mid_weight_select, 1);    // 固定权重编号（1-5）
     }
 }
 
@@ -1258,10 +1299,23 @@ void image_cross_analysis(void)
 	continuity_pointLeft[1] = left_edge_line[continuity_pointLeft[0]];              // 左连续性点列
 	continuity_pointRight[1] = right_edge_line[continuity_pointRight[0]];           // 右连续性点列
 
+	// ==================== 调试信息显示 ====================
+	// 显示关键检测变量,帮助诊断识别失败原因
+	// 显示在图像右侧区域,避免遮挡图像 (图像宽度180,屏幕宽度320)
+	ips200_show_int(185, 0, stop_search_row, 3);           // 搜线截止行
+	ips200_show_int(185, 16, Left_Up_Find, 3);             // 左上拐点
+	ips200_show_int(185, 32, Right_Up_Find, 3);            // 右上拐点
+	ips200_show_int(185, 48, Left_Down_Find, 3);           // 左下拐点
+	ips200_show_int(185, 64, Right_Down_Find, 3);          // 右下拐点
+	ips200_show_int(185, 80, continuity_pointLeft[0], 3);  // 左连续性点行
+	ips200_show_int(185, 96, continuity_pointRight[0], 3); // 右连续性点行
+	ips200_show_int(185, 112, cross_status, 1);            // 十字状态
+	ips200_show_int(185, 128, cross_flag, 1);              // 十字标志
+
 	// ==================== 直道状态：检测是否进入十字 ====================
 	if(cross_status == CROSS_STRAIGHT) {
 		// 只有在截止行较近时才检测十字
-		if(stop_search_row < 11) {
+		if(stop_search_row < 50) {
 			// 情况1：正入十字 - 左右不连续点都找到，且左右上拐点都找到
 			if(continuity_pointLeft[0] != 0 && continuity_pointRight[0] != 0 &&
 			   Right_Up_Find != 0 && Left_Up_Find != 0 &&
@@ -1428,6 +1482,8 @@ void image_process(uint16 display_width,uint16 display_height,uint8 mode){
 	//if(go_flag)
 	//	stop_analysis(user_image);
 
+	// 动态前瞻权重调整（在计算加权中线之前调用）
+	dynamic_weight_adjust();
 
 	image_calculate_mid(mid_mode);
 	image_calculate_prospect(user_image);
@@ -1522,4 +1578,145 @@ void image_process_time_print(void)
     {
         printf("✅ 良好: 图像处理时间 < 8ms, 可以满足 100Hz 控制周期\n\n");
     }
+}
+
+
+// ==================== 动态前瞻权重函数 ====================
+
+/**
+ * @brief 计算赛道曲率（基于中线变化率）
+ * @return float 返回曲率值（0-100，值越大弯道越急）
+ *
+ * 算法说明：
+ * 1. 分段计算中线偏移量：近处、中处、远处三段
+ * 2. 加权计算总曲率：远处权重高（提前预判），近处权重低
+ * 3. 低通滤波平滑曲率变化
+ */
+float calculate_curvature(void)
+{
+	float curvature = 0.0f;
+	float near_offset = 0.0f;   // 近处偏移（行90-119）
+	float mid_offset = 0.0f;    // 中处偏移（行60-89）
+	float far_offset = 0.0f;    // 远处偏移（行30-59）
+	uint8 center_col = IMAGE_W / 2;  // 图像中心列（90）
+
+	// 计算近处平均偏移（底部30行）
+	for(int i = IMAGE_H - 30; i < IMAGE_H; i++) {
+		near_offset += func_abs(mid_line[i] - center_col);
+	}
+	near_offset /= 30.0f;
+
+	// 计算中处平均偏移（中间30行）
+	for(int i = IMAGE_H - 60; i < IMAGE_H - 30; i++) {
+		mid_offset += func_abs(mid_line[i] - center_col);
+	}
+	mid_offset /= 30.0f;
+
+	// 计算远处平均偏移（上面30行）
+	for(int i = IMAGE_H - 90; i < IMAGE_H - 60; i++) {
+		if(i < stop_search_row) continue;  // 跳过无效行
+		far_offset += func_abs(mid_line[i] - center_col);
+	}
+	far_offset /= 30.0f;
+
+	// 加权计算总曲率（远处权重最高）
+	// 远处权重50%，中处30%，近处20%
+	curvature = far_offset * 0.5f + mid_offset * 0.3f + near_offset * 0.2f;
+
+	// 归一化到0-100范围（假设最大偏移为45列，即图像宽度的一半）
+	curvature = (curvature / 45.0f) * 100.0f;
+	curvature = func_limit_ab((int)curvature, 0, 100);
+
+	// 存储原始曲率
+	raw_curvature = curvature;
+
+	// 低通滤波（避免曲率突变）
+	if(current_curvature == 0.0f) {
+		current_curvature = curvature;  // 首次初始化
+	} else {
+		current_curvature = current_curvature * curvature_filter_ratio +
+		                    curvature * (1.0f - curvature_filter_ratio);
+	}
+
+	return current_curvature;
+}
+
+/**
+ * @brief 根据曲率动态调整权重数组
+ * @param curvature 当前赛道曲率（0-100）
+ *
+ * 策略说明：
+ * - 曲率 < 5：直道 → 使用远前瞻（权重数组1，峰值在60-70行）
+ * - 曲率 5-15：缓弯 → 使用中前瞻（权重数组2-3，峰值在40-60行）
+ * - 曲率 > 15：急弯 → 使用近前瞻（权重数组4-5，峰值在20-40行）
+ *
+ * 优化点：
+ * - 渐变切换：避免权重突变导致控制抖动
+ * - 速度可调：通过weight_shift_speed参数控制切换速度
+ */
+void adjust_weight_by_curvature(float curvature)
+{
+	uint8 target_status = 0;  // 目标权重状态
+
+	// 根据曲率确定目标权重状态
+	if(curvature < curvature_threshold_low) {
+		// 直道：远前瞻
+		target_status = 0;
+		memcpy(dynamic_weight_target, mid_weight_1, IMAGE_H);
+	}
+	else if(curvature < curvature_threshold_high) {
+		// 缓弯：中前瞻（插值混合权重2和权重3）
+		target_status = 1;
+		float ratio = (curvature - curvature_threshold_low) /
+		              (curvature_threshold_high - curvature_threshold_low);
+		for(int i = 0; i < IMAGE_H; i++) {
+			dynamic_weight_target[i] = (uint8)(mid_weight_2[i] * (1.0f - ratio) +
+			                                    mid_weight_3[i] * ratio);
+		}
+	}
+	else {
+		// 急弯：近前瞻（曲率越大越近）
+		target_status = 2;
+		if(curvature < 30) {
+			// 中等急弯：权重4
+			memcpy(dynamic_weight_target, mid_weight_4, IMAGE_H);
+		} else {
+			// 超急弯：权重5
+			memcpy(dynamic_weight_target, mid_weight_5, IMAGE_H);
+		}
+	}
+
+	dynamic_weight_status = target_status;
+
+	// 渐变切换权重（避免突变）
+	for(int i = 0; i < IMAGE_H; i++) {
+		int diff = (int)dynamic_weight_target[i] - (int)mid_weight[i];
+		if(diff > 0) {
+			mid_weight[i] += func_limit_ab(diff / (11 - weight_shift_speed), 1, diff);
+		} else if(diff < 0) {
+			mid_weight[i] -= func_limit_ab((-diff) / (11 - weight_shift_speed), 1, -diff);
+		}
+	}
+}
+
+/**
+ * @brief 动态前瞻权重主函数（在image_process中调用）
+ *
+ * 功能：
+ * 1. 计算当前赛道曲率
+ * 2. 根据曲率自适应调整权重数组
+ * 3. 实现远前瞻（直道）和近前瞻（弯道）的自动切换
+ */
+void dynamic_weight_adjust(void)
+{
+	// 检查开关
+	if(!dynamic_weight_enable) {
+		return;  // 关闭时使用固定权重
+	}
+
+	// 计算曲率
+	float curvature = calculate_curvature();
+
+	// 调整权重
+	adjust_weight_by_curvature(curvature);
 }
