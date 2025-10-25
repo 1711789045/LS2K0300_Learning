@@ -234,6 +234,20 @@ void ips200_show_float (uint16 x, uint16 y, const double dat, uint8 num, uint8 p
     ips200_show_string(x, y, data_buffer);
 }
 
+//-------------------------------------------------------------------------------------------------------------------
+// 函数简介     IPS200 设置画笔和背景颜色
+// 参数说明     pen_color       画笔颜色（文字颜色）
+// 参数说明     bg_color        背景颜色
+// 返回参数     void
+// 使用示例     ips200_set_color(RGB565_GREEN, RGB565_WHITE);
+// 备注信息
+//-------------------------------------------------------------------------------------------------------------------
+void ips200_set_color(uint16 pen_color, uint16 bg_color)
+{
+    ips200_pencolor = pen_color;
+    ips200_bgcolor = bg_color;
+}
+
 
 void ips200_show_gray_image(uint16 x, uint16 y, const uint8 *image, 
 uint16 width, uint16 height)

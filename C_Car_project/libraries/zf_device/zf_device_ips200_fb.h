@@ -18,6 +18,8 @@ void    ips200_show_int         (uint16 x, uint16 y, const int32 dat, uint8 num)
 void    ips200_show_uint        (uint16 x, uint16 y, const uint32 dat, uint8 num);
 void    ips200_show_float       (uint16 x, uint16 y, const double dat, uint8 num, uint8 pointnum);
 
+void    ips200_set_color        (uint16 pen_color, uint16 bg_color);  // 设置画笔和背景颜色
+
 void    ips200_show_gray_image  (uint16 x, uint16 y, const uint8 *image, uint16 width, uint16 height);
 
 void    ips200_init             (const char *path);

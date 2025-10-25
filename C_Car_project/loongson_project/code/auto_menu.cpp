@@ -20,6 +20,15 @@ uint8 button1=0,button2=0,button3=0,button4=0;
 uint8 first_in_page_flag = 0;
 uint8 is_clear_flag=0;
 
+// 编辑模式相关变量
+uint8 edit_mode = 0;        // 0=普通模式，1=编辑模式
+menu_unit* edit_unit = NULL;
+uint16 key_press_time = 0;  // 长按计数器
+
+// 页面名称数组（用于自定义分页）
+static const char** custom_page_names = NULL;
+static uint8 custom_page_count = 0;
+
 uint8* p_index_xy_dad,*p_index_xy_son;
 
 static menu_unit *p_unit	 	=NULL;
@@ -38,20 +47,63 @@ static int  static_cnt=0;
 
 void (*current_operation_menu)(void);
 
+//-------------------------------------------------------------------------------------------------------------------
+//  @brief      设置自定义页面名称数组
+//  @param      names   页面名称数组指针
+//  @param      count   页面数量
+//  @return     void
+//-------------------------------------------------------------------------------------------------------------------
+void set_page_names(const char** names, uint8 count){
+	custom_page_names = names;
+	custom_page_count = count;
+}
+
+//-------------------------------------------------------------------------------------------------------------------
+//  @brief      强制创建新页面（用于手动分页）
+//  @param      page_name   页面名称
+//  @return     void
+//  @note       在 UNIT_SET() 中调用，用于按功能分类参数
+//-------------------------------------------------------------------------------------------------------------------
+void force_new_page(const char* page_name){
+	// 如果当前页已经有参数，强制创建新页
+	if(P_dad_head != NULL && IND2 > 0){
+		// 通过设置 IND2 为 SON_NUM-1 触发自动创建新页逻辑
+		// 下一个 unit_param_set 或 fun_init 调用会自动创建新页
+		menu_unit* current_son_end = SON_END_UNIT;
+		current_son_end->m_index[1] = SON_NUM - 1;
+	}
+
+	// 保存页面名称（将在 dad_name_init 中使用）
+	// 注意：此函数仅标记需要创建新页，实际创建在下一次 unit_param_set/fun_init 调用时
+}
+
+//-------------------------------------------------------------------------------------------------------------------
+//  @brief      初始化父菜单（页面）名称
+//  @return     void
+//  @note       修改版本：支持自定义页面名称
+//-------------------------------------------------------------------------------------------------------------------
 void dad_name_init(){
 	char* p = NULL;
 	p = (char*)malloc(STR_LEN_MAX);
 	memset(p,0,STR_LEN_MAX);
-	strcpy(p,"Page ");
+
 	DAD_NUM = IND1+1;
+
 	for(uint8 i=0;i<DAD_NUM;i++){
-		if(i<10){
-			p[5] = '0'+ i;
-			strcpy(P_dad_head->name,p);
+		// 如果设置了自定义名称数组，使用自定义名称
+		if(custom_page_names != NULL && i < custom_page_count){
+			strcpy(P_dad_head->name, custom_page_names[i]);
 		}else{
-			p[5] = '0'+ i/10;
-			p[6] = '0'+ i%10;
-			strcpy(P_dad_head->name,p);
+			// 否则使用默认的 "Page X" 格式
+			strcpy(p,"Page ");
+			if(i<10){
+				p[5] = '0'+ i;
+				strcpy(P_dad_head->name,p);
+			}else{
+				p[5] = '0'+ i/10;
+				p[6] = '0'+ i%10;
+				strcpy(P_dad_head->name,p);
+			}
 		}
 		P_dad_head = P_dad_head->up;
 	}
@@ -91,26 +143,21 @@ void unit_index_init(menu_unit *_p1,uint8 ind_0,uint8 ind_1){
 //-------------------------------------------------------------------------------------------------------------------
 //  @return     void
 //  Sample usage:               			unit_param_set(&param_test,TYPE_FLOAT,0.001,1,4,"par_test");
+//  @note       修改版本：只创建一个菜单项（不再创建+/-两行）
 //-------------------------------------------------------------------------------------------------------------------
 void unit_param_set(void* p_param,type_value t,float delta,uint8 num,uint8 point_num,unit_type t1,const char _name[STR_LEN_MAX]){
 	static menu_unit *p_middle = NULL;
-	menu_unit *p1 = NULL,*p2 = NULL;
-	param_set *p1_par = NULL,*p2_par = NULL;
+	menu_unit *p1 = NULL;
+	param_set *p1_par = NULL;
 	static menu_unit *dad;
-	
+
 #ifdef USE_STATIC_MENU
 	p1 = my_menu_unit+static_cnt;
 	p1_par = my_param_set+static_cnt;
     static_cnt++;
-	p2 = my_menu_unit+static_cnt;
-	p2_par = my_param_set+static_cnt;
-    static_cnt++;
 #else
 	p1 = malloc(sizeof(menu_unit));
 	p1_par = malloc(sizeof(param_set));
-
-	p2 = malloc(sizeof(menu_unit));
-	p2_par = malloc(sizeof(param_set));
 #endif
 
 	if(P_dad_head==NULL){
@@ -125,12 +172,10 @@ void unit_param_set(void* p_param,type_value t,float delta,uint8 num,uint8 point
 		p_unit = dad;
 		p_unit_last = NULL;
 		unit_index_init(p1,0,0);
-		unit_index_init(p2,0,1);
-		dad_link(dad,dad,p1);		
-		son_link(p1,p2,dad);
-		son_link(p2,p1,dad);
+		dad_link(dad,dad,p1);
+		son_link(p1,p1,dad);  // 单个参数自己连接自己
 	}else{
-		if(IND2>=SON_NUM-2){
+		if(IND2>=SON_NUM-1){  // 修改为 SON_NUM-1（8个参数满了才创建新页）
 #ifdef USE_STATIC_MENU
             dad = my_menu_unit+static_cnt;
             static_cnt++;
@@ -139,20 +184,16 @@ void unit_param_set(void* p_param,type_value t,float delta,uint8 num,uint8 point
 #endif
 			unit_default(dad,IND1+1);
 			unit_index_init(p1,IND1+1,0);
-			unit_index_init(p2,IND1+1,1);
-			dad_link(P_dad_head->down,dad,NULL);		
-			dad_link(dad,P_dad_head,p1);		
-			son_link(p1,p2,dad);
-			son_link(p2,p1,dad);
+			dad_link(P_dad_head->down,dad,NULL);
+			dad_link(dad,P_dad_head,p1);
+			son_link(p1,p1,dad);  // 单个参数自己连接自己
 		}else{
 			unit_index_init(p1,IND1,IND2+1);
-			unit_index_init(p2,IND1,IND2+2);		
 			son_link(p_middle,p1,dad);
-			son_link(p1,p2,dad);
-			son_link(p2,SON_BEGIN_UNIT,dad);
+			son_link(p1,SON_BEGIN_UNIT,dad);
 		}
 	}
-	p_middle = p2;
+	p_middle = p1;  // 修改为 p1
 	p1->par_set = p1_par;
 	p1->par_set->p_par=p_param;
 	p1->par_set->par_type=t;
@@ -162,19 +203,7 @@ void unit_param_set(void* p_param,type_value t,float delta,uint8 num,uint8 point
 	p1->type_t=t1;
 	memset(p1->name,0,STR_LEN_MAX);
 	strcpy(p1->name, _name);
-	p1->name[strlen(_name)]='+';
-
-	p2->par_set = p2_par;
-	p2->par_set->p_par=p_param;
-	p2->par_set->par_type=t;
-	p2->par_set->delta=-delta;
-	p2->par_set->num=num;
-	p2->par_set->point_num=point_num;
-	p2->type_t=t1;
-	memset(p2->name,0,STR_LEN_MAX);
-	strcpy(p2->name, _name);
-	p2->name[strlen(_name)]='-';
-
+	// 不再添加 '+' 后缀
 }
 
 //-------------------------------------------------------------------------------------------------------------------
@@ -307,125 +336,200 @@ void center_menu()
 	}
 }
 
+//-------------------------------------------------------------------------------------------------------------------
+//  @brief      子菜单显示函数（参数列表）
+//  @return     void
+//  @note       修改版本：一行显示参数名+值，选中的参数名用绿色高亮
+//-------------------------------------------------------------------------------------------------------------------
 void assist_menu()
 {
 	uint8 index = p_unit->m_index[1];
-	if(first_in_page_flag)
-		showstr(SON_INDEX(index,0),SON_INDEX(index,1),MOUSE_LOOK);
-	
-	if(button3||button4){
-		if(index==0){
-			showstr(SON_INDEX(p_unit->down->m_index[1],0),SON_INDEX(p_unit->down->m_index[1],1)," ");
-			showstr(SON_INDEX(0,0) ,SON_INDEX(0,1),MOUSE_LOOK);
-			showstr(SON_INDEX(1,0) ,SON_INDEX(1,1)," ");
-		}else if(index==p_unit->back->enter->down->m_index[1]){
-			showstr(SON_INDEX(index-1,0),SON_INDEX(index-1,1)," ");
-			showstr(SON_INDEX(index,0),SON_INDEX(index,1),MOUSE_LOOK);
-			showstr(SON_INDEX(0,0) ,SON_INDEX(0,1) ," ");			
-		}else{
-			showstr(SON_INDEX(index-1,0),SON_INDEX(index-1,1)," ");
-			showstr(SON_INDEX(index  ,0),SON_INDEX(index  ,1),MOUSE_LOOK);
-			showstr(SON_INDEX(index+1,0),SON_INDEX(index+1,1)," ");					
-		}
-	}else if(is_clear_flag==1&&(button2)){
-		menu_unit* p = NULL;
-		p = p_unit;
-		for(uint8 i=0;i<SON_NUM;i++){
-			showstr(SON_INDEX(p->m_index[1],0)+MOUSE_DIS,SON_INDEX(p->m_index[1],1),p->name);
+
+	// 进入新页面时，全屏刷新显示所有参数
+	if(is_clear_flag==1&&(button2)){
+		menu_unit* p = p_unit;
+
+		// 遍历当前页的所有参数
+		for(uint8 i=0; i<SON_NUM; i++){
+			uint16 y_pos = SON_INDEX(p->m_index[1],1);
+
+			// 如果是当前选中的参数，参数名用绿色显示
+			if(p->m_index[1] == index){
+				ips200_set_color(RGB565_GREEN, IPS200_BGCOLOR);
+			}else{
+				ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+			}
+
+			// 显示参数名（左侧，占100像素）
+			showstr(SON_INDEX(p->m_index[1],0), y_pos, p->name);
+
+			// 恢复默认颜色
+			ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+
+			// 显示参数值（右侧，从 x=105 开始）
+			if(p->par_set != NULL && p->par_set->p_par != NULL){
+				uint8 type = p->par_set->par_type;
+				void* value = p->par_set->p_par;
+				uint8 num = p->par_set->num;
+				uint8 point_num = p->par_set->point_num;
+
+				if(type==TYPE_FLOAT){
+					float *p_value = (float*)(value);
+					showfloat(105, y_pos, *p_value, num, point_num);
+				}else if(type==TYPE_DOUBLE){
+					double *p_value = (double*)(value);
+					showfloat(105, y_pos, *p_value, num, point_num);
+				}else if(type==TYPE_INT){
+					int *p_value = (int*)(value);
+					showint32(105, y_pos, *p_value, num);
+				}else if(type==TYPE_UINT16){
+					uint16 *p_value = (uint16*)(value);
+					showuint16(105, y_pos, *p_value, num);
+				}else if(type==TYPE_UINT32){
+					uint32 *p_value = (uint32*)(value);
+					showuint32(105, y_pos, *p_value, num);
+				}
+			}
+
 			p = p->up;
+			// 如果到达最后一个参数，退出
+			if(p->m_index[1] == 0 && i > 0) break;
 		}
-	}				 
+	}
+	// 切换参数时，只刷新相关行的参数名颜色
+	else if(button3||button4){
+		menu_unit* p_old = (button3 ? p_unit->down : p_unit->up);
+		uint8 old_index = p_old->m_index[1];
+
+		// 恢复上一个参数名的颜色为默认红色
+		ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+		showstr(SON_INDEX(old_index,0), SON_INDEX(old_index,1), p_old->name);
+
+		// 当前参数名改为绿色
+		ips200_set_color(RGB565_GREEN, IPS200_BGCOLOR);
+		showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
+
+		// 恢复默认颜色
+		ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+	}
+	// 首次进入该参数时，高亮显示
+	else if(first_in_page_flag){
+		ips200_set_color(RGB565_GREEN, IPS200_BGCOLOR);
+		showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
+		ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+	}
 }
 	
 //-------------------------------------------------------------------------------------------------------------------
-// @return	void
+// @brief      修改参数值函数
+// @return     void
+// @note       修改版本：只在编辑模式下响应按键修改参数，实时刷新参数值显示
 //-------------------------------------------------------------------------------------------------------------------
 void change_value(param_set* param)
 {
-    uint8 type=param->par_type;float delta_x=param->delta;void* value=param->p_par;
-    uint8 num=param->num;uint8 point_num=param->point_num;
-	//static uint8 last_index = 0;
-	uint8 is_show_num = (p_unit_last->par_set==NULL?1:p_unit_last->par_set->p_par!=p_unit->par_set->p_par);
-	if(p_unit->par_set->p_par!=NULL){
-		if(type==TYPE_FLOAT){
-			float *p_value;
-			p_value = (float*)(value);
-			if(IS_OK)
-			{
-				*p_value +=	delta_x;
-				showfloat(0,(SON_NUM+1)*DIS_Y,*p_value,num,point_num);
-				// 自动保存到 flash
-				config_save();
-			}
-			if(is_show_num){
-				showstr(0,(SON_NUM+1)*DIS_Y,"            ");
-				showfloat(0,(SON_NUM+1)*DIS_Y,*p_value,num,point_num);
-			}
-		}else if(type==TYPE_DOUBLE){
-			double *p_value;
-			p_value = (double*)(value);
-			if(IS_OK)
-			{
-				*p_value +=	(double)delta_x;
-				showfloat(0,(SON_NUM+1)*DIS_Y,*p_value,num,point_num);
-				// 自动保存到 flash
-				config_save();
-			}
-			if(is_show_num){
-				showstr(0,(SON_NUM+1)*DIS_Y,"            ");
-				showfloat(0,(SON_NUM+1)*DIS_Y,*p_value,num,point_num);
-			}
-		}else if(type==TYPE_INT){
-			int *p_value;
-			p_value = (int*)(value);
-			if(IS_OK)
-			{
-				*p_value +=	(int)delta_x;
-				showint32(0,(SON_NUM+1)*DIS_Y,*p_value,num);
-				// 自动保存到 flash
-				config_save();
-			}
-			if(is_show_num){
-				showstr(0,(SON_NUM+1)*DIS_Y,"        ");
-				showint32(0,(SON_NUM+1)*DIS_Y,*p_value,num);
-			}
-		}else if(type==TYPE_UINT16){
-			uint16 *p_value;
-			p_value = (uint16*)(value);
-			if(IS_OK)
-			{
-				*p_value +=	(int)delta_x;
-				showuint16(0,(SON_NUM+1)*DIS_Y,*p_value,num);
+	// 只有在编辑模式下才允许修改参数值
+	if(edit_mode == 0 || p_unit->par_set->p_par == NULL){
+		return;
+	}
 
-				// 如果修改的是 mid_weight_select，调用切换函数
-				if(p_value == &mid_weight_select){
-					select_mid_weight(mid_weight_select);
-				}
+	uint8 type = param->par_type;
+	float delta_x = param->delta;
+	void* value = param->p_par;
+	uint8 num = param->num;
+	uint8 point_num = param->point_num;
+	uint8 index = p_unit->m_index[1];
+	uint16 y_pos = SON_INDEX(index, 1);
 
-				// 自动保存到 flash
-				config_save();
-			}
-			if(is_show_num){
-				showstr(0,(SON_NUM+1)*DIS_Y,"         ");
-				showuint16(0,(SON_NUM+1)*DIS_Y,*p_value,num);
-			}
-		}else if(type==TYPE_UINT32){
-			uint32 *p_value;
-			p_value = (uint32*)(value);
-			if(IS_OK)
-			{
-				*p_value +=	(int)delta_x;
-				showuint32(0,(SON_NUM+1)*DIS_Y,*p_value,num);
-				// 自动保存到 flash
-				config_save();
-			}
-			if(is_show_num){
-				showstr(0,(SON_NUM+1)*DIS_Y,"         ");
-				showuint32(0,(SON_NUM+1)*DIS_Y,*p_value,num);
+	// 长按加速：如果按键持续时间超过阈值，增大步进
+	float speed_multiplier = 1.0f;
+	if(key_press_time > 20){  // 按下超过200ms（20*10ms）
+		speed_multiplier = 5.0f;  // 步进加速5倍
+	}
+
+	uint8 value_changed = 0;
+
+	if(type==TYPE_FLOAT){
+		float *p_value = (float*)(value);
+		if(button3){  // UP键增加
+			*p_value += delta_x * speed_multiplier;
+			value_changed = 1;
+		}else if(button4){  // DOWN键减少
+			*p_value -= delta_x * speed_multiplier;
+			value_changed = 1;
+		}
+		if(value_changed){
+			// 清除旧值
+			showstr(105, y_pos, "        ");
+			// 显示新值
+			showfloat(105, y_pos, *p_value, num, point_num);
+			config_save();  // 自动保存
+		}
+	}else if(type==TYPE_DOUBLE){
+		double *p_value = (double*)(value);
+		if(button3){
+			*p_value += (double)(delta_x * speed_multiplier);
+			value_changed = 1;
+		}else if(button4){
+			*p_value -= (double)(delta_x * speed_multiplier);
+			value_changed = 1;
+		}
+		if(value_changed){
+			showstr(105, y_pos, "        ");
+			showfloat(105, y_pos, *p_value, num, point_num);
+			config_save();
+		}
+	}else if(type==TYPE_INT){
+		int *p_value = (int*)(value);
+		if(button3){
+			*p_value += (int)(delta_x * speed_multiplier);
+			value_changed = 1;
+		}else if(button4){
+			*p_value -= (int)(delta_x * speed_multiplier);
+			value_changed = 1;
+		}
+		if(value_changed){
+			showstr(105, y_pos, "        ");
+			showint32(105, y_pos, *p_value, num);
+			config_save();
+		}
+	}else if(type==TYPE_UINT16){
+		uint16 *p_value = (uint16*)(value);
+		if(button3){
+			*p_value += (int)(delta_x * speed_multiplier);
+			value_changed = 1;
+		}else if(button4){
+			if(*p_value >= (int)(delta_x * speed_multiplier)){  // 防止负溢出
+				*p_value -= (int)(delta_x * speed_multiplier);
+				value_changed = 1;
 			}
 		}
+		if(value_changed){
+			showstr(105, y_pos, "        ");
+			showuint16(105, y_pos, *p_value, num);
+
+			// 如果修改的是 mid_weight_select，调用切换函数
+			if(p_value == &mid_weight_select){
+				select_mid_weight(mid_weight_select);
+			}
+			config_save();
+		}
+	}else if(type==TYPE_UINT32){
+		uint32 *p_value = (uint32*)(value);
+		if(button3){
+			*p_value += (int)(delta_x * speed_multiplier);
+			value_changed = 1;
+		}else if(button4){
+			if(*p_value >= (int)(delta_x * speed_multiplier)){
+				*p_value -= (int)(delta_x * speed_multiplier);
+				value_changed = 1;
+			}
+		}
+		if(value_changed){
+			showstr(105, y_pos, "        ");
+			showuint32(105, y_pos, *p_value, num);
+			config_save();
+		}
 	}
-	//last_index = p_unit->m_index[1];
 }
 
 void is_first_in_page()
@@ -450,59 +554,176 @@ void fun_menu()
 		(*current_operation_menu)();
 	}
 }
+//-------------------------------------------------------------------------------------------------------------------
+// @brief      菜单主处理函数
+// @param      parameter   参数（RTT线程用）
+// @return     void
+// @note       修改版本：实现编辑模式逻辑
+//              普通模式：button3/4切换参数，button2进入编辑，button1返回
+//              编辑模式：button3/4修改参数值，button1退出编辑
+//-------------------------------------------------------------------------------------------------------------------
 void show_process(void *parameter)
 {
     #ifdef  MENU_USE_RTT
     while(1)
-	{	
+	{
 		button1=(RT_EOK==rt_sem_take(key1_sem,RT_WAITING_NO));
 		button2=(RT_EOK==rt_sem_take(key2_sem,RT_WAITING_NO));
 		button3=(RT_EOK==rt_sem_take(key3_sem,RT_WAITING_NO));
 		button4=(RT_EOK==rt_sem_take(key4_sem,RT_WAITING_NO));
 
+		// 长按计数器（用于加速修改参数）
+		if(button3 || button4){
+			key_press_time++;
+		}else{
+			key_press_time = 0;
+		}
+
 		is_clear_flag = is_menu_clear();
-		
+
 		if(button1||button2||button3||button4){
 			rt_sem_release(button_feedback_sem);
 		}
-			
+
 		if(is_clear_flag)
 			clear_hhh(0,0,SCREEN_W,SON_NUM*16,IPS200_BGCOLOR);
 
-		if			(button1==1)
-			p_unit=p_unit->back;
-		else	if(button2==1)
-			p_unit=p_unit->enter;
-		else	if(button3==1)
-			p_unit=p_unit->up;
-		else	if(button4==1)
-			p_unit=p_unit->down;
-	
+		// ========== 编辑模式按键处理 ==========
+		if(edit_mode == 1){
+			// 编辑模式：只响应 button1(退出) 和 button3/4(修改值)
+			if(button1){  // 退出编辑模式
+				edit_mode = 0;
+				edit_unit = NULL;
+				// 恢复参数名为绿色（选中状态）
+				uint8 index = p_unit->m_index[1];
+				ips200_set_color(RGB565_GREEN, IPS200_BGCOLOR);
+				showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
+				ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+			}
+			// button3/4 在 change_value() 中处理
+		}
+		// ========== 普通模式按键处理 ==========
+		else{
+			// 在父菜单层（页面选择）
+			if(p_unit->m_index[1] == 255){
+				if(button1==1)
+					p_unit=p_unit->back;
+				else if(button2==1)
+					p_unit=p_unit->enter;
+				else if(button3==1)
+					p_unit=p_unit->up;
+				else if(button4==1)
+					p_unit=p_unit->down;
+			}
+			// 在子菜单层（参数列表）
+			else{
+				// 如果是参数项
+				if(p_unit->type_t==NORMAL_PAR || p_unit->type_t==PID_PAR){
+					if(button1==1){
+						p_unit=p_unit->back;  // 返回父菜单
+					}else if(button2==1 && !first_in_page_flag){
+						// 进入编辑模式
+						edit_mode = 1;
+						edit_unit = p_unit;
+						// 参数名变为黄色表示进入编辑模式
+						uint8 index = p_unit->m_index[1];
+						ips200_set_color(RGB565_YELLOW, IPS200_BGCOLOR);
+						showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
+						ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+					}else if(button3==1){
+						p_unit=p_unit->up;  // 上一个参数
+					}else if(button4==1){
+						p_unit=p_unit->down;  // 下一个参数
+					}
+				}
+				// 如果是功能菜单项
+				else{
+					if(button1==1)
+						p_unit=p_unit->back;
+					else if(button2==1)
+						p_unit=p_unit->enter;
+					else if(button3==1)
+						p_unit=p_unit->up;
+					else if(button4==1)
+						p_unit=p_unit->down;
+				}
+			}
+		}
+
 		is_first_in_page();
-		
+
 		show_menu();
-		
+
 		fun_menu();
-		
+
 	    p_unit_last=p_unit;
 		rt_thread_mdelay(10);
 	}
     #else
     button_entry(NULL);
 
+	// 长按计数器
+	if(button3 || button4){
+		key_press_time++;
+	}else{
+		key_press_time = 0;
+	}
+
     is_clear_flag = is_menu_clear();
 
     if(is_clear_flag)
         clear();
 
-    if        (button1==1)
-        p_unit=p_unit->back;
-    else    if(button2==1)
-        p_unit=p_unit->enter;
-    else    if(button3==1)
-        p_unit=p_unit->up;
-    else    if(button4==1)
-        p_unit=p_unit->down;
+	// ========== 编辑模式按键处理 ==========
+	if(edit_mode == 1){
+		if(button1){
+			edit_mode = 0;
+			edit_unit = NULL;
+			uint8 index = p_unit->m_index[1];
+			ips200_set_color(RGB565_GREEN, IPS200_BGCOLOR);
+			showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
+			ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+		}
+	}
+	// ========== 普通模式按键处理 ==========
+	else{
+		if(p_unit->m_index[1] == 255){
+			if(button1==1)
+				p_unit=p_unit->back;
+			else if(button2==1)
+				p_unit=p_unit->enter;
+			else if(button3==1)
+				p_unit=p_unit->up;
+			else if(button4==1)
+				p_unit=p_unit->down;
+		}else{
+			if(p_unit->type_t==NORMAL_PAR || p_unit->type_t==PID_PAR){
+				if(button1==1){
+					p_unit=p_unit->back;
+				}else if(button2==1 && !first_in_page_flag){
+					edit_mode = 1;
+					edit_unit = p_unit;
+					uint8 index = p_unit->m_index[1];
+					ips200_set_color(RGB565_YELLOW, IPS200_BGCOLOR);
+					showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
+					ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+				}else if(button3==1){
+					p_unit=p_unit->up;
+				}else if(button4==1){
+					p_unit=p_unit->down;
+				}
+			}else{
+				if(button1==1)
+					p_unit=p_unit->back;
+				else if(button2==1)
+					p_unit=p_unit->enter;
+				else if(button3==1)
+					p_unit=p_unit->up;
+				else if(button4==1)
+					p_unit=p_unit->down;
+			}
+		}
+	}
 
     is_first_in_page();
 
@@ -546,48 +767,71 @@ void NULL_FUN(){
 
 }
 
+//-------------------------------------------------------------------------------------------------------------------
+// @brief      参数设置函数
+// @return     void
+// @note       修改版本：按功能分类参数到不同页面，每页最多8个参数
+//-------------------------------------------------------------------------------------------------------------------
 void UNIT_SET(){
-    // ==================== 控制参数 ====================
-    unit_param_set(&speed, TYPE_INT, 100, 6, 0, NORMAL_PAR, "speed");
+	// 定义页面名称数组
+	static const char* page_names[] = {
+		"CTRL",      // 页面0: 控制参数
+		"SERVO",     // 页面1: 舵机参数
+		"MOTOR",     // 页面2: 电机参数
+		"DIFFER",    // 页面3: 差速参数
+		"IMAGE",     // 页面4: 图像参数
+		"DYNAMIC",   // 页面5: 动态前瞻
+		"FUNC"       // 页面6: 功能菜单
+	};
+	set_page_names(page_names, 7);
 
-    // ==================== 舵机参数 ====================
-    unit_param_set(&g_servo_mid,   TYPE_FLOAT, 0.1,  3, 2, NORMAL_PAR, "servo_mid");
-    unit_param_set(&servo_pid_kp0, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp0");
-    unit_param_set(&servo_pid_kp2, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp2");
-    unit_param_set(&servo_pid_ki,  TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_ki");
-    unit_param_set(&servo_pid_kd1, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd1");
-    unit_param_set(&servo_pid_kd2, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd2");
+	// ==================== Page 0: CTRL (控制参数) ====================
+	force_new_page("CTRL");
+	unit_param_set(&speed, TYPE_INT, 100, 6, 0, NORMAL_PAR, "speed");
 
-    // ==================== 电机参数 ====================
-    unit_param_set(&motor_pid_kp, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kp");
-    unit_param_set(&motor_pid_ki, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_ki");
-    unit_param_set(&motor_pid_kd, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kd");
+	// ==================== Page 1: SERVO (舵机参数) ====================
+	force_new_page("SERVO");
+	unit_param_set(&g_servo_mid,   TYPE_FLOAT, 0.1,  3, 2, NORMAL_PAR, "servo_mid");
+	unit_param_set(&servo_pid_kp0, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp0");
+	unit_param_set(&servo_pid_kp2, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp2");
+	unit_param_set(&servo_pid_ki,  TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_ki");
+	unit_param_set(&servo_pid_kd1, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd1");
+	unit_param_set(&servo_pid_kd2, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kd2");
 
-    // ==================== 阿克曼差速参数 ====================
-    unit_param_set(&differential_enable, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "dif_switch");
-    unit_param_set(&inner_wheel_coef, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "inner_coef");
-    unit_param_set(&outer_wheel_coef, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "outer_coef");
+	// ==================== Page 2: MOTOR (电机参数) ====================
+	force_new_page("MOTOR");
+	unit_param_set(&motor_pid_kp, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kp");
+	unit_param_set(&motor_pid_ki, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_ki");
+	unit_param_set(&motor_pid_kd, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kd");
 
-    // ==================== 图像处理参数 ====================
-    // 权重数组选择（1-5）
-    unit_param_set(&mid_weight_select, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "mid_weight");
-    // 十字识别开关（0=关闭，1=开启）
-    unit_param_set(&cross_enable, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "cross_switch");
+	// ==================== Page 3: DIFFER (阿克曼差速参数) ====================
+	force_new_page("DIFFER");
+	unit_param_set(&differential_enable, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "dif_switch");
+	unit_param_set(&inner_wheel_coef, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "inner_coef");
+	unit_param_set(&outer_wheel_coef, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "outer_coef");
 
-    // ==================== 动态前瞻权重参数 ====================
-    // 动态权重开关（0=关闭，1=开启）
-    unit_param_set(&dynamic_weight_enable, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "dyn_enable");
-    // 曲率低阈值（小于此值为直道，远前瞻）
-    unit_param_set(&curvature_threshold_low, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "curv_low");
-    // 曲率高阈值（大于此值为急弯，近前瞻）
-    unit_param_set(&curvature_threshold_high, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "curv_high");
-    // 权重切换速度（1-10，值越大切换越快）
-    unit_param_set(&weight_shift_speed, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "shift_spd");
-    // 曲率滤波系数（0-1，越大越平滑）
-    unit_param_set(&curvature_filter_ratio, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "curv_filter");
+	// ==================== Page 4: IMAGE (图像处理参数) ====================
+	force_new_page("IMAGE");
+	unit_param_set(&mid_weight_select, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "mid_weight");
+	unit_param_set(&cross_enable, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "cross_switch");
+
+	// ==================== Page 5: DYNAMIC (动态前瞻权重参数) ====================
+	force_new_page("DYNAMIC");
+	unit_param_set(&dynamic_weight_enable, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "dyn_enable");
+	unit_param_set(&curvature_threshold_low, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "curv_low");
+	unit_param_set(&curvature_threshold_high, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "curv_high");
+	unit_param_set(&weight_shift_speed, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "shift_spd");
+	unit_param_set(&curvature_filter_ratio, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "curv_filter");
 }
 
+//-------------------------------------------------------------------------------------------------------------------
+// @brief      功能菜单初始化
+// @return     void
+// @note       所有功能菜单项都在 Page 6: FUNC
+//-------------------------------------------------------------------------------------------------------------------
 void FUN_INIT(){
+	// ==================== Page 6: FUNC (功能菜单) ====================
+	force_new_page("FUNC");
 	fun_init(car_start, "START");              // 启动小车
 	fun_init(servo_manual_adjust, "SERVO_ADJ");// 舵机手动调整
 	fun_init(image_display, "IMG_VIEW");       // 实时图像显示

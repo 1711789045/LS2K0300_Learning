@@ -17,11 +17,11 @@
 #define MAP_INIT_END		(0x01<<1)
 
 
-#define SON_NUM				(6)  //推荐为2的整数倍
+#define SON_NUM				(8)  //推荐为2的整数倍
 
 
 
-#define STR_LEN_MAX			12
+#define STR_LEN_MAX			16
 #define MOUSE_DIS			10
 #define MOUSE_LOOK			">"
 
@@ -29,8 +29,16 @@
 
 #define PID_RING_LEN		600
 
+// 前置声明结构体
+struct MENU_UNIT;
+
 extern uint8 button1,button2,button3,button4;
 extern uint8 first_in_page_flag;
+
+// 编辑模式相关变量
+extern uint8 edit_mode;        // 编辑模式标志：0=普通模式，1=编辑模式
+extern struct MENU_UNIT* edit_unit;   // 当前编辑的参数指针
+extern uint16 key_press_time;  // 按键按下时间计数器（用于长按）
 
 #define IND1 								(P_dad_head->down->m_index[0])
 #define IND2 								(P_dad_head->down->enter->down->m_index[1])
@@ -68,6 +76,9 @@ typedef enum UNIT_TYPE{USE_FUN=1,NORMAL_PAR,PID_PAR}unit_type;
 #else
 	#define 		IPS200_W				240
     #define         IPS200_H                320
+	#define 		IPS200_DEFAULT_PENCOLOR         (RGB565_RED    )  // 默认的画笔颜色
+	#define 		IPS200_DEFAULT_BGCOLOR          (RGB565_WHITE  )  // 默认的背景颜色
+	#define 		IPS200_BGCOLOR                  IPS200_DEFAULT_BGCOLOR  // 背景颜色宏别名
 	#define 		screen_init				ips200_init
 	#define 		clear					ips200_clear
 	#define 		clear_hhh				ips200_clear_hhh
@@ -140,6 +151,11 @@ void Flash_Write();
 void Flash_Erase();
 void image_display();           // 实时图像显示函数(用于菜单调试)
 void dynamic_weight_debug();    // 动态权重调试函数(用于菜单调试)
+
+// 手动分页函数
+void force_new_page(const char* page_name);
+// 设置页面名称数组
+void set_page_names(const char** names, uint8 count);
 
 
 #endif

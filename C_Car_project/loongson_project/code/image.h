@@ -66,6 +66,7 @@ extern uint8 white_min_point;          //动态白点最小值
 extern uint8 remote_distance[IMAGE_W]; //远距离数组
 extern uint8 reference_col;            // 运行时变量（每帧动态更新）
 extern uint8 reference_contrast_ratio; //参考点对比度
+extern uint8 stop_search_row;          // 搜线截止行（边线搜索的截止行号）
 extern uint16 reference_line[IMAGE_H];      // 存储参考线
 extern uint16 left_edge_line[IMAGE_H];      // 存储左边线
 extern uint16 right_edge_line[IMAGE_H];      // 存储右边线
