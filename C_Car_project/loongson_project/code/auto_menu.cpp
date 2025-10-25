@@ -673,75 +673,71 @@ void dynamic_weight_debug(void)
             image_process(IMAGE_W, IMAGE_H, 1);
 
             // ==================== 动态权重调试信息显示 ====================
-            // 显示在图像右侧区域（图像宽度180，屏幕宽度320）
-            uint16 x_offset = 185;  // 显示起始X坐标
-            uint16 y_start = 0;     // 显示起始Y坐标
+            // 显示在图像下方区域（图像高度180，屏幕高度320）
+            uint16 y_offset = 185;  // 显示起始Y坐标（图像下方）
             uint16 line_h = 16;     // 行高
+            uint16 col1_x = 0;      // 第一列X坐标
+            uint16 col2_x = 120;    // 第二列X坐标
 
             // 标题
-            ips200_show_string(x_offset, y_start, "DynWgt Debug");
+            ips200_show_string(col1_x, y_offset, "DynWgt Debug");
 
-            // 1. 开关状态
+            // 第一行：开关状态 | 曲率状态
             if(dynamic_weight_enable) {
-                ips200_show_string(x_offset, y_start + line_h * 1, "SW:ON ");
+                ips200_show_string(col1_x, y_offset + line_h * 1, "SW:ON ");
             } else {
-                ips200_show_string(x_offset, y_start + line_h * 1, "SW:OFF");
+                ips200_show_string(col1_x, y_offset + line_h * 1, "SW:OFF");
             }
 
-            // 2. 当前曲率值（原始和滤波后）
-            ips200_show_string(x_offset, y_start + line_h * 2, "RawC:");
-            ips200_show_float(x_offset + 40, y_start + line_h * 2, raw_curvature, 2, 1);
-
-            ips200_show_string(x_offset, y_start + line_h * 3, "Curv:");
-            ips200_show_float(x_offset + 40, y_start + line_h * 3, current_curvature, 2, 1);
-
-            // 3. 权重状态和使用的权重数组
-            ips200_show_string(x_offset, y_start + line_h * 4, "Stat:");
-            ips200_show_int(x_offset + 40, y_start + line_h * 4, dynamic_weight_status, 1);
-
-            // 状态说明
+            // 状态说明（第一行右侧）
+            ips200_show_string(col2_x, y_offset + line_h * 1, "Stat:");
             if(dynamic_weight_enable) {
                 if(dynamic_weight_status == 0) {
-                    ips200_show_string(x_offset + 56, y_start + line_h * 4, "FAR");  // 远前瞻
+                    ips200_show_string(col2_x + 40, y_offset + line_h * 1, "FAR ");  // 远前瞻
                 } else if(dynamic_weight_status == 1) {
-                    ips200_show_string(x_offset + 56, y_start + line_h * 4, "MID");  // 中前瞻
+                    ips200_show_string(col2_x + 40, y_offset + line_h * 1, "MID ");  // 中前瞻
                 } else {
-                    ips200_show_string(x_offset + 56, y_start + line_h * 4, "NEAR"); // 近前瞻
+                    ips200_show_string(col2_x + 40, y_offset + line_h * 1, "NEAR");  // 近前瞻
                 }
             } else {
                 // 关闭时显示固定权重编号
-                ips200_show_string(x_offset + 56, y_start + line_h * 4, "FIX");
-                ips200_show_int(x_offset + 88, y_start + line_h * 4, mid_weight_select, 1);
+                ips200_show_string(col2_x + 40, y_offset + line_h * 1, "FIX");
+                ips200_show_int(col2_x + 72, y_offset + line_h * 1, mid_weight_select, 1);
             }
 
-            // 4. 曲率阈值参数
-            ips200_show_string(x_offset, y_start + line_h * 5, "Low:");
-            ips200_show_int(x_offset + 32, y_start + line_h * 5, curvature_threshold_low, 2);
+            // 第二行：原始曲率 | 滤波曲率
+            ips200_show_string(col1_x, y_offset + line_h * 2, "RawC:");
+            ips200_show_float(col1_x + 40, y_offset + line_h * 2, raw_curvature, 2, 1);
 
-            ips200_show_string(x_offset, y_start + line_h * 6, "High:");
-            ips200_show_int(x_offset + 40, y_start + line_h * 6, curvature_threshold_high, 2);
+            ips200_show_string(col2_x, y_offset + line_h * 2, "Curv:");
+            ips200_show_float(col2_x + 40, y_offset + line_h * 2, current_curvature, 2, 1);
 
-            // 5. 切换速度
-            ips200_show_string(x_offset, y_start + line_h * 7, "Spd:");
-            ips200_show_int(x_offset + 32, y_start + line_h * 7, weight_shift_speed, 2);
+            // 第三行：低阈值 | 高阈值
+            ips200_show_string(col1_x, y_offset + line_h * 3, "Low:");
+            ips200_show_int(col1_x + 32, y_offset + line_h * 3, curvature_threshold_low, 2);
 
-            // 6. 滤波系数
-            ips200_show_string(x_offset, y_start + line_h * 8, "Filt:");
-            ips200_show_float(x_offset + 40, y_start + line_h * 8, curvature_filter_ratio, 1, 2);
+            ips200_show_string(col2_x, y_offset + line_h * 3, "High:");
+            ips200_show_int(col2_x + 40, y_offset + line_h * 3, curvature_threshold_high, 2);
 
-            // 7. 中线偏差（用于判断曲率计算是否正确）
-            ips200_show_string(x_offset, y_start + line_h * 9, "Mid:");
-            ips200_show_int(x_offset + 32, y_start + line_h * 9, final_mid_line, 3);
+            // 第四行：切换速度 | 滤波系数
+            ips200_show_string(col1_x, y_offset + line_h * 4, "Spd:");
+            ips200_show_int(col1_x + 32, y_offset + line_h * 4, weight_shift_speed, 2);
 
-            // 8. 搜索截止行（用于判断前方可见距离）
-            ips200_show_string(x_offset, y_start + line_h * 10, "Stop:");
-            ips200_show_int(x_offset + 40, y_start + line_h * 10, stop_search_row, 3);
+            ips200_show_string(col2_x, y_offset + line_h * 4, "Filt:");
+            ips200_show_float(col2_x + 40, y_offset + line_h * 4, curvature_filter_ratio, 1, 2);
 
-            // 提示信息（底部）
-            ips200_show_string(x_offset, y_start + line_h * 13, "KEY1:EXIT");
+            // 第五行：中线值 | 截止行
+            ips200_show_string(col1_x, y_offset + line_h * 5, "Mid:");
+            ips200_show_int(col1_x + 32, y_offset + line_h * 5, final_mid_line, 3);
+
+            ips200_show_string(col2_x, y_offset + line_h * 5, "Stop:");
+            ips200_show_int(col2_x + 40, y_offset + line_h * 5, stop_search_row, 3);
+
+            // 提示信息（最后一行）
+            ips200_show_string(col1_x, y_offset + line_h * 7, "KEY1:EXIT");
 
             // 主循环延迟,与按键处理一致
-            system_delay_ms(20);
+            system_delay_ms(10);
         }
     }
 }
