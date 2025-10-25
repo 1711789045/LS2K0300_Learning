@@ -40,18 +40,20 @@ void pit_100ms_callback()
 	else
 		beep_off();
 
-	// 打印动态前瞻状态
-	if(dynamic_weight_enable){
-		const char* status_str;
-		switch(dynamic_weight_status){
-			case 0: status_str = "FAR "; break;  // 远前瞻（直道）
-			case 1: status_str = "MID "; break;  // 中前瞻（缓弯）
-			case 2: status_str = "NEAR"; break;  // 近前瞻（急弯）
-			default: status_str = "????"; break;
+	// 打印动态前瞻状态（仅在发车时）
+	if(go_flag){
+		if(dynamic_weight_enable){
+			const char* status_str;
+			switch(dynamic_weight_status){
+				case 0: status_str = "FAR "; break;  // 远前瞻（直道）
+				case 1: status_str = "MID "; break;  // 中前瞻（缓弯）
+				case 2: status_str = "NEAR"; break;  // 近前瞻（急弯）
+				default: status_str = "????"; break;
+			}
+			printf("[Dynamic Weight] Status: %s, Curvature: %.1f\n", status_str, current_curvature);
+		} else {
+			printf("[Dynamic Weight] DISABLED (Fixed Weight: %d)\n", mid_weight_select);
 		}
-		printf("[Dynamic Weight] Status: %s, Curvature: %.1f\n", status_str, current_curvature);
-	} else {
-		printf("[Dynamic Weight] DISABLED (Fixed Weight: %d)\n", mid_weight_select);
 	}
 }
 
