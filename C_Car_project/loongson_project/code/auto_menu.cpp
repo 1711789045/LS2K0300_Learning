@@ -458,8 +458,8 @@ void assist_menu()
 	if(is_clear_flag==1&&(button2)){
 		refresh_all_params(index);
 	}
-	// 切换参数时，只刷新相关行的参数名颜色
-	else if(button3||button4){
+	// 切换参数时，只刷新相关行的参数名颜色（编辑模式下不处理，保持黄色）
+	else if((button3||button4) && edit_mode == 0){
 		menu_unit* p_old = (button3 ? p_unit->down : p_unit->up);
 
 		// 获取实际显示位置（连续的0-7位置）
@@ -518,11 +518,11 @@ void change_value(param_set* param)
 
 	if(type==TYPE_FLOAT){
 		float *p_value = (float*)(value);
-		if(button3){  // UP键增加
-			*p_value += delta_x * speed_multiplier;
-			value_changed = 1;
-		}else if(button4){  // DOWN键减少
+		if(button3){  // UP键减少
 			*p_value -= delta_x * speed_multiplier;
+			value_changed = 1;
+		}else if(button4){  // DOWN键增加
+			*p_value += delta_x * speed_multiplier;
 			value_changed = 1;
 		}
 		if(value_changed){
@@ -534,11 +534,11 @@ void change_value(param_set* param)
 		}
 	}else if(type==TYPE_DOUBLE){
 		double *p_value = (double*)(value);
-		if(button3){
-			*p_value += (double)(delta_x * speed_multiplier);
-			value_changed = 1;
-		}else if(button4){
+		if(button3){  // UP键减少
 			*p_value -= (double)(delta_x * speed_multiplier);
+			value_changed = 1;
+		}else if(button4){  // DOWN键增加
+			*p_value += (double)(delta_x * speed_multiplier);
 			value_changed = 1;
 		}
 		if(value_changed){
@@ -548,11 +548,11 @@ void change_value(param_set* param)
 		}
 	}else if(type==TYPE_INT){
 		int *p_value = (int*)(value);
-		if(button3){
-			*p_value += (int)(delta_x * speed_multiplier);
-			value_changed = 1;
-		}else if(button4){
+		if(button3){  // UP键减少
 			*p_value -= (int)(delta_x * speed_multiplier);
+			value_changed = 1;
+		}else if(button4){  // DOWN键增加
+			*p_value += (int)(delta_x * speed_multiplier);
 			value_changed = 1;
 		}
 		if(value_changed){
@@ -562,14 +562,14 @@ void change_value(param_set* param)
 		}
 	}else if(type==TYPE_UINT16){
 		uint16 *p_value = (uint16*)(value);
-		if(button3){
-			*p_value += (int)(delta_x * speed_multiplier);
-			value_changed = 1;
-		}else if(button4){
+		if(button3){  // UP键减少
 			if(*p_value >= (int)(delta_x * speed_multiplier)){  // 防止负溢出
 				*p_value -= (int)(delta_x * speed_multiplier);
 				value_changed = 1;
 			}
+		}else if(button4){  // DOWN键增加
+			*p_value += (int)(delta_x * speed_multiplier);
+			value_changed = 1;
 		}
 		if(value_changed){
 			showstr(105, y_pos, "        ");
@@ -583,14 +583,14 @@ void change_value(param_set* param)
 		}
 	}else if(type==TYPE_UINT32){
 		uint32 *p_value = (uint32*)(value);
-		if(button3){
-			*p_value += (int)(delta_x * speed_multiplier);
-			value_changed = 1;
-		}else if(button4){
-			if(*p_value >= (int)(delta_x * speed_multiplier)){
+		if(button3){  // UP键减少
+			if(*p_value >= (int)(delta_x * speed_multiplier)){  // 防止负溢出
 				*p_value -= (int)(delta_x * speed_multiplier);
 				value_changed = 1;
 			}
+		}else if(button4){  // DOWN键增加
+			*p_value += (int)(delta_x * speed_multiplier);
+			value_changed = 1;
 		}
 		if(value_changed){
 			showstr(105, y_pos, "        ");
@@ -668,6 +668,7 @@ void show_process(void *parameter)
 				// 刷新整页参数显示（解决退出编辑模式后只显示一个参数名的bug）
 				uint8 index = p_unit->m_index[1];
 				refresh_all_params(index);
+				button1 = 0;  // 消耗掉 button1，防止触发返回父菜单
 			}
 			// button3/4 在 change_value() 中处理
 		}
@@ -754,6 +755,7 @@ void show_process(void *parameter)
 			// 刷新整页参数显示（解决退出编辑模式后只显示一个参数名的bug）
 			uint8 index = p_unit->m_index[1];
 			refresh_all_params(index);
+			button1 = 0;  // 消耗掉 button1，防止触发返回父菜单
 		}
 	}
 	// ========== 普通模式按键处理 ==========
