@@ -30,15 +30,16 @@ extern uint16 cross_enable;        // 十字识别开关（0=关闭, 1=开启）
 
 // ==================== 动态前瞻权重配置参数声明 ====================
 extern uint16 dynamic_weight_enable;    // 动态权重开关（0=关闭, 1=开启）
-extern uint16 curvature_threshold_low;  // 曲率低阈值（小于此值为直道，远前瞻）
-extern uint16 curvature_threshold_high; // 曲率高阈值（大于此值为急弯，近前瞻）
+extern uint16 curvature_far_threshold;  // 曲率远阈值（小于此值切换到远前瞻）
+extern uint16 curvature_near_threshold; // 曲率近阈值（大于此值切换到近前瞻）
+extern uint16 weight_hold_time;         // 权重保持时间（帧数，防止频繁切换）
 extern uint16 weight_shift_speed;       // 权重切换速度（1-10，值越大切换越快）
 extern float curvature_filter_ratio;   // 曲率滤波系数（0-1，越大越平滑）
 
 // ==================== 动态前瞻权重运行时变量声明 ====================
 extern float current_curvature;        // 当前赛道曲率（滤波后）
 extern float raw_curvature;            // 原始曲率值（未滤波）
-extern uint8 dynamic_weight_status;    // 当前权重状态（0=远前瞻 1=中等 2=近前瞻）
+extern uint8 dynamic_weight_status;    // 当前权重状态（0=远前瞻 1=近前瞻）
 extern uint8 dynamic_weight_target[IMAGE_H];  // 目标权重数组
 
 // 向后兼容的宏定义（引用全局变量）

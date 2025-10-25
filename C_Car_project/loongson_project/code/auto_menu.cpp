@@ -893,8 +893,9 @@ void UNIT_SET(){
 	// ==================== Page 5: DYNAMIC (动态前瞻权重参数) ====================
 	force_new_page("DYNAMIC");
 	unit_param_set(&dynamic_weight_enable, TYPE_UINT16, 1, 1, 0, NORMAL_PAR, "dyn_enable");
-	unit_param_set(&curvature_threshold_low, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "curv_low");
-	unit_param_set(&curvature_threshold_high, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "curv_high");
+	unit_param_set(&curvature_far_threshold, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "far_thres");
+	unit_param_set(&curvature_near_threshold, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "near_thres");
+	unit_param_set(&weight_hold_time, TYPE_UINT16, 1, 3, 0, NORMAL_PAR, "hold_time");
 	unit_param_set(&weight_shift_speed, TYPE_UINT16, 1, 2, 0, NORMAL_PAR, "shift_spd");
 	unit_param_set(&curvature_filter_ratio, TYPE_FLOAT, 0.05, 3, 2, NORMAL_PAR, "curv_filter");
 }
@@ -1024,8 +1025,6 @@ void dynamic_weight_debug(void)
             if(dynamic_weight_enable) {
                 if(dynamic_weight_status == 0) {
                     ips200_show_string(col2_x + 40, y_offset + line_h * 1, "FAR ");  // 远前瞻
-                } else if(dynamic_weight_status == 1) {
-                    ips200_show_string(col2_x + 40, y_offset + line_h * 1, "MID ");  // 中前瞻
                 } else {
                     ips200_show_string(col2_x + 40, y_offset + line_h * 1, "NEAR");  // 近前瞻
                 }
@@ -1042,12 +1041,12 @@ void dynamic_weight_debug(void)
             ips200_show_string(col2_x, y_offset + line_h * 2, "Curv:");
             ips200_show_float(col2_x + 40, y_offset + line_h * 2, current_curvature, 2, 1);
 
-            // 第三行：低阈值 | 高阈值
-            ips200_show_string(col1_x, y_offset + line_h * 3, "ThrL:");
-            ips200_show_int(col1_x + 40, y_offset + line_h * 3, curvature_threshold_low, 2);
+            // 第三行：远阈值 | 近阈值
+            ips200_show_string(col1_x, y_offset + line_h * 3, "FarT:");
+            ips200_show_int(col1_x + 40, y_offset + line_h * 3, curvature_far_threshold, 2);
 
-            ips200_show_string(col2_x, y_offset + line_h * 3, "ThrH:");
-            ips200_show_int(col2_x + 40, y_offset + line_h * 3, curvature_threshold_high, 2);
+            ips200_show_string(col2_x, y_offset + line_h * 3, "NearT:");
+            ips200_show_int(col2_x + 40, y_offset + line_h * 3, curvature_near_threshold, 2);
 
             // 第四行：切换速度 | 滤波系数
             ips200_show_string(col1_x, y_offset + line_h * 4, "Shft:");

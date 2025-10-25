@@ -39,11 +39,12 @@ uint16 mid_weight_select = 2;   // 权重数组选择（1-5，默认2）
 uint16 cross_enable = 0;        // 十字识别开关（默认关闭）
 
 // ==================== 动态前瞻权重配置参数 ====================
-uint16 dynamic_weight_enable = 1;    // 动态权重开关（0=关闭使用固定权重, 1=开启）
-uint16 curvature_threshold_low = 5;  // 曲率低阈值（小于此值为直道，远前瞻）
-uint16 curvature_threshold_high = 15;// 曲率高阈值（大于此值为急弯，近前瞻）
-uint16 weight_shift_speed = 3;       // 权重切换速度（1-10，值越大切换越快）
-float curvature_filter_ratio = 0.7; // 曲率滤波系数（0-1，越大越平滑）
+uint16 dynamic_weight_enable = 1;       // 动态权重开关（0=关闭使用固定权重, 1=开启）
+uint16 curvature_far_threshold = 3;     // 曲率远阈值（小于此值切换到远前瞻）
+uint16 curvature_near_threshold = 12;   // 曲率近阈值（大于此值切换到近前瞻）
+uint16 weight_hold_time = 30;           // 权重保持时间（帧数，30帧≈0.3秒）
+uint16 weight_shift_speed = 3;          // 权重切换速度（1-10，值越大切换越快）
+float curvature_filter_ratio = 0.7;    // 曲率滤波系数（0-1，越大越平滑）
 
 uint8 reference_point = 0;
 uint8 white_max_point = 0;
@@ -1642,13 +1643,17 @@ float calculate_curvature(void)
 }
 
 /**
- * @brief 根据曲率动态调整权重数组
+ * @brief 根据曲率动态调整权重数组（滞回带 + 保持时间）
  * @param curvature 当前赛道曲率（0-100）
  *
  * 策略说明：
- * - 曲率 < 5：直道 → 使用远前瞻（权重数组1，峰值在60-70行）
- * - 曲率 5-15：缓弯 → 使用中前瞻（权重数组2-3，峰值在40-60行）
- * - 曲率 > 15：急弯 → 使用近前瞻（权重数组4-5，峰值在20-40行）
+ * - 曲率 < far_threshold：切换到远前瞻（权重数组3，峰值在40-60行）
+ * - 曲率 > near_threshold：切换到近前瞻（权重数组2，峰值在50-70行）
+ * - far_threshold < 曲率 < near_threshold：死区，保持当前状态
+ *
+ * 滞回机制：
+ * - 使用两个独立阈值形成滞回带，避免在阈值附近频繁切换
+ * - 增加最小保持时间，状态切换后必须保持一定帧数才能再次切换
  *
  * 优化点：
  * - 渐变切换：避免权重突变导致控制抖动
@@ -1656,29 +1661,47 @@ float calculate_curvature(void)
  */
 void adjust_weight_by_curvature(float curvature)
 {
-	uint8 target_status = 0;  // 目标权重状态
+	static uint16 state_hold_counter = 0;  // 状态保持计数器
+	uint8 target_status = dynamic_weight_status;  // 默认保持当前状态
 
-	// 根据曲率确定目标权重状态
-	if(curvature < curvature_threshold_low) {
-		// 直道：远前瞻
+	// ==================== 滞回带逻辑判断 ====================
+	if(curvature < curvature_far_threshold) {
+		// 曲率低于远阈值 → 切换到远前瞻
 		target_status = 0;
-		memcpy(dynamic_weight_target, mid_weight_3, IMAGE_H);
 	}
-	else if(curvature < curvature_threshold_high) {
-		// 缓弯：中前瞻
+	else if(curvature > curvature_near_threshold) {
+		// 曲率高于近阈值 → 切换到近前瞻
 		target_status = 1;
-		memcpy(dynamic_weight_target, mid_weight_2, IMAGE_H);
+	}
+	// 在两阈值之间：死区，保持target_status不变（即当前状态）
+
+	// ==================== 状态切换逻辑（带保持时间） ====================
+	if(target_status != dynamic_weight_status) {
+		// 需要切换状态，累加计数器
+		state_hold_counter++;
+
+		// 检查是否达到最小保持时间
+		if(state_hold_counter >= weight_hold_time) {
+			// 可以切换了
+			dynamic_weight_status = target_status;
+			state_hold_counter = 0;  // 重置计数器
+
+			// 更新目标权重数组
+			if(dynamic_weight_status == 0) {
+				// 远前瞻（使用权重数组3）
+				memcpy(dynamic_weight_target, mid_weight_3, IMAGE_H);
+			} else {
+				// 近前瞻（使用权重数组2）
+				memcpy(dynamic_weight_target, mid_weight_2, IMAGE_H);
+			}
+		}
 	}
 	else {
-		// 急弯：近前瞻
-		target_status = 2;
-		memcpy(dynamic_weight_target, mid_weight_1, IMAGE_H);
-
+		// 不需要切换，重置计数器
+		state_hold_counter = 0;
 	}
 
-	dynamic_weight_status = target_status;
-
-	// 渐变切换权重（避免突变）
+	// ==================== 渐变切换权重（避免突变） ====================
 	for(int i = 0; i < IMAGE_H; i++) {
 		int diff = (int)dynamic_weight_target[i] - (int)mid_weight[i];
 		if(diff > 0) {
