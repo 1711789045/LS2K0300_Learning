@@ -530,7 +530,7 @@ void change_value(param_set* param)
 			showstr(105, y_pos, "        ");
 			// 显示新值
 			showfloat(105, y_pos, *p_value, num, point_num);
-			config_save();  // 自动保存
+			// config_save();  // 自动保存（暂时注释，调试参数影响问题）
 		}
 	}else if(type==TYPE_DOUBLE){
 		double *p_value = (double*)(value);
@@ -544,7 +544,7 @@ void change_value(param_set* param)
 		if(value_changed){
 			showstr(105, y_pos, "        ");
 			showfloat(105, y_pos, *p_value, num, point_num);
-			config_save();
+			// config_save();  // 暂时注释
 		}
 	}else if(type==TYPE_INT){
 		int *p_value = (int*)(value);
@@ -558,7 +558,7 @@ void change_value(param_set* param)
 		if(value_changed){
 			showstr(105, y_pos, "        ");
 			showint32(105, y_pos, *p_value, num);
-			config_save();
+			// config_save();  // 暂时注释
 		}
 	}else if(type==TYPE_UINT16){
 		uint16 *p_value = (uint16*)(value);
@@ -579,7 +579,7 @@ void change_value(param_set* param)
 			if(p_value == &mid_weight_select){
 				select_mid_weight(mid_weight_select);
 			}
-			config_save();
+			// config_save();  // 暂时注释
 		}
 	}else if(type==TYPE_UINT32){
 		uint32 *p_value = (uint32*)(value);
@@ -595,7 +595,7 @@ void change_value(param_set* param)
 		if(value_changed){
 			showstr(105, y_pos, "        ");
 			showuint32(105, y_pos, *p_value, num);
-			config_save();
+			// config_save();  // 暂时注释
 		}
 	}
 }
@@ -854,21 +854,16 @@ void NULL_FUN(){
 void UNIT_SET(){
 	// 定义页面名称数组
 	static const char* page_names[] = {
-		"CTRL",      // 页面0: 控制参数
-		"SERVO",     // 页面1: 舵机参数
-		"MOTOR",     // 页面2: 电机参数
-		"DIFFER",    // 页面3: 差速参数
-		"IMAGE",     // 页面4: 图像参数
-		"DYNAMIC",   // 页面5: 动态前瞻
-		"FUNC"       // 页面6: 功能菜单
+		"SERVO",     // 页面0: 舵机参数
+		"MOTOR",     // 页面1: 电机参数
+		"DIFFER",    // 页面2: 差速参数
+		"IMAGE",     // 页面3: 图像参数
+		"DYNAMIC",   // 页面4: 动态前瞻
+		"FUNC"       // 页面5: 功能菜单
 	};
-	set_page_names(page_names, 7);
+	set_page_names(page_names, 6);
 
-	// ==================== Page 0: CTRL (控制参数) ====================
-	force_new_page("CTRL");
-	unit_param_set(&speed, TYPE_INT, 100, 6, 0, NORMAL_PAR, "speed");
-
-	// ==================== Page 1: SERVO (舵机参数) ====================
+	// ==================== Page 0: SERVO (舵机参数) ====================
 	force_new_page("SERVO");
 	unit_param_set(&g_servo_mid,   TYPE_FLOAT, 0.1,  3, 2, NORMAL_PAR, "servo_mid");
 	unit_param_set(&servo_pid_kp0, TYPE_FLOAT, 0.01, 3, 3, NORMAL_PAR, "servo_kp0");
