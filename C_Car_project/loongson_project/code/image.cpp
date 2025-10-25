@@ -1662,7 +1662,19 @@ float calculate_curvature(void)
 void adjust_weight_by_curvature(float curvature)
 {
 	static uint16 state_hold_counter = 0;  // 状态保持计数器
+	static uint8 initialized = 0;          // 初始化标志
 	uint8 target_status = dynamic_weight_status;  // 默认保持当前状态
+
+	// ==================== 首次初始化 ====================
+	if(!initialized) {
+		// 根据当前状态初始化目标权重数组
+		if(dynamic_weight_status == 0) {
+			memcpy(dynamic_weight_target, mid_weight_3, IMAGE_H);
+		} else {
+			memcpy(dynamic_weight_target, mid_weight_2, IMAGE_H);
+		}
+		initialized = 1;
+	}
 
 	// ==================== 滞回带逻辑判断 ====================
 	if(curvature < curvature_far_threshold) {
@@ -1702,12 +1714,16 @@ void adjust_weight_by_curvature(float curvature)
 	}
 
 	// ==================== 渐变切换权重（避免突变） ====================
+	// 限制 weight_shift_speed 范围，确保除数不会为 0
+	uint16 safe_speed = func_limit_ab(weight_shift_speed, 1, 10);
+	int divisor = 11 - safe_speed;  // divisor范围：1-10
+
 	for(int i = 0; i < IMAGE_H; i++) {
 		int diff = (int)dynamic_weight_target[i] - (int)mid_weight[i];
 		if(diff > 0) {
-			mid_weight[i] += func_limit_ab(diff / (11 - weight_shift_speed), 1, diff);
+			mid_weight[i] += func_limit_ab(diff / divisor, 1, diff);
 		} else if(diff < 0) {
-			mid_weight[i] -= func_limit_ab((-diff) / (11 - weight_shift_speed), 1, -diff);
+			mid_weight[i] -= func_limit_ab((-diff) / divisor, 1, -diff);
 		}
 	}
 }
