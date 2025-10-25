@@ -990,9 +990,16 @@ void dynamic_weight_debug(void)
             image_process(IMAGE_W, IMAGE_H, 1);
 
             // ==================== 动态权重调试信息显示 ====================
-            // 清空图像下方区域（从Y=180到Y=320），避免显示残留的菜单参数和之前的调试信息
-            // 使用 draw_line 函数绘制多条水平黑线快速清空矩形区域
-            for(uint16 y = 180; y < 320; y++) {
+            // 清除image_display_edge_line()函数显示的文字和下方调试区域
+            // image_display_edge_line()会在图像右侧(X=185, Y=144/160/176)显示"DynWgt:ON"、"Curv:"等信息
+
+            // 1. 清除图像右侧区域（X >= IMAGE_W，Y < IMAGE_H）
+            for(uint16 y = 0; y < IMAGE_H; y++) {
+                ips200_draw_line(IMAGE_W, y, 239, y, RGB565_BLACK);
+            }
+
+            // 2. 清除图像下方区域（Y >= IMAGE_H）
+            for(uint16 y = IMAGE_H; y < 320; y++) {
                 ips200_draw_line(0, y, 239, y, RGB565_BLACK);
             }
 
