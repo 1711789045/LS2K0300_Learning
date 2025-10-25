@@ -65,8 +65,8 @@ void set_page_names(const char** names, uint8 count){
 //  @note       在 UNIT_SET() 中调用，用于按功能分类参数
 //-------------------------------------------------------------------------------------------------------------------
 void force_new_page(const char* page_name){
-	// 如果当前页已经有参数，强制创建新页
-	if(P_dad_head != NULL && IND2 > 0){
+	// 如果已经有页面存在，强制创建新页
+	if(P_dad_head != NULL){
 		// 通过设置 IND2 为 SON_NUM-1 触发自动创建新页逻辑
 		// 下一个 unit_param_set 或 fun_init 调用会自动创建新页
 		menu_unit* current_son_end = SON_END_UNIT;
