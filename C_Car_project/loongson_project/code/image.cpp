@@ -1662,28 +1662,18 @@ void adjust_weight_by_curvature(float curvature)
 	if(curvature < curvature_threshold_low) {
 		// 直道：远前瞻
 		target_status = 0;
-		memcpy(dynamic_weight_target, mid_weight_1, IMAGE_H);
+		memcpy(dynamic_weight_target, mid_weight_3, IMAGE_H);
 	}
 	else if(curvature < curvature_threshold_high) {
-		// 缓弯：中前瞻（插值混合权重2和权重3）
+		// 缓弯：中前瞻
 		target_status = 1;
-		float ratio = (curvature - curvature_threshold_low) /
-		              (curvature_threshold_high - curvature_threshold_low);
-		for(int i = 0; i < IMAGE_H; i++) {
-			dynamic_weight_target[i] = (uint8)(mid_weight_2[i] * (1.0f - ratio) +
-			                                    mid_weight_3[i] * ratio);
-		}
+		memcpy(dynamic_weight_target, mid_weight_2, IMAGE_H);
 	}
 	else {
-		// 急弯：近前瞻（曲率越大越近）
+		// 急弯：近前瞻
 		target_status = 2;
-		if(curvature < 30) {
-			// 中等急弯：权重4
-			memcpy(dynamic_weight_target, mid_weight_4, IMAGE_H);
-		} else {
-			// 超急弯：权重5
-			memcpy(dynamic_weight_target, mid_weight_5, IMAGE_H);
-		}
+		memcpy(dynamic_weight_target, mid_weight_1, IMAGE_H);
+
 	}
 
 	dynamic_weight_status = target_status;

@@ -76,8 +76,8 @@ typedef enum UNIT_TYPE{USE_FUN=1,NORMAL_PAR,PID_PAR}unit_type;
 #else
 	#define 		IPS200_W				240
     #define         IPS200_H                320
-	#define 		IPS200_DEFAULT_PENCOLOR         (RGB565_RED    )  // 默认的画笔颜色
-	#define 		IPS200_DEFAULT_BGCOLOR          (RGB565_WHITE  )  // 默认的背景颜色
+	#define 		IPS200_DEFAULT_PENCOLOR         (RGB565_WHITE  )  // 默认的画笔颜色（白色）
+	#define 		IPS200_DEFAULT_BGCOLOR          (RGB565_BLACK  )  // 默认的背景颜色（黑色）
 	#define 		IPS200_BGCOLOR                  IPS200_DEFAULT_BGCOLOR  // 背景颜色宏别名
 	#define 		screen_init				ips200_init
 	#define 		clear					ips200_clear
@@ -137,6 +137,7 @@ void show_process(void *parameter);
 void fun_dad(uint8 index_dad,uint8 useless);
 void fun_son(uint8 index_son1,uint8 index_son2);
 void dad_name_init();
+void refresh_all_params(uint8 selected_index);  // 刷新整页参数显示
 
 //空函数
 void NULL_FUN();

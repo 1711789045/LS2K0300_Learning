@@ -337,6 +337,77 @@ void center_menu()
 }
 
 //-------------------------------------------------------------------------------------------------------------------
+//  @brief      刷新整页参数显示（用于进入页面和退出编辑模式）
+//  @param      selected_index  当前选中参数的索引（用绿色高亮）
+//  @return     void
+//-------------------------------------------------------------------------------------------------------------------
+void refresh_all_params(uint8 selected_index)
+{
+	menu_unit* p = p_unit;
+
+	// 先找到索引为0的参数（页面起始参数）
+	while(p->m_index[1] != 0){
+		p = p->down;
+	}
+
+	// 从索引0开始，依次显示每个参数
+	uint8 param_count = 0;
+	menu_unit* start = p;
+	do {
+		uint16 y_pos = SON_INDEX(param_count, 1);  // 使用连续的Y坐标
+
+		// 如果是当前选中的参数，参数名用绿色显示
+		if(p->m_index[1] == selected_index){
+			ips200_set_color(RGB565_GREEN, IPS200_BGCOLOR);
+		}else{
+			ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+		}
+
+		// 显示参数名（左侧，占100像素）
+		showstr(SON_INDEX(param_count, 0), y_pos, p->name);
+
+		// 恢复默认颜色
+		ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+
+		// 显示参数值（右侧，从 x=105 开始）
+		if(p->par_set != NULL && p->par_set->p_par != NULL){
+			uint8 type = p->par_set->par_type;
+			void* value = p->par_set->p_par;
+			uint8 num = p->par_set->num;
+			uint8 point_num = p->par_set->point_num;
+
+			if(type==TYPE_FLOAT){
+				float *p_value = (float*)(value);
+				showfloat(105, y_pos, *p_value, num, point_num);
+			}else if(type==TYPE_DOUBLE){
+				double *p_value = (double*)(value);
+				showfloat(105, y_pos, *p_value, num, point_num);
+			}else if(type==TYPE_INT){
+				int *p_value = (int*)(value);
+				showint32(105, y_pos, *p_value, num);
+			}else if(type==TYPE_UINT16){
+				uint16 *p_value = (uint16*)(value);
+				showuint16(105, y_pos, *p_value, num);
+			}else if(type==TYPE_UINT32){
+				uint32 *p_value = (uint32*)(value);
+				showuint32(105, y_pos, *p_value, num);
+			}
+		}
+
+		p = p->up;
+		param_count++;
+
+		// 如果回到起始参数或达到最大参数数，退出
+	} while(p != start && param_count < SON_NUM);
+
+	// 清空剩余行（如果参数不足8个）
+	for(uint8 i = param_count; i < SON_NUM; i++){
+		uint16 y_pos = SON_INDEX(i, 1);
+		showstr(0, y_pos, "                ");  // 清空整行
+	}
+}
+
+//-------------------------------------------------------------------------------------------------------------------
 //  @brief      子菜单显示函数（参数列表）
 //  @return     void
 //  @note       修改版本：一行显示参数名+值，选中的参数名用绿色高亮
@@ -347,61 +418,14 @@ void assist_menu()
 
 	// 进入新页面时，全屏刷新显示所有参数
 	if(is_clear_flag==1&&(button2)){
-		menu_unit* p = p_unit;
-
-		// 遍历当前页的所有参数
-		for(uint8 i=0; i<SON_NUM; i++){
-			uint16 y_pos = SON_INDEX(p->m_index[1],1);
-
-			// 如果是当前选中的参数，参数名用绿色显示
-			if(p->m_index[1] == index){
-				ips200_set_color(RGB565_GREEN, IPS200_BGCOLOR);
-			}else{
-				ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
-			}
-
-			// 显示参数名（左侧，占100像素）
-			showstr(SON_INDEX(p->m_index[1],0), y_pos, p->name);
-
-			// 恢复默认颜色
-			ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
-
-			// 显示参数值（右侧，从 x=105 开始）
-			if(p->par_set != NULL && p->par_set->p_par != NULL){
-				uint8 type = p->par_set->par_type;
-				void* value = p->par_set->p_par;
-				uint8 num = p->par_set->num;
-				uint8 point_num = p->par_set->point_num;
-
-				if(type==TYPE_FLOAT){
-					float *p_value = (float*)(value);
-					showfloat(105, y_pos, *p_value, num, point_num);
-				}else if(type==TYPE_DOUBLE){
-					double *p_value = (double*)(value);
-					showfloat(105, y_pos, *p_value, num, point_num);
-				}else if(type==TYPE_INT){
-					int *p_value = (int*)(value);
-					showint32(105, y_pos, *p_value, num);
-				}else if(type==TYPE_UINT16){
-					uint16 *p_value = (uint16*)(value);
-					showuint16(105, y_pos, *p_value, num);
-				}else if(type==TYPE_UINT32){
-					uint32 *p_value = (uint32*)(value);
-					showuint32(105, y_pos, *p_value, num);
-				}
-			}
-
-			p = p->up;
-			// 如果到达最后一个参数，退出
-			if(p->m_index[1] == 0 && i > 0) break;
-		}
+		refresh_all_params(index);
 	}
 	// 切换参数时，只刷新相关行的参数名颜色
 	else if(button3||button4){
 		menu_unit* p_old = (button3 ? p_unit->down : p_unit->up);
 		uint8 old_index = p_old->m_index[1];
 
-		// 恢复上一个参数名的颜色为默认红色
+		// 恢复上一个参数名的颜色为默认白色
 		ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
 		showstr(SON_INDEX(old_index,0), SON_INDEX(old_index,1), p_old->name);
 
@@ -594,11 +618,9 @@ void show_process(void *parameter)
 			if(button1){  // 退出编辑模式
 				edit_mode = 0;
 				edit_unit = NULL;
-				// 恢复参数名为绿色（选中状态）
+				// 刷新整页参数显示（解决退出编辑模式后只显示一个参数名的bug）
 				uint8 index = p_unit->m_index[1];
-				ips200_set_color(RGB565_GREEN, IPS200_BGCOLOR);
-				showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
-				ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+				refresh_all_params(index);
 			}
 			// button3/4 在 change_value() 中处理
 		}
@@ -679,10 +701,9 @@ void show_process(void *parameter)
 		if(button1){
 			edit_mode = 0;
 			edit_unit = NULL;
+			// 刷新整页参数显示（解决退出编辑模式后只显示一个参数名的bug）
 			uint8 index = p_unit->m_index[1];
-			ips200_set_color(RGB565_GREEN, IPS200_BGCOLOR);
-			showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
-			ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
+			refresh_all_params(index);
 		}
 	}
 	// ========== 普通模式按键处理 ==========

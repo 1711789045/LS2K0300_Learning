@@ -163,12 +163,12 @@ void servo_control(uint8 mid_line)
 
     // 变增益PID控制
     // kp = kp2 * err^2 / 1000 + kp0 （二次函数形式）
-    kp = func_limit_ab(servo_pid_kp2 * (err * err) / 1000 + servo_pid_kp0, 0, 3);
+    kp = func_limit_ab(servo_pid_kp2 * func_abs(err) / 1000 + servo_pid_kp0, 0, 3);
     kd = servo_pid_kd2;
 
     // 当误差突变且较大时，减小微分系数
     if(func_abs(err) - func_abs(last_err) > 0 && func_abs(err) > 30)
-        kd = 0.1;
+        kd = 0;
 
     // PID计算舵机角度
     angle = pid_positional(&turn_pid, 0, err, SERVO_MOTOR_LIMIT,
