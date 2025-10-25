@@ -874,6 +874,7 @@ void UNIT_SET(){
 
 	// ==================== Page 2: MOTOR (电机参数) ====================
 	force_new_page("MOTOR");
+	unit_param_set(&speed, TYPE_INT, 10, 5, 0, NORMAL_PAR, "speed");
 	unit_param_set(&motor_pid_kp, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kp");
 	unit_param_set(&motor_pid_ki, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_ki");
 	unit_param_set(&motor_pid_kd, TYPE_FLOAT, 0.5, 3, 2, NORMAL_PAR, "motor_kd");
