@@ -46,8 +46,7 @@ void pit_100ms_callback()
 			const char* status_str;
 			switch(dynamic_weight_status){
 				case 0: status_str = "FAR "; break;  // 远前瞻（直道）
-				case 1: status_str = "MID "; break;  // 中前瞻（缓弯）
-				case 2: status_str = "NEAR"; break;  // 近前瞻（急弯）
+				case 1: status_str = "NEAR"; break;  // 近前瞻（弯道）
 				default: status_str = "????"; break;
 			}
 			printf("[Dynamic Weight] Status: %s, Curvature: %.1f\n", status_str, current_curvature);
