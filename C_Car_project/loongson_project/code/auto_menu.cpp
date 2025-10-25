@@ -327,10 +327,8 @@ void center_menu()
 		}
 	}else if((is_clear_flag==1&&(button1))||(begin_menu_flag)){
 		// 首次显示或返回父菜单时，确保整个屏幕背景为黑色
-		if(begin_menu_flag){
-			ips200_full(RGB565_BLACK);
-			ips200_set_color(RGB565_WHITE, RGB565_BLACK);
-		}
+		ips200_full(RGB565_BLACK);
+		ips200_set_color(RGB565_WHITE, RGB565_BLACK);
 
 		menu_unit* p = NULL;
 		p = p_unit;
@@ -377,6 +375,10 @@ uint8 get_param_display_position(menu_unit* target)
 //-------------------------------------------------------------------------------------------------------------------
 void refresh_all_params(uint8 selected_index)
 {
+	// 先全屏填充黑色（确保整个屏幕背景为黑色）
+	ips200_full(RGB565_BLACK);
+	ips200_set_color(RGB565_WHITE, RGB565_BLACK);
+
 	menu_unit* p = p_unit;
 
 	// 先找到索引为0的参数（页面起始参数）
@@ -649,8 +651,11 @@ void show_process(void *parameter)
 			rt_sem_release(button_feedback_sem);
 		}
 
-		if(is_clear_flag)
-			clear_hhh(0,0,SCREEN_W,SON_NUM*16,IPS200_BGCOLOR);
+		if(is_clear_flag){
+			// 清屏时全屏填充黑色（不仅仅是部分区域）
+			ips200_full(RGB565_BLACK);
+			ips200_set_color(RGB565_WHITE, RGB565_BLACK);
+		}
 
 		// ========== 编辑模式按键处理 ==========
 		if(edit_mode == 1){
@@ -733,8 +738,11 @@ void show_process(void *parameter)
 
     is_clear_flag = is_menu_clear();
 
-    if(is_clear_flag)
-        clear();
+    if(is_clear_flag){
+        // 清屏时全屏填充黑色（不仅仅是部分区域）
+        ips200_full(RGB565_BLACK);
+        ips200_set_color(RGB565_WHITE, RGB565_BLACK);
+    }
 
 	// ========== 编辑模式按键处理 ==========
 	if(edit_mode == 1){
