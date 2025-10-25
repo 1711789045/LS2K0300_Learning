@@ -310,7 +310,7 @@ void center_menu()
 
 	if(first_in_page_flag)
 		showstr(DAD_INDEX(index,0),DAD_INDEX(index,1),MOUSE_LOOK);
-	
+
 	if(button3||button4){
 		if(index==0){
 			showstr(DAD_INDEX(DAD_NUM-1,0),DAD_INDEX(DAD_NUM-1,1)," ");
@@ -319,13 +319,19 @@ void center_menu()
 		}else if(index==DAD_NUM-1){
 			showstr(DAD_INDEX(DAD_NUM-2,0),DAD_INDEX(DAD_NUM-2,1)," ");
 			showstr(DAD_INDEX(DAD_NUM-1,0),DAD_INDEX(DAD_NUM-1,1),MOUSE_LOOK);
-			showstr(DAD_INDEX(0,0) ,DAD_INDEX(0,1) ," ");			
+			showstr(DAD_INDEX(0,0) ,DAD_INDEX(0,1) ," ");
 		}else{
 			showstr(DAD_INDEX(index-1,0),DAD_INDEX(index-1,1)," ");
 			showstr(DAD_INDEX(index  ,0),DAD_INDEX(index  ,1),MOUSE_LOOK);
-			showstr(DAD_INDEX(index+1,0),DAD_INDEX(index+1,1)," ");					
+			showstr(DAD_INDEX(index+1,0),DAD_INDEX(index+1,1)," ");
 		}
 	}else if((is_clear_flag==1&&(button1))||(begin_menu_flag)){
+		// 首次显示或返回父菜单时，确保整个屏幕背景为黑色
+		if(begin_menu_flag){
+			ips200_full(RGB565_BLACK);
+			ips200_set_color(RGB565_WHITE, RGB565_BLACK);
+		}
+
 		menu_unit* p = NULL;
 		p = p_unit;
 		for(uint8 i=0;i<DAD_NUM;i++){
@@ -794,8 +800,11 @@ void menu_init()
 {
     screen_init("/dev/fb0");
 
-    // 初始化时将整个屏幕背景设为黑色
-    ips200_full(IPS200_BGCOLOR);
+    // 初始化时将整个屏幕背景设为黑色（必须使用 RGB565_BLACK 而不是宏，确保生效）
+    ips200_full(RGB565_BLACK);
+
+    // 设置默认颜色为黑底白字
+    ips200_set_color(RGB565_WHITE, RGB565_BLACK);
 
     key_into();
 
