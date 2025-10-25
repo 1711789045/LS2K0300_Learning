@@ -137,6 +137,7 @@ void show_process(void *parameter);
 void fun_dad(uint8 index_dad,uint8 useless);
 void fun_son(uint8 index_son1,uint8 index_son2);
 void dad_name_init();
+uint8 get_param_display_position(menu_unit* target);  // 获取参数实际显示位置
 void refresh_all_params(uint8 selected_index);  // 刷新整页参数显示
 
 //空函数

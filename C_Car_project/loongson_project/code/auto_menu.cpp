@@ -337,6 +337,34 @@ void center_menu()
 }
 
 //-------------------------------------------------------------------------------------------------------------------
+//  @brief      获取参数在当前页的实际显示位置（从0开始连续编号）
+//  @param      target  目标参数指针
+//  @return     实际显示位置（0-7）
+//-------------------------------------------------------------------------------------------------------------------
+uint8 get_param_display_position(menu_unit* target)
+{
+	menu_unit* p = target;
+
+	// 先找到索引为0的参数（页面起始参数）
+	while(p->m_index[1] != 0){
+		p = p->down;
+	}
+
+	// 从索引0开始计数，找到 target 的位置
+	uint8 position = 0;
+	menu_unit* start = p;
+	do {
+		if(p == target){
+			return position;  // 找到目标，返回位置
+		}
+		p = p->up;
+		position++;
+	} while(p != start && position < SON_NUM);
+
+	return 0;  // 默认返回0（理论上不会到这里）
+}
+
+//-------------------------------------------------------------------------------------------------------------------
 //  @brief      刷新整页参数显示（用于进入页面和退出编辑模式）
 //  @param      selected_index  当前选中参数的索引（用绿色高亮）
 //  @return     void
@@ -423,23 +451,27 @@ void assist_menu()
 	// 切换参数时，只刷新相关行的参数名颜色
 	else if(button3||button4){
 		menu_unit* p_old = (button3 ? p_unit->down : p_unit->up);
-		uint8 old_index = p_old->m_index[1];
+
+		// 获取实际显示位置（连续的0-7位置）
+		uint8 old_pos = get_param_display_position(p_old);
+		uint8 cur_pos = get_param_display_position(p_unit);
 
 		// 恢复上一个参数名的颜色为默认白色
 		ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
-		showstr(SON_INDEX(old_index,0), SON_INDEX(old_index,1), p_old->name);
+		showstr(SON_INDEX(old_pos,0), SON_INDEX(old_pos,1), p_old->name);
 
 		// 当前参数名改为绿色
 		ips200_set_color(RGB565_GREEN, IPS200_BGCOLOR);
-		showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
+		showstr(SON_INDEX(cur_pos,0), SON_INDEX(cur_pos,1), p_unit->name);
 
 		// 恢复默认颜色
 		ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
 	}
 	// 首次进入该参数时，高亮显示
 	else if(first_in_page_flag){
+		uint8 cur_pos = get_param_display_position(p_unit);
 		ips200_set_color(RGB565_GREEN, IPS200_BGCOLOR);
-		showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
+		showstr(SON_INDEX(cur_pos,0), SON_INDEX(cur_pos,1), p_unit->name);
 		ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
 	}
 }
@@ -461,8 +493,10 @@ void change_value(param_set* param)
 	void* value = param->p_par;
 	uint8 num = param->num;
 	uint8 point_num = param->point_num;
-	uint8 index = p_unit->m_index[1];
-	uint16 y_pos = SON_INDEX(index, 1);
+
+	// 获取实际显示位置（连续的0-7位置）
+	uint8 cur_pos = get_param_display_position(p_unit);
+	uint16 y_pos = SON_INDEX(cur_pos, 1);
 
 	// 长按加速：如果按键持续时间超过阈值，增大步进
 	float speed_multiplier = 1.0f;
@@ -648,9 +682,9 @@ void show_process(void *parameter)
 						edit_mode = 1;
 						edit_unit = p_unit;
 						// 参数名变为黄色表示进入编辑模式
-						uint8 index = p_unit->m_index[1];
+						uint8 cur_pos = get_param_display_position(p_unit);
 						ips200_set_color(RGB565_YELLOW, IPS200_BGCOLOR);
-						showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
+						showstr(SON_INDEX(cur_pos,0), SON_INDEX(cur_pos,1), p_unit->name);
 						ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
 					}else if(button3==1){
 						p_unit=p_unit->up;  // 上一个参数
@@ -724,9 +758,9 @@ void show_process(void *parameter)
 				}else if(button2==1 && !first_in_page_flag){
 					edit_mode = 1;
 					edit_unit = p_unit;
-					uint8 index = p_unit->m_index[1];
+					uint8 cur_pos = get_param_display_position(p_unit);
 					ips200_set_color(RGB565_YELLOW, IPS200_BGCOLOR);
-					showstr(SON_INDEX(index,0), SON_INDEX(index,1), p_unit->name);
+					showstr(SON_INDEX(cur_pos,0), SON_INDEX(cur_pos,1), p_unit->name);
 					ips200_set_color(IPS200_DEFAULT_PENCOLOR, IPS200_BGCOLOR);
 				}else if(button3==1){
 					p_unit=p_unit->up;
@@ -759,6 +793,9 @@ void show_process(void *parameter)
 void menu_init()
 {
     screen_init("/dev/fb0");
+
+    // 初始化时将整个屏幕背景设为黑色
+    ips200_full(IPS200_BGCOLOR);
 
     key_into();
 
