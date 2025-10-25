@@ -530,7 +530,7 @@ void change_value(param_set* param)
 			showstr(105, y_pos, "        ");
 			// 显示新值
 			showfloat(105, y_pos, *p_value, num, point_num);
-			// config_save();  // 自动保存（暂时注释，调试参数影响问题）
+			config_save();  // 自动保存
 		}
 	}else if(type==TYPE_DOUBLE){
 		double *p_value = (double*)(value);
@@ -544,7 +544,7 @@ void change_value(param_set* param)
 		if(value_changed){
 			showstr(105, y_pos, "        ");
 			showfloat(105, y_pos, *p_value, num, point_num);
-			// config_save();  // 暂时注释
+			config_save();
 		}
 	}else if(type==TYPE_INT){
 		int *p_value = (int*)(value);
@@ -558,7 +558,7 @@ void change_value(param_set* param)
 		if(value_changed){
 			showstr(105, y_pos, "        ");
 			showint32(105, y_pos, *p_value, num);
-			// config_save();  // 暂时注释
+			config_save();
 		}
 	}else if(type==TYPE_UINT16){
 		uint16 *p_value = (uint16*)(value);
@@ -579,7 +579,7 @@ void change_value(param_set* param)
 			if(p_value == &mid_weight_select){
 				select_mid_weight(mid_weight_select);
 			}
-			// config_save();  // 暂时注释
+			config_save();
 		}
 	}else if(type==TYPE_UINT32){
 		uint32 *p_value = (uint32*)(value);
@@ -595,7 +595,7 @@ void change_value(param_set* param)
 		if(value_changed){
 			showstr(105, y_pos, "        ");
 			showuint32(105, y_pos, *p_value, num);
-			// config_save();  // 暂时注释
+			config_save();
 		}
 	}
 }

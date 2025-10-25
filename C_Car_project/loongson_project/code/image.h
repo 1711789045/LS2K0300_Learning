@@ -29,10 +29,10 @@ extern uint16 mid_weight_select;   // 权重数组选择（1-5）
 extern uint16 cross_enable;        // 十字识别开关（0=关闭, 1=开启）
 
 // ==================== 动态前瞻权重配置参数声明 ====================
-extern uint8 dynamic_weight_enable;    // 动态权重开关（0=关闭, 1=开启）
-extern uint8 curvature_threshold_low;  // 曲率低阈值（小于此值为直道，远前瞻）
-extern uint8 curvature_threshold_high; // 曲率高阈值（大于此值为急弯，近前瞻）
-extern uint8 weight_shift_speed;       // 权重切换速度（1-10，值越大切换越快）
+extern uint16 dynamic_weight_enable;    // 动态权重开关（0=关闭, 1=开启）
+extern uint16 curvature_threshold_low;  // 曲率低阈值（小于此值为直道，远前瞻）
+extern uint16 curvature_threshold_high; // 曲率高阈值（大于此值为急弯，近前瞻）
+extern uint16 weight_shift_speed;       // 权重切换速度（1-10，值越大切换越快）
 extern float curvature_filter_ratio;   // 曲率滤波系数（0-1，越大越平滑）
 
 // ==================== 动态前瞻权重运行时变量声明 ====================
