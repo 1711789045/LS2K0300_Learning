@@ -931,9 +931,6 @@ void image_display(void)
     {
         printf("Entering image display mode...\r\n");
 
-        // 清屏
-        ips200_full(IPS200_DEFAULT_BGCOLOR);
-
         // 进入实时显示主循环
         while(1)
         {
@@ -944,8 +941,9 @@ void image_display(void)
             if(button1)
             {
                 printf("Exiting image display mode\r\n");
-                // 清屏并退出
-                ips200_full(IPS200_DEFAULT_BGCOLOR);
+                // 清屏并退出（使用黑色背景）
+                ips200_full(RGB565_BLACK);
+                ips200_set_color(RGB565_WHITE, RGB565_BLACK);
                 break;
             }
 
@@ -972,9 +970,6 @@ void dynamic_weight_debug(void)
     {
         printf("Entering dynamic weight debug mode...\r\n");
 
-        // 清屏
-        ips200_full(IPS200_DEFAULT_BGCOLOR);
-
         // 进入实时调试主循环
         while(1)
         {
@@ -985,8 +980,9 @@ void dynamic_weight_debug(void)
             if(button1)
             {
                 printf("Exiting dynamic weight debug mode\r\n");
-                // 清屏并退出
-                ips200_full(IPS200_DEFAULT_BGCOLOR);
+                // 清屏并退出（使用黑色背景）
+                ips200_full(RGB565_BLACK);
+                ips200_set_color(RGB565_WHITE, RGB565_BLACK);
                 break;
             }
 
@@ -994,66 +990,75 @@ void dynamic_weight_debug(void)
             image_process(IMAGE_W, IMAGE_H, 1);
 
             // ==================== 动态权重调试信息显示 ====================
+            // 清空图像下方区域（从图像底部到屏幕底部），避免显示残留的菜单参数
+            // 图像高度180，屏幕高度320，需要清空Y=180到Y=320的区域
+            for(uint16 y = 180; y < 320; y++) {
+                for(uint16 x = 0; x < 240; x++) {
+                    ips200_draw_point(x, y, RGB565_BLACK);
+                }
+            }
+
             // 显示在图像下方区域（图像高度180，屏幕高度320）
             // 屏幕宽度240像素，需要合理布局避免超出屏幕
             uint16 y_offset = 185;  // 显示起始Y坐标（图像下方）
             uint16 line_h = 16;     // 行高
             uint16 col1_x = 0;      // 第一列X坐标
-            uint16 col2_x = 100;    // 第二列X坐标（从120改为100，避免右侧超出屏幕）
+            uint16 col2_x = 110;    // 第二列X坐标
 
             // 标题
-            ips200_show_string(col1_x, y_offset, "DynWgt");
+            ips200_show_string(col1_x, y_offset, "Dynamic Weight");
 
-            // 第一行：开关状态 | 曲率状态
+            // 第一行：开关状态 | 当前状态
+            ips200_show_string(col1_x, y_offset + line_h * 1, "Enab:");
             if(dynamic_weight_enable) {
-                ips200_show_string(col1_x, y_offset + line_h * 1, "ON ");
+                ips200_show_string(col1_x + 40, y_offset + line_h * 1, "ON ");
             } else {
-                ips200_show_string(col1_x, y_offset + line_h * 1, "OFF");
+                ips200_show_string(col1_x + 40, y_offset + line_h * 1, "OFF");
             }
 
             // 状态说明（第一行右侧）
-            ips200_show_string(col2_x, y_offset + line_h * 1, "St:");
+            ips200_show_string(col2_x, y_offset + line_h * 1, "Mode:");
             if(dynamic_weight_enable) {
                 if(dynamic_weight_status == 0) {
-                    ips200_show_string(col2_x + 24, y_offset + line_h * 1, "FAR ");  // 远前瞻
+                    ips200_show_string(col2_x + 40, y_offset + line_h * 1, "FAR ");  // 远前瞻
                 } else if(dynamic_weight_status == 1) {
-                    ips200_show_string(col2_x + 24, y_offset + line_h * 1, "MID ");  // 中前瞻
+                    ips200_show_string(col2_x + 40, y_offset + line_h * 1, "MID ");  // 中前瞻
                 } else {
-                    ips200_show_string(col2_x + 24, y_offset + line_h * 1, "NEAR");  // 近前瞻
+                    ips200_show_string(col2_x + 40, y_offset + line_h * 1, "NEAR");  // 近前瞻
                 }
             } else {
                 // 关闭时显示固定权重编号
-                ips200_show_string(col2_x + 24, y_offset + line_h * 1, "FIX");
-                ips200_show_int(col2_x + 56, y_offset + line_h * 1, mid_weight_select, 1);
+                ips200_show_string(col2_x + 40, y_offset + line_h * 1, "FIX");
+                ips200_show_int(col2_x + 72, y_offset + line_h * 1, mid_weight_select, 1);
             }
 
             // 第二行：原始曲率 | 滤波曲率
-            ips200_show_string(col1_x, y_offset + line_h * 2, "Raw:");
-            ips200_show_float(col1_x + 32, y_offset + line_h * 2, raw_curvature, 2, 1);
+            ips200_show_string(col1_x, y_offset + line_h * 2, "RawC:");
+            ips200_show_float(col1_x + 40, y_offset + line_h * 2, raw_curvature, 2, 1);
 
-            ips200_show_string(col2_x, y_offset + line_h * 2, "Cur:");
-            ips200_show_float(col2_x + 32, y_offset + line_h * 2, current_curvature, 2, 1);
+            ips200_show_string(col2_x, y_offset + line_h * 2, "Curv:");
+            ips200_show_float(col2_x + 40, y_offset + line_h * 2, current_curvature, 2, 1);
 
             // 第三行：低阈值 | 高阈值
-            ips200_show_string(col1_x, y_offset + line_h * 3, "Low:");
-            ips200_show_int(col1_x + 32, y_offset + line_h * 3, curvature_threshold_low, 2);
+            ips200_show_string(col1_x, y_offset + line_h * 3, "ThrL:");
+            ips200_show_int(col1_x + 40, y_offset + line_h * 3, curvature_threshold_low, 2);
 
-            ips200_show_string(col2_x, y_offset + line_h * 3, "Hi:");
-            ips200_show_int(col2_x + 24, y_offset + line_h * 3, curvature_threshold_high, 2);
+            ips200_show_string(col2_x, y_offset + line_h * 3, "ThrH:");
+            ips200_show_int(col2_x + 40, y_offset + line_h * 3, curvature_threshold_high, 2);
 
             // 第四行：切换速度 | 滤波系数
-            ips200_show_string(col1_x, y_offset + line_h * 4, "Spd:");
-            ips200_show_int(col1_x + 32, y_offset + line_h * 4, weight_shift_speed, 2);
+            ips200_show_string(col1_x, y_offset + line_h * 4, "Shft:");
+            ips200_show_int(col1_x + 40, y_offset + line_h * 4, weight_shift_speed, 2);
 
-            ips200_show_string(col2_x, y_offset + line_h * 4, "Fil:");
-            ips200_show_float(col2_x + 24, y_offset + line_h * 4, curvature_filter_ratio, 1, 2);
+            ips200_show_string(col2_x, y_offset + line_h * 4, "Filt:");
+            ips200_show_float(col2_x + 40, y_offset + line_h * 4, curvature_filter_ratio, 1, 2);
 
             // 第五行：中线值 | 截止行
-            ips200_show_string(col1_x, y_offset + line_h * 5, "Mid:");
-            ips200_show_int(col1_x + 32, y_offset + line_h * 5, final_mid_line, 3);
+            ips200_show_string(col1_x, y_offset + line_h * 5, "MidL:");
+            ips200_show_int(col1_x + 40, y_offset + line_h * 5, final_mid_line, 3);
 
-            ips200_show_string(col2_x, y_offset + line_h * 5, "Stp:");
-            ips200_show_int(col2_x + 32, y_offset + line_h * 5, stop_search_row, 3);
+            ips200_show_string(col2_x, y_offset + line_h * 5, "Stop:");
+            ips200_show_int(col2_x + 40, y_offset + line_h * 5, stop_search_row, 3);
 
             // 提示信息（最后一行）
             ips200_show_string(col1_x, y_offset + line_h * 7, "KEY1:EXIT");
