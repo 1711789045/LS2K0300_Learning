@@ -225,6 +225,14 @@ void config_register_all(void)
     // 图像处理参数
     config_add_uint16("img_mid_weight",   &mid_weight_select,   2,  "Mid-line weight array selection (1-5)");
 
+    // 动态前瞻权重参数
+    config_add_uint16("dyn_enable",       &dynamic_weight_enable,    1,   "Dynamic weight enable (0=off, 1=on)");
+    config_add_uint16("far_threshold",    &curvature_far_threshold,  3,   "Curvature far threshold (switch to far lookahead)");
+    config_add_uint16("near_threshold",   &curvature_near_threshold, 12,  "Curvature near threshold (switch to near lookahead)");
+    config_add_uint16("hold_time",        &weight_hold_time,         30,  "Weight hold time (frames, prevent rapid switching)");
+    config_add_uint16("shift_speed",      &weight_shift_speed,       3,   "Weight shift speed (1-10, higher = faster)");
+    config_add_float("filter_ratio",      &curvature_filter_ratio,   0.7, "Curvature filter ratio (0-1, higher = smoother)");
+
     printf("[CONFIG] Registered %d configuration items.\r\n", config_item_count);
 }
 
